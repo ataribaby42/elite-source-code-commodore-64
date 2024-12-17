@@ -24948,7 +24948,7 @@ ENDIF
 ;
 ; ******************************************************************************
 
- DEX                    ; Increment the shield value so that it doesn't go past
+ DEX                    ; Decrement the shield value so that it doesn't go past
                         ; a maximum of 255
 
  RTS                    ; Return from the subroutine
