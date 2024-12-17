@@ -49485,8 +49485,9 @@ ENDIF
 
  CMP #$10               ; If A >= $10 then the high nibble of A is non-zero, so
  BCS BDLABEL2           ; jump to BDLABEL2 to extract and process the command in
-                        ; the low nibble first, leaving the command in the high
-                        ; nibble until later
+                        ; the low nibble first (the command in the high nibble
+                        ; then gets moved into the low nibble to be processed
+                        ; next)
 
  TAX                    ; Set X to the low nibble of music data in A, so X is
                         ; in the range 1 to 15 and contains the number of the
