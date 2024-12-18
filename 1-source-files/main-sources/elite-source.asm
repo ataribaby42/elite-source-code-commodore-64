@@ -36185,6 +36185,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: Start playing the docking music, if configured
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -36295,6 +36296,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: Stop playing the docking music
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -49435,13 +49437,14 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: The interrupt routine for playing background music
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
 ; The label "BD" is used as a prefix throughout the music routines. This is a
 ; reference to the Blue Danube, which is the only bit of music that was included
 ; in the first release of Commodore 64 Elite (where it was used for the docking
-; computer). The Elite theme tune on the title screen was added in a later
+; computer). The Elite Theme that plays on the title screen was added in a later
 ; release.
 ;
 ; The following comments appear in the original source:
@@ -49548,6 +49551,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#1 fh1 fl1> to set the frequency for voice
 ;             1 to (fh1 fl1) and the control register for voice 1 to value1
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49568,6 +49572,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#2 fh1 fl1> to set the frequency for voice
 ;             2 to (fh2 fl2) and the control register for voice 2 to value2
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49589,6 +49594,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#3 fh1 fl1> to set the frequency for voice
 ;             3 to (fh3 fl3) and the control register for voice 3 to value3
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49610,6 +49616,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#4 fh1 fl1 fh2 fl2> to set the frequencies
 ;             and voice control registers for voices 1 and 2
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49636,6 +49643,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#5 fh1 fl1 fh2 fl2 fh3 fl3> to set the
 ;             frequencies and voice control registers for voices 1, 2 and 3
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49668,6 +49676,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#6> to increment value0 and move on to the
 ;             next nibble of music data
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49688,6 +49697,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: Process music command <#15> to rest for 2 * value4 interrupts
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49714,6 +49724,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: Process music command <#8> to rest for value4 interrupts
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49733,6 +49744,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#7 ad1 ad2 ad3 sr1 sr2 sr3> to set three
 ;             voices' attack and decay length, sustain volume and release length
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49813,6 +49825,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: Process music command <#9> to restart the current tune
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49841,6 +49854,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#10 h1 l1 h2 l2 h3 l3> to set the pulse
 ;             width to all three voices
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49898,6 +49912,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#11>, which does the same as command <#9>
 ;             and restarts the current tune
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49914,6 +49929,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#12 n> to set value4 = n, which sets the
 ;             rest length for commands #8 and #15
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49935,6 +49951,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#13 v1 v2 v3> to set value1, value2, value3
 ;             to the voice control register values for commands <#1> to <#3>
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -49971,6 +49988,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process music command <#14 vf fc cf> to set the volume and filter
 ;             modes, filter control and filter cut-off frequency
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -50350,6 +50368,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: Start playing a new tune as background music
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -50663,6 +50682,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: A jump table containing addresses for processing music commands 1
 ;             through 15 (low bytes)
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -50691,6 +50711,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: A jump table containing addresses for processing music commands 1
 ;             through 15 (high bytes)
+;  Deep dive: Music in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
