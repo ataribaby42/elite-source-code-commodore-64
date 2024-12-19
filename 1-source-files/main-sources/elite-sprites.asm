@@ -262,6 +262,7 @@ ENDMACRO
 ;   Category: Sprites
 ;    Summary: Sprite definitions for four laser sights, the explosion sprite and
 ;             two Trumbles
+;  Deep dive: Sprite usage in Commodore 64 Elite
 ;
 ; ******************************************************************************
 

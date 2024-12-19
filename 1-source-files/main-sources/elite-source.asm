@@ -3026,6 +3026,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Missions
 ;    Summary: Move the Trumble sprites around on-screen
+;  Deep dive: Sprite usage in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -17302,6 +17303,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Drawing lines
 ;    Summary: Colours for the crosshair sights on the different laser types
+;  Deep dive: Sprite usage in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -23797,6 +23799,7 @@ ENDIF
 ;    Summary: Draw an exploding ship
 ;  Deep dive: Drawing explosion clouds
 ;             Generating random numbers
+;             Sprite usage in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -24249,6 +24252,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Drawing ships
 ;    Summary: Draw the explosion along with an explosion sprite
+;  Deep dive: Sprite usage in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -33438,6 +33442,7 @@ ENDIF
 ;    Address: $8D0C to $8D52
 ;   Category: Keyboard
 ;    Summary: The key logger
+;  Deep dive: Reading the Commodore 64 keyboard matrix
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -33927,6 +33932,8 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Keyboard
 ;    Summary: Scan the keyboard for key presses
+;  Deep dive: Reading the Commodore 64 keyboard matrix
+;             Sprite usage in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -42394,6 +42401,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Flight
 ;    Summary: Draw the laser crosshairs
+;  Deep dive: Sprite usage in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43462,6 +43470,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: The current raster count, which flips between 0 and 1 on each call
 ;             to the COMIRQ1 interrupt handler (0 = space view, 1 = dashboard)
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43476,6 +43485,8 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: The value for VIC register $18 to set the screen RAM address for a
 ;             raster count of 0 in the interrupt routine (i.e. the space view)
+;  Deep dive: The split-screen mode in Commodore 64 Elite
+;             Colouring the Commodore 64 bitmap screen
 ;
 ; ******************************************************************************
 
@@ -43492,6 +43503,8 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: The value for VIC register $18 to set the screen RAM address for a
 ;             raster count of 1 in the interrupt routine (i.e. the dashboard)
+;  Deep dive: The split-screen mode in Commodore 64 Elite
+;             Colouring the Commodore 64 bitmap screen
 ;
 ; ******************************************************************************
 
@@ -43516,6 +43529,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: A table for converting the value of X from 0 to 1 or from 1 to 0,
 ;             for use when flipping RASCT between 0 and 1 on each interrupt
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43532,6 +43546,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: The raster lines that fire the raster interrupt, so it fires at
 ;             the top of the screen (51) and the top of the dashboard (51 + 143)
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43548,6 +43563,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: Controls the energy bomb effect by switching between multicolour
 ;             and standard mode
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43562,6 +43578,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: Controls whether multicolour or standard bitmap mode is used for
 ;             the lower part of the screen (i.e. the dashboard)
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43592,6 +43609,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: The colour of the explosion sprite in the upper and lower parts of
 ;             the screen
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43610,6 +43628,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: The background colour for the upper and lower parts of the screen,
 ;             used by the energy bomb to flash the screen's background colour
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43663,6 +43682,8 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: The split screen and sound interrupt handler (the IRQ interrupt
 ;             service hardware vector at $FFFE points here)
+;  Deep dive: The split-screen mode in Commodore 64 Elite
+;             Colouring the Commodore 64 bitmap screen
 ;
 ; ******************************************************************************
 
@@ -44662,6 +44683,7 @@ ENDIF
 ;   Category: Loader
 ;    Summary: Configure memory, set up interrupt handlers and configure the
 ;             VIC-II, SID and CIA chips
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -47973,6 +47995,7 @@ ENDIF
 ;   Category: Drawing the screen
 ;    Summary: Clear the whole screen or just the space view (as appropriate),
 ;             draw a border box, and if required, show the dashboard
+;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -48398,6 +48421,8 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Drawing the screen
 ;    Summary: Show the dashboard on-screen
+;  Deep dive: The split-screen mode in Commodore 64 Elite
+;             Colouring the Commodore 64 bitmap screen
 ;
 ; ******************************************************************************
 
