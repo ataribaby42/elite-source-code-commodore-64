@@ -43239,6 +43239,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Sound
 ;    Summary: Make the sound whose number is in Y
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -43684,6 +43685,7 @@ ENDIF
 ;             service hardware vector at $FFFE points here)
 ;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;             Colouring the Commodore 64 bitmap screen
+;             Sound effects in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -43951,6 +43953,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: Process the contents of the sound buffer and send it to the sound
 ;             chip, to make sound effects as part of the interrupt routine
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -44281,6 +44284,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: The sound buffer where the data to be sent to the sound chip is
 ;             processed
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -44310,7 +44314,7 @@ ENDIF
 
 .SOPR
 
- EQUB 0                 ; Sound buffer for SOPR values
+ EQUB 0                 ; Sound buffer for sound effect priorities
  EQUB 0                 ;
  EQUB 0                 ; SOPR,Y contains the priority of the sound currently
                         ; being made on voice Y
@@ -44335,7 +44339,7 @@ ENDIF
 
 .SOFRQ
 
- EQUB 0                 ; Sound buffer for SFXFQ values
+ EQUB 0                 ; Sound buffer for sound effect frequencies
  EQUB 0                 ;
  EQUB 0                 ; SOFRQ,Y contains the frequency of the sound currently
                         ; being made on voice Y
@@ -44417,6 +44421,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Sound
 ;    Summary: The priority level for each sound effect
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -44446,6 +44451,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: The counter for each sound effect, which defines the duration of
 ;             the effect in frames
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -44474,6 +44480,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Sound
 ;    Summary: The frequency (SID+$5) for each sound effect
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -44502,6 +44509,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Sound
 ;    Summary: The voice control register (SID+$4) for each sound effect
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -44551,6 +44559,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Sound
 ;    Summary: The attack and decay length (SID+$5) for each sound effect
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -44588,6 +44597,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: The release length and sustain volume (SID+$6) for each sound
 ;             effect
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -44625,6 +44635,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: The frequency change to be applied to each sound effect in each
 ;             frame (as a signed number)
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
@@ -44654,6 +44665,7 @@ ENDIF
 ;   Category: Sound
 ;    Summary: The volume change rate for each sound effect, i.e. how many frames
 ;             need to pass before the sound effect's volume is reduced by one
+;  Deep dive: Sound effects in Commodore 64 Elite
 ;
 ; ******************************************************************************
 
