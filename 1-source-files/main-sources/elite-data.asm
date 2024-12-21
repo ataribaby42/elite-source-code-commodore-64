@@ -92,9 +92,6 @@
 ;
 ; To include an apostrophe, use a backtick character, as in CHAR '`'.
 ;
-; See the deep dive on "Printing text tokens" for details on how characters are
-; stored in the recursive token table.
-;
 ; ------------------------------------------------------------------------------
 ;
 ; Arguments:
@@ -126,9 +123,6 @@ ENDMACRO
 ; The following macro is used when building the recursive token table:
 ;
 ;   TWOK 'x', 'y'       Insert two-letter token "xy"
-;
-; See the deep dive on "Printing text tokens" for details on how two-letter
-; tokens are stored in the recursive token table.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -288,9 +282,6 @@ ENDMACRO
 ;
 ;   CONT n              Insert control code token {n}
 ;
-; See the deep dive on "Printing text tokens" for details on how characters are
-; stored in the recursive token table.
-;
 ; ------------------------------------------------------------------------------
 ;
 ; Arguments:
@@ -324,9 +315,6 @@ ENDMACRO
 ;                         * Tokens 128-145 get stored as n - 114
 ;
 ;                         * Tokens 96-127 get stored as n
-;
-; See the deep dive on "Printing text tokens" for details on how recursive
-; tokens are stored in the recursive token table.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -1644,9 +1632,6 @@ ENDIF
 ;
 ;   EJMP n              Insert a jump to address n in the JMTB table
 ;
-; See the deep dive on "Printing extended text tokens" for details on how jump
-; tokens are stored in the extended token table.
-;
 ; ------------------------------------------------------------------------------
 ;
 ; Arguments:
@@ -1676,9 +1661,6 @@ ENDMACRO
 ;   ECHR 'x'            Insert ASCII character "x"
 ;
 ; To include an apostrophe, use a backtick character, as in ECHR '`'.
-;
-; See the deep dive on "Printing extended text tokens" for details on how
-; characters are stored in the extended token table.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -1712,9 +1694,6 @@ ENDMACRO
 ;
 ;   ETOK n              Insert extended recursive token [n]
 ;
-; See the deep dive on "Printing extended text tokens" for details on how
-; recursive tokens are stored in the extended token table.
-;
 ; ------------------------------------------------------------------------------
 ;
 ; Arguments:
@@ -1745,9 +1724,6 @@ ENDMACRO
 ;   ETWO 'x', 'y'       Insert two-letter token "xy"
 ;
 ; The newline token can be entered using ETWO '-', '-'.
-;
-; See the deep dive on "Printing extended text tokens" for details on how
-; two-letter tokens are stored in the extended token table.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -1945,9 +1921,6 @@ ENDMACRO
 ;
 ;                         * Tokens 0-123 get stored as n + 91
 ;
-; See the deep dive on "Printing extended text tokens" for details on how
-; random tokens are stored in the extended token table.
-;
 ; ------------------------------------------------------------------------------
 ;
 ; Arguments:
@@ -1982,9 +1955,6 @@ ENDMACRO
 ;                         * Tokens 128-145 get stored as n - 114
 ;
 ;                         * Tokens 96-127 get stored as n
-;
-; See the deep dive on "Printing text tokens" for details on how recursive
-; tokens are stored in the recursive token table.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -6377,9 +6347,6 @@ ENDIF
 ;   * Bit 7: For spawned ships: ship been scooped or has docked
 ;             For blueprints: this ship type has an escape pod fitted
 ;
-; See the deep dive on "Advanced tactics with the NEWB flags" for details of
-; how this works.
-;
 ; ******************************************************************************
 
 .E%
@@ -6538,16 +6505,13 @@ ENDIF
 ;   Category: Drawing ships
 ;    Summary: Macro definition for adding vertices to ship blueprints
 ;  Deep dive: Ship blueprints
+;             Drawing ships
 ;
 ; ------------------------------------------------------------------------------
 ;
 ; The following macro is used to build the ship blueprints:
 ;
 ;   VERTEX x, y, z, face1, face2, face3, face4, visibility
-;
-; See the deep dive on "Ship blueprints" for details of how vertices are stored
-; in the ship blueprints, and the deep dive on "Drawing ships" for information
-; on how vertices are used to draw 3D wireframe ships.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -6610,16 +6574,13 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Macro definition for adding edges to ship blueprints
 ;  Deep dive: Ship blueprints
+;             Drawing ships
 ;
 ; ------------------------------------------------------------------------------
 ;
 ; The following macro is used to build the ship blueprints:
 ;
 ;   EDGE vertex1, vertex2, face1, face2, visibility
-;
-; See the deep dive on "Ship blueprints" for details of how edges are stored
-; in the ship blueprints, and the deep dive on "Drawing ships" for information
-; on how edges are used to draw 3D wireframe ships.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -6652,16 +6613,13 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Macro definition for adding faces to ship blueprints
 ;  Deep dive: Ship blueprints
+;             Drawing ships
 ;
 ; ------------------------------------------------------------------------------
 ;
 ; The following macro is used to build the ship blueprints:
 ;
 ;   FACE normal_x, normal_y, normal_z, visibility
-;
-; See the deep dive on "Ship blueprints" for details of how faces are stored
-; in the ship blueprints, and the deep dive on "Drawing ships" for information
-; on how faces are used to draw 3D wireframe ships.
 ;
 ; ------------------------------------------------------------------------------
 ;
