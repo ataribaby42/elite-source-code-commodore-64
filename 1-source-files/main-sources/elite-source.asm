@@ -6803,6 +6803,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Drawing pixels
 ;    Summary: Ready-made double-pixel character row bytes for the space view
+;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -7212,6 +7213,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Drawing pixels
 ;    Summary: Draw a 1-pixel dot, 2-pixel dash or 4-pixel square
+;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -36702,6 +36704,7 @@ ENDIF
 ;   Category: Drawing pixels
 ;    Summary: Lookup table for converting a pixel y-coordinate to the low byte
 ;             of a screen address (within the 256-pixel-wide game screen)
+;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -36729,6 +36732,7 @@ ENDIF
 ;   Category: Drawing pixels
 ;    Summary: Lookup table for converting a pixel y-coordinate to the high byte
 ;             of a screen address (within the 256-pixel-wide game screen)
+;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -44987,6 +44991,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Drawing pixels
 ;    Summary: Ready-made single-pixel character row bytes for the space view
+;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -46776,6 +46781,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Drawing lines
 ;    Summary: Draw a horizontal line from (X1, Y1) to (X2, Y1)
+;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ******************************************************************************
 
@@ -47067,6 +47073,7 @@ ENDIF
 ;       Type: Subroutine
 ;   Category: Drawing pixels
 ;    Summary: Draw a single-height dash on the dashboard
+;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
 ;
