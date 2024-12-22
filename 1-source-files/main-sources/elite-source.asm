@@ -10754,7 +10754,7 @@ ENDIF
  BCC DL2                ; indicator, which is less than a full character's
                         ; width, so jump down to DL2 to do this
 
- SBC #4                 ; Otherwise we can draw a 4-pixel wide block, so
+ SBC #4                 ; Otherwise we can draw a four-pixel wide block, so
  STA Q                  ; subtract 4 from Q so it contains the amount of the
                         ; indicator that's left to draw after this character
 
@@ -31272,14 +31272,12 @@ ENDIF
  LDA #3                 ; Move the text cursor to column 3
  JSR DOXC
 
+;JSR FX200              ; This instruction is commented out in the original
+                        ; source
+
 IF _GMA_RELEASE
 
  JSR startat            ; Start playing the title music
-
-ELIF _SOURCE_DISK
-
-;JSR FX200              ; This instruction is commented out in the original
-                        ; source
 
 ENDIF
 
@@ -36703,7 +36701,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Drawing pixels
 ;    Summary: Lookup table for converting a pixel y-coordinate to the low byte
-;             of a screen address (within the 256-pixel-wide game screen)
+;             of a screen address (within the 256-pixel wide game screen)
 ;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
@@ -36712,7 +36710,7 @@ ENDIF
 ; screen (that's the $20 part, as each character is 8 bytes, and 4 * 8 = $20).
 ;
 ; This is because the first four characters of every character line are blank,
-; so the 256-pixel-wide game screen is centred in the Commodore 64's screen
+; so the 256-pixel wide game screen is centred in the Commodore 64's screen
 ; width of 320 pixels.
 ;
 ; ******************************************************************************
@@ -36731,7 +36729,7 @@ ENDIF
 ;       Type: Variable
 ;   Category: Drawing pixels
 ;    Summary: Lookup table for converting a pixel y-coordinate to the high byte
-;             of a screen address (within the 256-pixel-wide game screen)
+;             of a screen address (within the 256-pixel wide game screen)
 ;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
@@ -36740,7 +36738,7 @@ ENDIF
 ; screen (that's the $20 part, as each character is 8 bytes, and 4 * 8 = $20).
 ;
 ; This is because the first four characters of every character line are blank,
-; so the 256-pixel-wide game screen is centred in the Commodore 64's screen
+; so the 256-pixel wide game screen is centred in the Commodore 64's screen
 ; width of 320 pixels.
 ;
 ; ******************************************************************************
@@ -36838,7 +36836,7 @@ ENDIF
  LDY #6                 ; Set Y to 6 for the next call to Shpt
 
  LDA K4                 ; Set A = y-coordinate of dot + 1 (so this is the second
- ADC #1                 ; row of the two-pixel-high dot)
+ ADC #1                 ; row of the two-pixel high dot)
                         ;
                         ; The addition works as the Shpt routine clears the C
                         ; flag
