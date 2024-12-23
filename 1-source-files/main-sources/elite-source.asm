@@ -6064,6 +6064,7 @@ ENDIF
 
 ;LDA #32                ; These instructions are commented out in the original
 ;JSR DOVDU19            ; source
+;
 ;LDA #RED
 ;JMP DOCOL
 
@@ -6980,6 +6981,7 @@ ENDIF
 
 ;LDA #CYAN              ; These instructions are commented out in the original
 ;JMP DOCOL              ; source
+;
 ;RTS
 
 ; ******************************************************************************
@@ -15172,17 +15174,25 @@ ENDIF
 ;                       ; source. They contain the original loop version of the
 ;BCC P%+4               ; code that's used in the BBC Micro cassette and disc
 ;ADC T1                 ; versions
+;
 ;ROR A
 ;ROR P
+;
 ;DEX
+;
 ;BNE MUL4
+;
 ;LSR A
 ;ROR P
+;
 ;ORA T
+;
 ;RTS
 ;
 ;.mu10
+;
 ;STA P
+;
 ;RTS
 
                         ; We now repeat the following four instruction block
@@ -19409,7 +19419,8 @@ ENDIF
 .TT214
 
 ;.TT214                 ; These instructions are commented out in the original
-;PHA                    ; source
+;                       ; source
+;PHA
 ;JSR TT162
 ;PLA
 
@@ -20495,8 +20506,8 @@ ENDIF
                         ; subroutine using a tail call
 
 ;.hy5                   ; This instruction and the hy5 label are commented out
-;RTS                    ; in the original - they can actually be found at the
-                        ; end of the jmp routine below, so perhaps this is where
+;                       ; in the original - they can actually be found at the
+;RTS                    ; end of the jmp routine below, so perhaps this is where
                         ; they were originally, but the authors realised they
                         ; could save a byte by using a tail call instead of an
                         ; RTS?
@@ -21600,7 +21611,8 @@ ENDIF
                         ; sun
 
 ;JSR CATLOD             ; These instructions are commented out in the original
-;JSR LOMOD              ; source
+;                       ; source
+;JSR LOMOD
 
  LDA QQ11               ; If the current view in QQ11 is not a space view (0) or
  AND #%00111111         ; one of the charts (64 or 128), return from the
@@ -22603,11 +22615,11 @@ ENDIF
 ; ******************************************************************************
 
 ;.ref2                  ; These instructions are commented out in the original
-;LDY #187               ; source, but they would jump to pres in the EQSHP
-;JMP pres               ; routine with Y = 187, which would show the error:
-;Belgium                ; "LASER PRESENT" (this code was part of the refund
-                        ; bug in the disc version of Elite, which is why it is
-                        ; commented out)
+;                       ; source, but they would jump to pres in the EQSHP
+;LDY #187               ; routine with Y = 187, which would show the error:
+;JMP pres               ; "LASER PRESENT" (this code was part of the refund
+;                       ; bug in the disc version of Elite, which is why it is
+;Belgium                ; commented out)
                         ;
                         ; There is also a comment in the original source - the
                         ; solitary word "Belgium"
@@ -30758,8 +30770,10 @@ ENDIF
 
 ;LDA #10                ; These instructions are commented out in the original
 ;JSR TT26               ; source
+;
 ;LDA #1
 ;JSR DOXC
+;
 ;JSR INCYC
 
  JMP TT146              ; Print the distance to the selected system and return
@@ -34763,26 +34777,35 @@ ENDIF
 ; ******************************************************************************
 
 ;.DKJ1                  ; These instructions are commented out in the original
-;LDA auto               ; source (they are from the BBC Micro version)
+;                       ; source (they are from the BBC Micro version)
+;LDA auto
 ;BNE auton
+;
 ;LDA KTRAN+1
 ;STA KL+1
 ;LDA KTRAN+2
 ;STA KL+2
+;
 ;.BS1
+;
 ;LDA KTRAN+12
 ;TAX
 ;AND #16
 ;EOR #16
 ;STA KL+7
+;
 ;LDX #1
 ;JSR DKS2
+;
 ;ORA #1
 ;STA JSTX
+;
 ;LDX #2
 ;JSR DKS2
+;
 ;EOR JSTGY
 ;STA JSTY
+;
 ;JMP DK4
 
 ; ******************************************************************************
@@ -34857,7 +34880,8 @@ ENDIF
                         ; internal code of the key pressed in X
 
 ;JSR U%                 ; These instructions are commented out in the original
-;JMP DK15               ; source
+;                       ; source
+;JMP DK15
 
  LDA auto               ; If auto is 0, then the docking computer is not
  BEQ DK15               ; currently activated, so jump to DK15 to skip the
@@ -42583,7 +42607,8 @@ ENDIF
  JSR MT2                ; Switch to Sentence Case when printing extended tokens
 
 ;JSR PBZE               ; These instructions are commented out in the original
-;JSR HBZE               ; source
+;                       ; source
+;JSR HBZE
 
  LDA #0                 ; Reset the ball line heap pointer at LSP
 ;STA LBUP               ;
@@ -50413,12 +50438,16 @@ ENDIF
  RTS                    ; Return from the subroutine
 
 ;point IRQ to start     ; These instructions are commented out in the original
-;LDA  #LO(BDirqhere)    ; source
+;                       ; source
+;LDA  #LO(BDirqhere)
 ;STA  $0314
 ;LDA  #HI(BDirqhere)
 ;STA  $0315
+;
 ;CLI
+;
 ;BRK
+;
 ;re enter monitor!
 
 ; ******************************************************************************

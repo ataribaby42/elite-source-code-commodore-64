@@ -785,7 +785,9 @@ ENDIF
 ;
 ;LDA date,X
 ;STA SCBASE+$7A0,X
+;
 ;DEX
+;
 ;BNE LOOP20
 
                         ; Now we populate screen RAM for the text view ($6000
