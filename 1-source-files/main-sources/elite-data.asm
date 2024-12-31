@@ -6369,7 +6369,7 @@ ENDIF
 ;   * Bit 5: Innocent bystander (0 = normal, 1 = innocent bystander)
 ;   * Bit 6: Cop flag (0 = not a cop, 1 = cop)
 ;   * Bit 7: For spawned ships: ship been scooped or has docked
-;             For blueprints: this ship type has an escape pod fitted
+;            For blueprints: this ship type has an escape pod fitted
 ;
 ; ******************************************************************************
 
@@ -6696,6 +6696,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a missile
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -6794,6 +6795,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Coriolis space station
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -6900,6 +6902,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for an escape pod
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -6963,13 +6966,14 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for an alloy plate
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
 .SHIP_PLATE
 
  EQUB 0 + (8 << 4)      ; Max. canisters on demise = 0
-                        ; Market item when scooped = 8 + 1 = 9 (Alloys)
+                        ; Market item when scooped = 8 + 1 = 9 (alloys)
  EQUW 10 * 10           ; Targetable area          = 10 * 10
 
  EQUB LO(SHIP_PLATE_EDGES - SHIP_PLATE)            ; Edges data offset (low)
@@ -7021,6 +7025,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a cargo canister
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7101,6 +7106,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a boulder
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7181,6 +7187,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for an asteroid
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7273,6 +7280,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a splinter
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -7284,7 +7292,7 @@ ENDMACRO
 .SHIP_SPLINTER
 
  EQUB 0 + (11 << 4)     ; Max. canisters on demise = 0
-                        ; Market item when scooped = 11 + 1 = 12 (Minerals)
+                        ; Market item when scooped = 11 + 1 = 12 (minerals)
  EQUW 16 * 16           ; Targetable area          = 16 * 16
 
  EQUB LO(SHIP_ESCAPE_POD_EDGES - SHIP_SPLINTER)    ; Edges from escape pod
@@ -7331,6 +7339,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Shuttle
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7441,6 +7450,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Transporter
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7586,6 +7596,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Cobra Mk III
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7713,6 +7724,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Python
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7811,6 +7823,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Boa
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -7909,6 +7922,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for an Anaconda
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8009,6 +8023,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a rock hermit (asteroid)
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -8106,6 +8121,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Viper
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8196,6 +8212,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Sidewinder
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8276,6 +8293,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Mamba
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8382,6 +8400,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Krait
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8474,6 +8493,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for an Adder
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8584,6 +8604,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Gecko
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8670,6 +8691,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Cobra Mk I
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8757,6 +8779,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Worm
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8839,6 +8862,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Cobra Mk III (pirate)
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -8966,6 +8990,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for an Asp Mk II
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -9076,6 +9101,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Python (pirate)
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -9174,6 +9200,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Fer-de-Lance
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -9278,6 +9305,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Moray
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -9368,6 +9396,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Thargoid mothership
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -9472,6 +9501,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Thargon
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -9539,6 +9569,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Constrictor
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
@@ -9638,6 +9669,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Cougar
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;             The elusive Cougar
 ;
 ; ******************************************************************************
@@ -9737,6 +9769,7 @@ ENDMACRO
 ;   Category: Drawing ships
 ;    Summary: Ship blueprint for a Dodecahedron ("Dodo") space station
 ;  Deep dive: Ship blueprints
+;             Comparing ship specifications
 ;
 ; ******************************************************************************
 
