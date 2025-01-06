@@ -21898,6 +21898,7 @@ ENDIF
 ;   Category: Loader
 ;    Summary: The OS command string for running the flight code in file D.CODE
 ;             in the disc version of Elite
+;  Deep dive: Swapping between the docked and flight code
 ;
 ; ------------------------------------------------------------------------------
 ;
