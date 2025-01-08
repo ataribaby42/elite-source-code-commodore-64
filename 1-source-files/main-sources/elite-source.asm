@@ -6809,8 +6809,8 @@ ENDIF
 ;
 ; ------------------------------------------------------------------------------
 ;
-; Ready-made bytes for plotting two-pixel points the space view. See the PIXEL
-; routine for details.
+; Ready-made bytes for plotting two-pixel points in the space view. See the
+; PIXEL routine for details.
 ;
 ; ******************************************************************************
 
@@ -45068,8 +45068,8 @@ ENDIF
 ;
 ; ------------------------------------------------------------------------------
 ;
-; Ready-made bytes for plotting one-pixel points the space view. See the PIXEL
-; routine for details.
+; Ready-made bytes for plotting one-pixel points in the space view. See the
+; PIXEL routine for details.
 ;
 ; ******************************************************************************
 
