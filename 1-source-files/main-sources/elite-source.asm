@@ -220,13 +220,13 @@ ENDIF
                         ; %01, %10 and %10, for showing Thargoids on the scanner
                         ; with a striped design of red and yellow
 
- BLUE = YELLOW          ; Ship that are set to a scanner colour of BLUE in the
+ BLUE = YELLOW          ; Ships that are set to a scanner colour of BLUE in the
                         ; scacol table will actually be shown in yellow
 
- CYAN = YELLOW          ; Ship that are set to a scanner colour of CYAN in the
+ CYAN = YELLOW          ; Ships that are set to a scanner colour of CYAN in the
                         ; scacol table will actually be shown in yellow
 
- MAG = YELLOW           ; Ship that are set to a scanner colour of MAG in the
+ MAG = YELLOW           ; Ships that are set to a scanner colour of MAG in the
                         ; scacol table will actually be shown in yellow
 
  RED2 = $27             ; A multicolour bitmap mode palette byte for screen RAM
@@ -7124,7 +7124,14 @@ ENDIF
 ;
 ;   Y1                  The y-coordinate offset
 ;
-;   ZZ                  The distance of the point (further away = smaller point)
+;   ZZ                  The distance of the point, with bigger distances drawing
+;                       smaller points:
+;
+;                         * ZZ < 80           Double-height four-pixel square
+;
+;                         * 80 <= ZZ <= 143   Single-height two-pixel dash
+;
+;                         * ZZ > 143          Single-height one-pixel dot
 ;
 ; ******************************************************************************
 
@@ -7137,7 +7144,7 @@ ENDIF
  TXA                    ; Set SYL+Y to X, the low byte of the result
  STA SYL,Y
 
-                        ; Fall through into PIX1 to draw the stardust particle
+                        ; Fall through into PIXEL2 to draw the stardust particle
                         ; at (X1,Y1)
 
 ; ******************************************************************************
@@ -7161,7 +7168,14 @@ ENDIF
 ;   Y1                  The y-coordinate offset (positive means up the screen
 ;                       from the centre, negative means down the screen)
 ;
-;   ZZ                  The distance of the point (further away = smaller point)
+;   ZZ                  The distance of the point, with bigger distances drawing
+;                       smaller points:
+;
+;                         * ZZ < 80           Double-height four-pixel square
+;
+;                         * 80 <= ZZ <= 143   Single-height two-pixel dash
+;
+;                         * ZZ > 143          Single-height one-pixel dot
 ;
 ; ******************************************************************************
 
@@ -7215,7 +7229,7 @@ ENDIF
 ;       Name: PIXEL
 ;       Type: Subroutine
 ;   Category: Drawing pixels
-;    Summary: Draw a 1-pixel dot, 2-pixel dash or 4-pixel square
+;    Summary: Draw a one-pixel dot, two-pixel dash or four-pixel square
 ;  Deep dive: Drawing pixels in the Commodore 64 version
 ;
 ; ------------------------------------------------------------------------------
@@ -7231,7 +7245,14 @@ ENDIF
 ;
 ;   A                   The screen y-coordinate of the point to draw
 ;
-;   ZZ                  The distance of the point (further away = smaller point)
+;   ZZ                  The distance of the point, with bigger distances drawing
+;                       smaller points:
+;
+;                         * ZZ < 80           Double-height four-pixel square
+;
+;                         * 80 <= ZZ <= 143   Single-height two-pixel dash
+;
+;                         * ZZ > 143          Single-height one-pixel dot
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -7249,7 +7270,8 @@ ENDIF
 
 .PIXEL
 
- STY T1                 ; Store Y in T1
+ STY T1                 ; Store Y in T1 so we can restore it at the end of the
+                        ; subroutine
 
  TAY                    ; Copy the screen y-coordinate from A into Y
 
@@ -7278,24 +7300,24 @@ ENDIF
                         ; wide)
 
  LDA ZZ                 ; If distance in ZZ >= 144, then this point is a very
- CMP #144               ; long way away, so jump to PX3 to fetch a 1-pixel point
- BCS PX3                ; from TWOS and EOR it into SC+Y
+ CMP #144               ; long way away, so jump to PX3 to fetch a one-pixel
+ BCS PX3                ; point from TWOS and EOR it into SC+Y
 
- LDA TWOS2,X            ; Otherwise fetch a 2-pixel dash from TWOS2 and EOR it
+ LDA TWOS2,X            ; Otherwise fetch a two-pixel dash from TWOS2 and EOR it
  EOR (SC),Y             ; into SC+Y
  STA (SC),Y
 
  LDA ZZ                 ; If distance in ZZ >= 80, then this point is a medium
  CMP #80                ; distance away, so jump to PX13 to stop drawing, as a
- BCS PX13               ; 2-pixel dash is enough
+ BCS PX13               ; two-pixel dash is enough
 
                         ; Otherwise we keep going to draw another 2 pixel point
                         ; either above or below the one we just drew, to make a
-                        ; 4-pixel square
+                        ; four-pixel square
 
  DEY                    ; Reduce Y by 1 to point to the pixel row above the one
  BPL PX3                ; we just plotted, and if it is still positive, jump to
-                        ; PX3 to draw our second 2-pixel dash
+                        ; PX3 to draw our second two-pixel dash
 
  LDY #1                 ; Reducing Y by 1 made it negative, which means Y was
                         ; 0 before we did the DEY above, so set Y to 1 to point
@@ -7303,8 +7325,8 @@ ENDIF
 
 .PX3
 
- LDA TWOS2,X            ; Fetch a 2-pixel dash from TWOS2 and EOR it into this
- EOR (SC),Y             ; second row to make a 4-pixel square
+ LDA TWOS2,X            ; Fetch a two-pixel dash from TWOS2 and EOR it into this
+ EOR (SC),Y             ; second row to make a four-pixel square
  STA (SC),Y
 
 .PX13
@@ -10764,13 +10786,13 @@ ENDIF
  LDA R                  ; Fetch the shape of the indicator row that we need to
                         ; display from R, so we can use it as a mask when
                         ; painting the indicator. It will be $FF at this point
-                        ; (i.e. a full 4-pixel row)
+                        ; (i.e. a full four-pixel row)
 
 .DL5
 
- AND COL                ; Fetch the 4-pixel colour byte from COL, and only keep
-                        ; pixels that have their equivalent bits set in the mask
-                        ; byte in A
+ AND COL                ; Fetch the four-pixel colour byte from COL, and only
+                        ; keep pixels that have their equivalent bits set in the
+                        ; mask byte in A
 
  STA (SC),Y             ; Draw the shape of the mask on pixel row Y of the
                         ; character block we are processing
@@ -10933,19 +10955,19 @@ ENDIF
                         ; drawing blank characters after this one until we reach
                         ; the end of the indicator row
 
- LDA CTWOS,X            ; CTWOS is a table of ready-made 2-pixel multicolour
+ LDA CTWOS,X            ; CTWOS is a table of ready-made two-pixel multicolour
                         ; bitmap mode bytes
                         ;
-                        ; This fetches a 2-pixel multicolour bitmap mode byte
+                        ; This fetches a two-pixel multicolour bitmap mode byte
                         ; with the pixel position at 2 * X, so the pixel is at
                         ; the offset that we want for our vertical bar
 
- AND #YELLOW            ; The 4-pixel multicolour bitmap mode colour byte in
+ AND #YELLOW            ; The four-pixel multicolour bitmap mode colour byte in
                         ; YELLOW represents four pixels of colour %10 (3), which
                         ; is yellow in the dashboard palette. We AND this with A
                         ; so that we only keep the pixel that matches the
                         ; position of the vertical bar (i.e. A is acting as a
-                        ; mask on the 4-pixel colour byte)
+                        ; mask on the four-pixel colour byte)
 
  JMP DLL12              ; Jump to DLL12 to skip the code for drawing a blank,
                         ; and move on to drawing the indicator
@@ -18042,18 +18064,18 @@ ENDIF
  INX                    ; is stored in the range 0-14 but the displayed range
                         ; should be 1-15
 
- CLC                    ; Call pr2 to print the technology level as a 3-digit
- JSR pr2                ; number without a decimal point (by clearing the C
-                        ; flag)
+ CLC                    ; Call pr2 to print the technology level as a
+ JSR pr2                ; three-digit number without a decimal point (by
+                        ; clearing the C flag)
 
  JSR TTX69              ; Print a paragraph break and set Sentence Case
 
  LDA #192               ; Print recursive token 32 ("POPULATION") followed by a
  JSR TT68               ; colon
 
- SEC                    ; Call pr2 to print the population as a 3-digit number
- LDX QQ6                ; with a decimal point (by setting the C flag), so the
- JSR pr2                ; number printed will be population / 10
+ SEC                    ; Call pr2 to print the population as a three-digit
+ LDX QQ6                ; number with a decimal point (by setting the C flag),
+ JSR pr2                ; so the number printed will be population / 10
 
  LDA #198               ; Print recursive token 38 (" BILLION"), followed by a
  JSR TT60               ; paragraph break and Sentence Case
@@ -18429,9 +18451,9 @@ ENDIF
 
  JSR PIXEL              ; Call PIXEL to draw a point at (X, A), with the size of
                         ; the point dependent on the distance specified in ZZ
-                        ; (so a high value of ZZ will produce a 1-pixel point,
-                        ; a medium value will produce a 2-pixel dash, and a
-                        ; small value will produce a 4-pixel square)
+                        ; (so a high value of ZZ will produce a one-pixel point,
+                        ; a medium value will produce a two-pixel dash, and a
+                        ; small value will produce a four-pixel square)
 
  JSR TT20               ; We want to move on to the next system, so call TT20
                         ; to twist the three 16-bit seeds in QQ15
@@ -25054,8 +25076,8 @@ ENDIF
 
  LDX #8                 ; First we need to copy the space station's coordinates
                         ; into K3, so set a counter to copy the first 9 bytes
-                        ; (the 3-byte x, y and z coordinates) from the station's
-                        ; data block at K% + NI% into K3
+                        ; (the three-byte x, y and z coordinates) from the
+                        ; station's data block at K% + NI% into K3
 
 .SPL1
 
@@ -36917,8 +36939,8 @@ ENDIF
                         ; from byte Y-1 to byte Y+2. If the ship's screen point
                         ; turns out to be off-screen, then this routine aborts
                         ; the entire call to LL9, exiting via nono. The four
-                        ; bytes define a horizontal 4-pixel dash, for either the
-                        ; top or the bottom of the ship's dot
+                        ; bytes define a horizontal four-pixel dash, for either
+                        ; the top or the bottom of the ship's dot
 
  STA (XX19),Y           ; Store A in byte Y of the ship line heap (i.e. Y1)
 
@@ -45621,7 +45643,8 @@ ENDIF
 
 .LI81
 
- LDA #%10000000         ; Set a mask in A to the first pixel in the 8-pixel byte
+ LDA #%10000000         ; Set a mask in A to the first pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -45660,7 +45683,7 @@ ENDIF
 
 .LI82
 
- LDA #%01000000         ; Set a mask in A to the second pixel in the 8-pixel
+ LDA #%01000000         ; Set a mask in A to the second pixel in the eight-pixel
                         ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
@@ -45700,7 +45723,8 @@ ENDIF
 
 .LI83
 
- LDA #%00100000         ; Set a mask in A to the third pixel in the 8-pixel byte
+ LDA #%00100000         ; Set a mask in A to the third pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -45739,7 +45763,7 @@ ENDIF
 
 .LI84
 
- LDA #%00010000         ; Set a mask in A to the fourth pixel in the 8-pixel
+ LDA #%00010000         ; Set a mask in A to the fourth pixel in the eight-pixel
                         ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
@@ -45779,7 +45803,8 @@ ENDIF
 
 .LI85
 
- LDA #%00001000         ; Set a mask in A to the fifth pixel in the 8-pixel byte
+ LDA #%00001000         ; Set a mask in A to the fifth pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -45818,7 +45843,8 @@ ENDIF
 
 .LI86
 
- LDA #%00000100         ; Set a mask in A to the sixth pixel in the 8-pixel byte
+ LDA #%00000100         ; Set a mask in A to the sixth pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -45857,8 +45883,8 @@ ENDIF
 
 .LI87
 
- LDA #%00000010         ; Set a mask in A to the seventh pixel in the 8-pixel
-                        ; byte
+ LDA #%00000010         ; Set a mask in A to the seventh pixel in the
+                        ; eight-pixel byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -45899,7 +45925,7 @@ ENDIF
 
 .LI88
 
- LDA #%00000001         ; Set a mask in A to the eighth pixel in the 8-pixel
+ LDA #%00000001         ; Set a mask in A to the eighth pixel in the eight-pixel
                         ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
@@ -46098,7 +46124,8 @@ ENDIF
 
 .LI21
 
- LDA #%10000000         ; Set a mask in A to the first pixel in the 8-pixel byte
+ LDA #%10000000         ; Set a mask in A to the first pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -46138,7 +46165,7 @@ ENDIF
 
 .LI22
 
- LDA #%01000000         ; Set a mask in A to the second pixel in the 8-pixel
+ LDA #%01000000         ; Set a mask in A to the second pixel in the eight-pixel
                         ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
@@ -46179,7 +46206,8 @@ ENDIF
 
 .LI23
 
- LDA #%00100000         ; Set a mask in A to the third pixel in the 8-pixel byte
+ LDA #%00100000         ; Set a mask in A to the third pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -46219,7 +46247,7 @@ ENDIF
 
 .LI24
 
- LDA #%00010000         ; Set a mask in A to the fourth pixel in the 8-pixel
+ LDA #%00010000         ; Set a mask in A to the fourth pixel in the eight-pixel
                         ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
@@ -46260,7 +46288,8 @@ ENDIF
 
 .LI25
 
- LDA #%00001000         ; Set a mask in A to the fifth pixel in the 8-pixel byte
+ LDA #%00001000         ; Set a mask in A to the fifth pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -46300,7 +46329,8 @@ ENDIF
 
 .LI26
 
- LDA #%00000100         ; Set a mask in A to the sixth pixel in the 8-pixel byte
+ LDA #%00000100         ; Set a mask in A to the sixth pixel in the eight-pixel
+                        ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -46340,7 +46370,8 @@ ENDIF
 
 .LI27
 
- LDA #%00000010         ; Set a mask in A to the seventh pixel in the 8-pixel
+ LDA #%00000010         ; Set a mask in A to the seventh pixel in the
+                        ; eight-pixel
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -46382,7 +46413,7 @@ ENDIF
 
 .LI28
 
- LDA #%00000001         ; Set a mask in A to the eighth pixel in the 8-pixel
+ LDA #%00000001         ; Set a mask in A to the eighth pixel in the eight-pixel
                         ; byte
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
@@ -46516,7 +46547,7 @@ ENDIF
  TAX                    ; each pixel line in the character block is 8 pixels
                         ; wide)
 
- LDA TWOS,X             ; Fetch a 1-pixel byte from TWOS where pixel X is set,
+ LDA TWOS,X             ; Fetch a one-pixel byte from TWOS where pixel X is set,
  STA R2                 ; and store it in R2
 
                         ; The following section calculates:
@@ -46945,9 +46976,9 @@ ENDIF
 
 .HLL1
 
- LDA #%11111111         ; Store a full-width 8-pixel horizontal line in SC(1 0)
- EOR (SC),Y             ; so that it draws the line on-screen, using EOR logic
- STA (SC),Y             ; so it merges with whatever is already on-screen
+ LDA #%11111111         ; Store a full-width eight-pixel horizontal line in
+ EOR (SC),Y             ; SC(1 0) so that it draws the line on-screen, using EOR
+ STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
  TYA                    ; Set Y = Y + 8 so (SC),Y points to the next character
  ADC #8                 ; block along, on the same pixel row as before
@@ -47169,10 +47200,10 @@ ENDIF
  TAX                    ; each pixel line in the character block is 8 pixels
                         ; wide)
 
- LDA CTWOS2,X           ; Fetch a multicolour bitmap mode 1-pixel byte with the
- AND COL                ; pixel position at X, and AND with the colour byte so
-                        ; that pixel takes on the colour we want to draw (i.e. A
-                        ; is acting as a mask on the colour byte)
+ LDA CTWOS2,X           ; Fetch a multicolour bitmap mode one-pixel byte with
+ AND COL                ; the pixel position at X, and AND with the colour byte
+                        ; so that pixel takes on the colour we want to draw
+                        ; (i.e. A is acting as a mask on the colour byte)
                         ;
                         ; Note that the CTWOS2 table contains two identical
                         ; bitmap bytes for consecutive values of X, as each
@@ -47185,9 +47216,9 @@ ENDIF
 ;JSR P%+3               ; These instructions are commented out in the original
 ;INX                    ; source
 
- LDA CTWOS2+2,X         ; Fetch a multicolour bitmap mode 1-pixel byte with the
-                        ; pixel position at X+1, so we can draw the right pixel
-                        ; of the dash (we add 2 to CTWOS2 as there are two
+ LDA CTWOS2+2,X         ; Fetch a multicolour bitmap mode one-pixel byte with
+                        ; the pixel position at X+1, so we can draw the right
+                        ; pixel of the dash (we add 2 to CTWOS2 as there are two
                         ; repeated entries for X and X+1 in the table)
 
  BPL CP1                ; The CTWOS table has an extra two rows at the end of it
@@ -47205,11 +47236,11 @@ ENDIF
  INC SC+1               ; the high byte of SC(1 0), as this means we just moved
                         ; into the right half of the screen row
 
- LDA CTWOS2+2,X         ; Re-fetch the multicolour bitmap mode 1-pixel byte, as
-                        ; we just overwrote A (the byte will still be the last
-                        ; byte from the table, which is correct as we want to
-                        ; draw the leftmost pixel in the next character along as
-                        ; the dash's right pixel)
+ LDA CTWOS2+2,X         ; Re-fetch the multicolour bitmap mode one-pixel byte,
+                        ; as we just overwrote A (the byte will still be the
+                        ; last byte from the table, which is correct as we want
+                        ; to draw the leftmost pixel in the next character along
+                        ; as the dash's right pixel)
 
 .CP1
 
@@ -48221,11 +48252,11 @@ ENDIF
  JSR BOXS               ; y-coordinate 199, to draw the bottom edge of the
                         ; border box
 
- LDA #$FF               ; This draws an 8-pixel line in character column 35 on
- STA SCBASE+$1F1F       ; character row 24, which is within the four-character
-                        ; border to the right of the game screen and just within
-                        ; the lower portion of the screen (where the dashboard
-                        ; lives)
+ LDA #$FF               ; This draws an eight-pixel line in character column 35
+ STA SCBASE+$1F1F       ; on character row 24, which is within the
+                        ; four-character border to the right of the game screen
+                        ; and just within the lower portion of the screen (where
+                        ; the dashboard lives)
                         ;
                         ; The palette for this part of the screen is black on
                         ; black, so the result isn't visible, and it's unclear
@@ -49233,7 +49264,7 @@ ENDIF
                         ; We can use there as the starting point for drawing the
                         ; stick, if there is one
 
- LDA CTWOS2+2,X         ; Load the same bitmap 1-pixel byte that we just used
+ LDA CTWOS2+2,X         ; Load the same bitmap one-pixel byte that we just used
  AND COL                ; for the top-right pixel, and mask it with the same
  STA X1                 ; colour, storing the result in X1, so we can use it as
                         ; the character row byte for the stick
