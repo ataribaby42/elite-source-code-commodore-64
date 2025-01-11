@@ -46617,7 +46617,7 @@ ENDIF
 
 .LIlog2
 
- STA P2                 ; Store the result of the division in P, so we have:
+ STA P2                 ; Store the result of the division in P2, so we have:
                         ;
                         ;   P2 = |delta_x| / |delta_y|
 
