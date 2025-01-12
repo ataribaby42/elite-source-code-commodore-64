@@ -748,7 +748,7 @@ ENDIF
 .X1
 
  SKIP 1                 ; Temporary storage, typically used for x-coordinates in
-                        ; line-drawing routines
+                        ; the line-drawing routines
 
 .Y1
 
@@ -758,7 +758,7 @@ ENDIF
 .X2
 
  SKIP 1                 ; Temporary storage, typically used for x-coordinates in
-                        ; line-drawing routines
+                        ; the line-drawing routines
 
 .Y2
 
@@ -6778,8 +6778,6 @@ ENDIF
 ;    Summary: Table of pointers to the local universe's ship data blocks
 ;  Deep dive: The local bubble of universe
 ;             Ship data blocks
-;
-; ------------------------------------------------------------------------------
 ;
 ; ******************************************************************************
 
@@ -17123,9 +17121,8 @@ ENDIF
  JSR MVEIT              ; Call MVEIT to move and rotate the ship in space
 
  JMP RDKEY              ; Scan the keyboard for a key press and return the
-                        ; ASCII code of the key pressed in X (or 0 for no key
-                        ; press), returning from the subroutine using a tail
-                        ; call
+                        ; internal key number in X (or 0 for no key press),
+                        ; returning from the subroutine using a tail call
 
 ; ******************************************************************************
 ;
@@ -17145,8 +17142,7 @@ ENDIF
 .PAUSE2
 
  JSR RDKEY              ; Scan the keyboard for a key press and return the
-                        ; ASCII code of the key pressed in X (or 0 for no key
-                        ; press)
+                        ; internal key number in A and X (or 0 for no key press)
 
  BNE PAUSE2             ; If a key was already being held down when we entered
                         ; this routine, keep looping back up to PAUSE2, until
@@ -17154,8 +17150,7 @@ ENDIF
 
  JSR RDKEY              ; Any pre-existing key press is now gone, so we can
                         ; start scanning the keyboard again, returning the
-                        ; ASCII code of the key pressed in X (or 0 for no key
-                        ; press)
+                        ; internal key number in A and X (or 0 for no key press)
 
  BEQ PAUSE2             ; Keep looping up to PAUSE2 until a key is pressed
 
@@ -21612,7 +21607,7 @@ ENDIF
                         ; and author names are configured, which is what we have
                         ; to do in order to trigger a manual mis-jump, so jump
                         ; to ptg to do a mis-jump (ptg not only mis-jumps, but
-                        ; updates the competition flags, so Acornsoft could tell
+                        ; updates the competition flags, so Firebird could tell
                         ; from the competition code whether this feature had
                         ; been used)
 
@@ -31788,7 +31783,7 @@ ENDIF
  JSR LL9                ; Call LL9 to display the ship
 
  JSR RDKEY              ; Scan the keyboard for a key press and return the
-                        ; key in X (or 0 for no key press)
+                        ; internal key number in A and X (or 0 for no key press)
                         ;
                         ; This also clears the C flag if no keys are being
                         ; pressed
@@ -34917,7 +34912,7 @@ ENDIF
 .DOKEY
 
  JSR RDKEY              ; Scan the keyboard for a key press and return the
-                        ; internal code of the key pressed in X
+                        ; internal key number in A and X (or 0 for no key press)
 
 ;JSR U%                 ; These instructions are commented out in the original
 ;                       ; source
@@ -46843,7 +46838,7 @@ ENDIF
  DEC SCH                ; decrement the high byte
 
  CLC                    ; Clear the C flag so it doesn't affect the additions
-                        ; below
+                        ; if we loop back
 
 .LIC6
 
