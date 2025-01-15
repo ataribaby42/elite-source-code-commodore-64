@@ -42891,8 +42891,9 @@ ENDIF
                         ; where the integer kill count is taken from the KWH%
                         ; table in the same way
 
- BCC davidscockup       ; If there is no carry, jump straight to EXNO3 to skip
-                        ; the following three instructions
+ BCC davidscockup       ; If there is no carry, jump to davidscockup to skip the
+                        ; following three instructions, as we have not earned
+                        ; a "RIGHT ON COMMANDER!" message
 
  INC TALLY+1            ; Increment the high byte of the kill count in TALLY
 
