@@ -8630,8 +8630,8 @@ ENDIF
 .STATUS
 
  LDA #8                 ; Clear the top part of the screen, draw a border box,
- JSR TRADEMODE          ; and set up a printable trading screen with a view type
-                        ; in QQ11 of 8 (Status Mode screen)
+ JSR TRADEMODE          ; and set up a trading screen with a view type in QQ11
+                        ; of 8 (Status Mode screen)
 
  JSR TT111              ; Select the system closest to galactic coordinates
                         ; (QQ9, QQ10)
@@ -17963,9 +17963,8 @@ ENDIF
 
 .TT25
 
- LDA #1                 ; Clear the top part of the screen, draw a border box,
- JSR TRADEMODE          ; and set up a printable trading screen with a view type
-                        ; in QQ11 of 1
+ LDA #1                 ; Clear the screen, draw a border box, and set up a
+ JSR TRADEMODE          ; trading screen with a view type in QQ11 of 1
 
  LDA #9                 ; Move the text cursor to column 9
  JSR DOXC
@@ -18383,9 +18382,8 @@ ENDIF
 
 .TT22
 
- LDA #64                ; Clear the top part of the screen, draw a border box,
- JSR TT66               ; and set the current view type in QQ11 to 32 (Long-
-                        ; range Chart)
+ LDA #64                ; Clear the screen, draw a border box, and set the
+ JSR TT66               ; current view type in QQ11 to 32 (Long-range Chart)
 
 ;LDA #CYAN              ; These instructions are commented out in the original
 ;JSR DOCOL              ; source
@@ -18779,9 +18777,9 @@ ENDIF
 
 .TT219
 
- LDA #2                 ; Clear the top part of the screen, draw a border box,
- JSR TRADEMODE          ; and set up a printable trading screen with a view type
-                        ; in QQ11 of 2 (Buy Cargo screen)
+ LDA #2                 ; Clear the screen, draw a border box, and set up a
+ JSR TRADEMODE          ; trading screen with a view type in QQ11 of 2 (Buy
+                        ; Cargo screen)
 
  JSR TT163              ; Print the column headers for the prices table
 
@@ -19141,9 +19139,9 @@ ENDIF
 
 .TT208
 
- LDA #4                 ; Clear the top part of the screen, draw a border box,
- JSR TRADEMODE          ; and set up a printable trading screen with a view type
-                        ; in QQ11 of 4 (Sell Cargo screen)
+ LDA #4                 ; Clear the screen, draw a border box, and set up a
+ JSR TRADEMODE          ; trading screen with a view type in QQ11 of 4 (Sell
+                        ; Cargo screen)
 
  LDA #10                ; Move the text cursor to column 10
  JSR DOXC
@@ -19386,9 +19384,9 @@ ENDIF
 
 .TT213
 
- LDA #8                 ; Clear the top part of the screen, draw a border box,
- JSR TRADEMODE          ; and set up a printable trading screen with a view type
-                        ; in QQ11 of 4 (Inventory screen)
+ LDA #8                 ; Clear the screen, draw a border box, and set up a
+ JSR TRADEMODE          ; trading screen with a view type in QQ11 of 4
+                        ; (Inventory screen)
 
  LDA #11                ; Move the text cursor to column 11 to print the screen
  JSR DOXC               ; title
@@ -21159,9 +21157,9 @@ ENDIF
 
 .TT167
 
- LDA #16                ; Clear the top part of the screen, draw a border box,
- JSR TRADEMODE          ; and set up a printable trading screen with a view type
-                        ; in QQ11 of 32 (Market Price screen)
+ LDA #16                ; Clear the screen, draw a border box, and set up a
+ JSR TRADEMODE          ; trading screen with a view type in QQ11 of 32 (Market
+                        ; Price screen)
 
  LDA #5                 ; Move the text cursor to column 5
  JSR DOXC
@@ -21959,9 +21957,9 @@ ENDIF
 
 .EQSHP
 
- LDA #32                ; Clear the top part of the screen, draw a border box,
- JSR TRADEMODE          ; and set up a printable trading screen with a view type
-                        ; in QQ11 of 32 (Equip Ship screen)
+ LDA #32                ; Clear the screen, draw a border box, and set up a
+ JSR TRADEMODE          ; trading screen with a view type in QQ11 of 32 (Equip
+                        ; Ship screen)
 
  LDA #12                ; Move the text cursor to column 12
  JSR DOXC
@@ -22516,9 +22514,8 @@ ENDIF
  BCC P%+7               ; screen to prevent the view menu from clashing with the
                         ; longer equipment menu available in higher tech systems
 
- LDA #32                ; Clear the top part of the screen, draw a border box,
- JSR TT66               ; and set the current view type in QQ11 to 32 (Equip
-                        ; Ship screen)
+ LDA #32                ; Clear the screen, draw a border box, and set the
+ JSR TT66               ; current view type in QQ11 to 32 (Equip Ship screen)
 
  LDA #16                ; Move the text cursor to row 16, and at the same time
  TAY                    ; set Y to a counter going from 16 to 19 in the loop
@@ -42639,7 +42636,8 @@ ENDIF
 ;       Name: TTX66
 ;       Type: Subroutine
 ;   Category: Drawing the screen
-;    Summary: Clear the top part of the screen and draw a border box
+;    Summary: Clear the top part of the screen, draw a border box and configure
+;             the specified view
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -48013,8 +48011,9 @@ ENDIF
 ;
 ; ------------------------------------------------------------------------------
 ;
-; Clear the top part of the screen (the space view) and draw a border box along
-; the top and sides.
+; If this is the space view then clear the top part of the screen and draw a
+; border box along the top and sides. If this is a text view, then clear the
+; whole screen and draw a border box around all four sides of the screen.
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -48126,9 +48125,10 @@ ENDIF
  BEQ wantSTEP           ; wantdials via wantSTEP to display the dashboard in
                         ; the lower portion of the screen
 
- CMP #13                ; If QQ11 = 13 then this is the title screen, so skip
- BNE P%+5               ; the following instruction if this is not the title
-                        ; screen
+ CMP #13                ; If QQ11 = 13 then this is either the title screen or
+ BNE P%+5               ; the rotating ship screen in the mission 1 briefing, so
+                        ; skip the following instruction as we do not want to
+                        ; display the dashboard
 
 .wantSTEP
 
