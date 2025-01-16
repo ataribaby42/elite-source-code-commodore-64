@@ -921,13 +921,9 @@ ENDIF
 
 .DL
 
- SKIP 1                 ; Vertical sync flag
-                        ;
-                        ; DL gets set to 30 every time we reach vertical sync on
-                        ; the video system, which happens 50 times a second
-                        ; (50Hz). The WSCAN routine uses this to pause until the
-                        ; vertical sync, by setting DL to 0 and then monitoring
-                        ; its value until it changes to 30
+ SKIP 1                 ; This byte is unused in this version of Elite (it is
+                        ; used to store the vertical sync flag in the BBC Micro
+                        ; versions)
 
 .TYPE
 
@@ -23734,8 +23730,8 @@ IF _GMA_RELEASE
 
 .SWAPPZERO
 
- LDX #K3+1              ; This routine starts copying zero page from $0015 and
-                        ; up, using X as an index
+ LDX #K3+1              ; This routine starts copying zero page from the byte
+                        ; after K3 and up, using X as an index
 
 .SWPZL
 
@@ -28513,8 +28509,8 @@ IF _SOURCE_DISK
 
 .SWAPPZERO
 
- LDX #K3+1              ; This routine starts copying zero page from $0015 and
-                        ; up, using X as an index
+ LDX #K3+1              ; This routine starts copying zero page from the byte
+                        ; after K3 and up, using X as an index
 
 .SWPZL
 
