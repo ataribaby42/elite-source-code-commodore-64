@@ -22581,7 +22581,7 @@ ENDIF
 ;
 ; Set the system closest to galactic coordinates (QQ9, QQ10) as the selected
 ; system, redraw the crosshairs on the chart accordingly (if they are being
-; shown), and, if this is not a space view, clear the bottom three text rows of
+; shown), and if this is not the space view, clear the bottom three text rows of
 ; the screen.
 ;
 ; ******************************************************************************
@@ -22599,9 +22599,8 @@ ENDIF
                         ; system
 
  JMP CLYNS              ; Clear the bottom three text rows of the upper screen,
-                        ; and move the text cursor to the first cleared row
-
-                        ; Return from the subroutine using a tail call
+                        ; move the text cursor to the first cleared row, and
+                        ; return from the subroutine using a tail call
 
 ; ******************************************************************************
 ;
@@ -49157,10 +49156,10 @@ ENDIF
 
 .SC3
 
- ADC #83                ; Set A = 83 + A to give a number in the range 48 to 98
+ ADC #83                ; Set A = 83 + A to give a number in the range 68 to 98
 
  EOR #%11111111         ; Flip all the bits and store in Y2, so Y2 is in the
- STA SC                 ; range 157 to 207, with a higher z_hi giving a lower Y2
+ STA SC                 ; range 157 to 187, with a higher z_hi giving a lower Y2
 
                         ; Now for the stick height, which we calculate using the
                         ; following:
