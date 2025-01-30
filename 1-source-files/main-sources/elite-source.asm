@@ -11454,13 +11454,21 @@ ENDIF
 .TA87
 
  LDA INWK+32            ; Set X to bits 1-6 of the missile's AI flag in ship
- AND #%01111111         ; byte #32, so bits 0-4 of X are the target's slot
- LSR A                  ; number, and bit 5 is set (as the missile is hostile)
- TAX                    ; so X is fairly random and in the range 32-43 (as the
-                        ; maximum slot number is 11)
+ AND #%01111111         ; byte #32, so that bits 0-4 of X are the target's slot
+ LSR A                  ; number, and bit 5 is clear (as the missile is ours)
+ TAX                    ;
+                        ; So X contains the slot number of the target ship
                         ;
-                        ; The value of X is used to determine the number of kill
-                        ; points awarded for the destruction of the missile
+                        ; We should now fetch the ship type from slot X, so we
+                        ; can pass the ship type to EXNO2 to add the correct
+                        ; number of kill points to award for this type of ship,
+                        ; but instead we're passing the slot number to EXNO2
+                        ;
+                        ; This is a bug that means we will be allocated a fairly
+                        ; random number of kill points when destroying a ship
+                        ; with a missile; this bug was fixed in the NES version,
+                        ; but it affects the Commodore 64, Apple II and BBC
+                        ; Master versions of Elite
 
 .TA353
 
