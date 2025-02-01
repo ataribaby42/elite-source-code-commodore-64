@@ -433,7 +433,8 @@ ENDIF
                         ; This sets the entire 64K memory map to RAM
                         ;
                         ; See the memory map at the top of page 265 in the
-                        ; Programmer's Reference Guide
+                        ; "Commodore 64 Programmer's Reference Guide", published
+                        ; by Commodore
 
 IF _GMA_RELEASE
 
@@ -491,8 +492,8 @@ ENDIF
                         ; SID sound chip, the two CIA I/O chips, and so on
                         ;
                         ; See the memory map at the top of page 264 in the
-                        ; Programmer's Reference Guide
-
+                        ; "Commodore 64 Programmer's Reference Guide", published
+                        ; by Commodore
  LDA CIA2+2             ; Set bits 0-1 of CIA2 port A to the output direction
  ORA #%00000011         ; so we can write to the VIC-II bank selector, which is
  STA CIA2+2             ; mapped here (0 means input, 1 means output)
@@ -1190,8 +1191,8 @@ ENDIF
                         ; $E000-$FFFF, which gets mapped to the Kernal ROM
                         ;
                         ; See the memory map at the bottom of page 264 in the
-                        ; Programmer's Reference Guide
-
+                        ; "Commodore 64 Programmer's Reference Guide", published
+                        ; by Commodore
  CLI                    ; Allow interrupts again
 
  LDX #9                 ; Set X = $16 so we copy 9 pages of data from DIALS
