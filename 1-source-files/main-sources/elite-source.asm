@@ -50830,9 +50830,13 @@ IF _GMA_RELEASE
 
  INCBIN "1-source-files/music/gma/C.COMUDAT.bin"
 
-ELIF _SOURCE_DISK
+ELIF _SOURCE_DISK_BUILD
 
- INCBIN "1-source-files/music/source-disk/C.COMUDAT.bin"
+ INCBIN "1-source-files/music/source-disk-build/C.COMUDAT.bin"
+
+ELIF _SOURCE_DISK_FILES
+
+ INCBIN "1-source-files/music/source-disk-files/C.COMUDAT.bin"
 
 ENDIF
 
