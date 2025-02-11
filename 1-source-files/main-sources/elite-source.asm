@@ -1798,6 +1798,9 @@ ENDIF
                         ; 16-bit number TALLY(1 0) - so the high byte is in
                         ; TALLY+1 and the low byte in TALLY
                         ;
+                        ; There is also a fractional part of the kill count,
+                        ; which is stored in TALLYL
+                        ;
                         ; If the high byte in TALLY+1 is 0 then we have between
                         ; 0 and 255 kills, so our rank is Harmless, Mostly
                         ; Harmless, Poor, Average Above Average or Competent,
@@ -6866,6 +6869,7 @@ ENDIF
 ; This routine does nothing in Commodore 64 Elite, apart from setting the A and
 ; X registers to 15. This code is left over from the 6502 Second Processor
 ; version of Elite.
+;
 ; ******************************************************************************
 
 .FLKB
