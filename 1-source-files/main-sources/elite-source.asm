@@ -31555,7 +31555,7 @@ ENDIF
 
 .tZ
 
- ORA #%01000000         ; Set bit 6 of A to denote that this is the Master
+ ORA #%01000000         ; Set bit 6 of A to denote that this is the Commodore 64
                         ; version
 
  STA COK                ; Store the updated competition flags in COK
