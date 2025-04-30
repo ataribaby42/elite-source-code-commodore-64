@@ -17370,6 +17370,9 @@ ENDIF
 
  SKIP 0
 
+ ASSERT R% < SCBASE     ; Make sure that CODE1 doesn't spill over into screen
+                        ; memory at SCBASE
+
 ; ******************************************************************************
 ;
 ; Save ELTC.bin
@@ -50861,6 +50864,9 @@ ENDIF
 .F%
 
  SKIP 0
+
+ ASSERT F% < $CE00      ; Make sure that CODE2 doesn't spill over into the zero
+                        ; page swap space at $CE00
 
 ; ******************************************************************************
 ;
