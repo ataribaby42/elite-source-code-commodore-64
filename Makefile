@@ -81,19 +81,19 @@ endif
 ifeq ($(variant), source-disk-build)
   variant-number=3
   folder=source-disk-build
-  suffix=-source-disk-build
+  suffix=-flicker-free-source-disk-build
 else ifeq ($(variant), source-disk-files)
   variant-number=4
   folder=source-disk-files
-  suffix=-source-disk-files
+  suffix=-flicker-free-source-disk-files
 else ifeq ($(variant), gma86-pal)
   variant-number=2
   folder=gma86-pal
-  suffix=-gma86-pal
+  suffix=-flicker-free-gma86-pal
 else
   variant-number=1
   folder=gma85-ntsc
-  suffix=-gma85-ntsc
+  suffix=-flicker-free-gma85-ntsc
 endif
 
 .PHONY:all
