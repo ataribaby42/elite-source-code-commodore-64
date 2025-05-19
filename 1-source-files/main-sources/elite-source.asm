@@ -7578,7 +7578,6 @@ ENDIF
 
                         ; --- End of replacement ------------------------------>
 
-
  LDA XX13               ; If XX13 is non-zero, jump up to BL5 to add a $FF
  BNE BL5                ; marker to the end of the line heap. XX13 is non-zero
                         ; after the call to the clipping routine LL145 above if
