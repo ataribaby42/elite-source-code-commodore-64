@@ -471,7 +471,7 @@ ENDIF
 ;
 ; ******************************************************************************
 
- ORG $0000
+ ORG $0000              ; Set the assembly address to $0000
 
 .ZP
 
@@ -1224,7 +1224,7 @@ ENDIF
 ;
 ; ******************************************************************************
 
- ORG $0100
+ ORG $0100              ; Set the assembly address to $0100
 
 .XX3
 
@@ -1254,11 +1254,11 @@ ENDIF
 
 IF _GMA_RELEASE
 
- ORG $F900
+ ORG $F900              ; Set the assembly address to $F900
 
 ELIF _SOURCE_DISK
 
- ORG $F000
+ ORG $F000              ; Set the assembly address to $F000
 
 ENDIF
 
@@ -1278,7 +1278,7 @@ ENDIF
 ;
 ; ******************************************************************************
 
- ORG $0400
+ ORG $0400              ; Set the assembly address to $0400
 
 .UP
 
@@ -2084,7 +2084,7 @@ ENDIF
 ;
 ; ******************************************************************************
 
- ORG $0580
+ ORG $0580              ; Set the assembly address to $0580
 
 .WP
 
@@ -2218,7 +2218,7 @@ ENDIF
 ;
 ; ******************************************************************************
 
- ORG CODE%
+ ORG CODE%              ; Set the assembly address to CODE%
 
  LOAD_A% = LOAD%
 
