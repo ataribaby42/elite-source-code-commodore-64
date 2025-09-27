@@ -20568,6 +20568,9 @@ ENDIF
 
  LDA #'-'               ; Print a hyphen
  JSR TT27
+ 
+ ; ATARIBABY added missing space between hyphen and selected system name
+ JSR TT162              ; Print a space
 
  JSR cpl                ; Call cpl to print the name of the selected system
 

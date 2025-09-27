@@ -1603,8 +1603,10 @@ ENDIF
                         ; skip past the first three characters of the left
                         ; screen margin (the fourth character contains the
                         ; border box along the edge of the dashboard)
-
- INCBIN "1-source-files/images/C.CODIALS.bin"
+						
+ ; ATARIBABY new dials bitmap
+ ; INCBIN "1-source-files/images/C.CODIALS.bin"
+ INCBIN "1-source-files/images/C.CODIALSNEW.bin"
 
 IF _GMA_RELEASE
 
