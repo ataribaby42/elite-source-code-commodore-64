@@ -1,5 +1,5 @@
-/.vs
-/bin
-/obj
-/Properties
-/.user
+/C64EliteDials/.vs
+/C64EliteDials/bin
+/C64EliteDials/obj
+/C64EliteDials/Properties
+*.user
