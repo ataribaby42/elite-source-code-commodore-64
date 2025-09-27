@@ -1,6 +1,6 @@
 @echo off
 SETLOCAL
-SET BEEBASM=C:\Users\user\bin\beebasm.exe
-SET PYTHON=C:\Users\user\AppData\Local\Microsoft\WindowsApps\python.exe
-SET C1541=C:\Users\user\vice\bin\c1541.exe
+SET BEEBASM=e:\Development\Elite-C64\beebasm\beebasm.exe
+SET PYTHON=c:\Users\atari\AppData\Local\Programs\Python\Python313\python.exe
+SET C1541=e:\Development\Elite-C64\vice\bin\c1541.exe
 2-build-files\make %*
