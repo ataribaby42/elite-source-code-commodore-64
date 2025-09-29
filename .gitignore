@@ -22,3 +22,7 @@ $RECYCLE.BIN/
 .vscode/
 *.code-workspace
 run.bat
+
+# Build artifacts
+/5-compiled-game-disks
+/3-assembled-output
