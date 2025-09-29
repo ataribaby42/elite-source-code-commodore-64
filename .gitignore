@@ -28,8 +28,8 @@ run.bat
 /3-assembled-output
 
 #tools
-/C64EliteDials//.vs
-/C64EliteDials/bin
-/C64EliteDials/obj
-/C64EliteDials/Properties
-/C64EliteDials/*.user
+/tools/C64EliteDials//.vs
+/tools//C64EliteDials/bin
+/tools//C64EliteDials/obj
+/tools//C64EliteDials/Properties
+/tools//C64EliteDials/*.user
