@@ -29,7 +29,7 @@ run.bat
 
 #tools
 /tools/C64EliteDials//.vs
-/tools//C64EliteDials/bin
-/tools//C64EliteDials/obj
-/tools//C64EliteDials/Properties
-/tools//C64EliteDials/*.user
+/tools/C64EliteDials/bin
+/tools/C64EliteDials/obj
+/tools/C64EliteDials/Properties
+/tools/C64EliteDials/*.user
