@@ -24,6 +24,12 @@ C1541?=c1541
 #
 #   verify=no           Disable crc32 verification of the game binaries
 #
+#   laserbeam=<mode>    Set specified player laser rendering
+#
+#                         rays (default)
+#                         ray (one thin laser ray originating from the nose of the craft, as it should be on the Cobra Mk. III)
+#                         line (one laser line originating from the nose of the craft, as it should be on the Cobra Mk. III, and matching the AI ships’ lasers)
+#
 # So, for example:
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
@@ -54,6 +60,11 @@ C1541?=c1541
 # _MATCH_ORIGINAL_BINARIES
 #   TRUE  = Match binaries to released version (i.e. fill workspaces with noise)
 #   FALSE = Zero-fill workspaces
+#
+# _LASER_BEAM
+#   1 = rays (default)
+#   2 = ray
+#   3 = line
 #
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
@@ -96,6 +107,14 @@ else
   suffix=-gma85-ntsc
 endif
 
+ifeq ($(laserbeam), ray)
+  laserbeam-number=2
+else ifeq ($(laserbeam), line)
+  laserbeam-number=3
+else
+  laserbeam-number=1
+endif
+
 .PHONY:all
 all: c64-build c64-disk
 
@@ -105,6 +124,7 @@ c64-build:
 	echo _REMOVE_CHECKSUMS=$(remove-checksums) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _MATCH_ORIGINAL_BINARIES=$(match-original-binaries) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _MAX_COMMANDER=$(max-commander) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _LASER_BEAM=$(laserbeam-number) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)

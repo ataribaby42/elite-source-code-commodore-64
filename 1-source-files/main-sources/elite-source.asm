@@ -16567,6 +16567,8 @@ ENDIF
 ;LDA #RED               ; These instructions are commented out in the original
 ;STA COL                ; source; they would switch to colour 2, which is red in
                         ; the space view
+					
+IF _LASER_BEAM = 1      ; ATARIBABY original laser - two side rays	
 
  LDA #32                ; Set A = 32 and Y = 224 for the first set of laser
  LDY #224               ; lines (the wider pair of lines)
@@ -16614,6 +16616,64 @@ ENDIF
  JMP LL30               ; Draw a line from (X1, Y1) to (X2, Y2), so that's from
                         ; the centre point to (Y, 191), and return from
                         ; the subroutine using a tail call
+
+ELIF _LASER_BEAM = 2    ; ATARIBABY single laser ray
+
+ LDA #123               ; Set A = 123 and Y = 127 for laser beam lines
+ LDY #127               ; Basically, the laser barrel is located in the center of the nose, aligned with the center of the screen
+
+ STA X2                 ; Set X2 = A
+
+ LDA LASX               ; Set (X1, Y1) to the random centre point we set above
+ STA X1
+ LDA LASY
+ STA Y1
+
+ LDA #2*Y-1             ; Set Y2 = 2 * #Y - 1. The constant #Y is 96, the
+ STA Y2                 ; y-coordinate of the mid-point of the space view, so
+                        ; this sets Y2 to 191, the y-coordinate of the bottom
+                        ; pixel row of the space view
+
+ JSR LL30               ; Draw a line from (X1, Y1) to (X2, Y2), so that's from
+                        ; the centre point to (A, 191)
+
+ LDA LASX               ; Set (X1, Y1) to the random centre point we set above
+ STA X1
+ INC X1
+ LDA LASY
+ STA Y1
+
+ STY X2                 ; Set X2 = Y
+
+ LDA #2*Y-1             ; Set Y2 = 2 * #Y - 1, the y-coordinate of the bottom
+ STA Y2                 ; pixel row of the space view (as before)
+
+ JMP LL30               ; Draw a line from (X1, Y1) to (X2, Y2), so that's from
+                        ; the centre point to (Y, 191), and return from
+                        ; the subroutine using a tail call				
+
+ELIF _LASER_BEAM = 3    ; ATARIBABY single line ray - to match AI ships' lasers
+
+ LDA #125               ; Set A = 125 for laser beam single line
+                        ; Basically, the laser barrel is located in the center of the nose, aligned with the center of the screen
+ 
+ STA X2                 ; Set X2 = A
+
+ LDA LASX               ; Set (X1, Y1) to the random centre point we set above
+ STA X1
+ LDA LASY
+ STA Y1
+
+ LDA #2*Y-1             ; Set Y2 = 2 * #Y - 1. The constant #Y is 96, the
+ STA Y2                 ; y-coordinate of the mid-point of the space view, so
+                        ; this sets Y2 to 191, the y-coordinate of the bottom
+                        ; pixel row of the space view
+
+ JMP LL30               ; Draw a line from (X1, Y1) to (X2, Y2), so that's from
+                        ; the centre point to (Y, 191), and return from
+                        ; the subroutine using a tail call		
+
+ENDIF
 
 ; ******************************************************************************
 ;
