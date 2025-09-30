@@ -1,1 +1,1 @@
-make variant=gma86-pal encrypt=no match=no verify=no
+make variant=gma86-pal encrypt=no match=no verify=no laserbeam=line
