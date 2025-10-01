@@ -17625,7 +17625,15 @@ ENDIF
 
  EQUB 7                 ; Pulse lasers have yellow sights
 
+IF _SIGHTS = 2 ; ATARIBABY always crosshair laser sight - beam laser is orange
+
+ EQUB 8                 ; Beam lasers have orange sights
+
+ELSE ; ATARIBABY laser-type dependent crosshair laser sight is yellow
+
  EQUB 7                 ; Beam lasers have yellow sights
+
+ENDIF
 
  EQUB 13                ; Military lasers have light green sights
 

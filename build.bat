@@ -1,1 +1,1 @@
-make variant=gma86-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new
+make variant=gma86-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross
