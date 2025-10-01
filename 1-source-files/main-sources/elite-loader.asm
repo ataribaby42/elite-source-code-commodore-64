@@ -1604,9 +1604,15 @@ ENDIF
                         ; screen margin (the fourth character contains the
                         ; border box along the edge of the dashboard)
 
- ; ATARIBABY new dials bitmap
- ; INCBIN "1-source-files/images/C.CODIALS.bin"
+IF _DIALS = 2 ; ATARIBABY new dials bitmap - without ELITE label under radar and with some corners clean-up
+
  INCBIN "1-source-files/images/C.CODIALSNEW.bin"
+
+ELSE ; ATARIBABY default dials bitmap
+ 
+ INCBIN "1-source-files/images/C.CODIALS.bin"
+
+ENDIF
 
 IF _GMA_RELEASE
 
