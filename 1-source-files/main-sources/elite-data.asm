@@ -1617,8 +1617,16 @@ ENDIF
 .FONT
 
 ; ATARIBABY Changed for new zx spectrum inspired font
-; INCBIN "1-source-files/fonts/C.FONT.bin"
+
+IF _FONT = 2
+
  INCBIN "1-source-files/fonts/C.ZXFONT.bin"
+
+ELSE
+ 
+ INCBIN "1-source-files/fonts/C.FONT.bin"
+
+ENDIF
 
 ; ******************************************************************************
 ;
