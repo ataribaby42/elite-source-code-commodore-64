@@ -303,29 +303,9 @@ ELIF _SOURCE_DISK_BUILD
                         ; assembly process
 
 ENDIF
- ; ATARIBABY changed sprite to simple aim cross
- ; SPRITE2 "........................"     ; The laser sights for a beam laser
- ; SPRITE2 "........................"
- ; SPRITE2 "...........X............"
- ; SPRITE2 "...........X............"
- ; SPRITE2 "...........X............"
- ; SPRITE2 ".....XXXXXXXXXXXXX......"
- ; SPRITE2 ".....X...........X......"
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- ; SPRITE2 "...........+............"
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- ; SPRITE2 ".....X...........X......"
- ; SPRITE2 ".....XXXXXXXXXXXXX......"
- ; SPRITE2 "...........X............"
- ; SPRITE2 "...........X............"
- ; SPRITE2 "...........X............"
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- 
+
+IF _SIGHTS = 2 ; ATARIBABY always crosshair laser sight
+
  SPRITE2 "........................"     ; The laser sights for a beam laser
  SPRITE2 "........................"
  SPRITE2 "...........X............"
@@ -348,6 +328,32 @@ ENDIF
  SPRITE2 "........................"
  SPRITE2 "........................"
 
+ELSE ; ATARIBABY laser-type dependent crosshair laser sight
+
+ SPRITE2 "........................"     ; The laser sights for a beam laser
+ SPRITE2 "........................"
+ SPRITE2 "...........X............"
+ SPRITE2 "...........X............"
+ SPRITE2 "...........X............"
+ SPRITE2 ".....XXXXXXXXXXXXX......"
+ SPRITE2 ".....X...........X......"
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+ SPRITE2 "...........+............"
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+ SPRITE2 ".....X...........X......"
+ SPRITE2 ".....XXXXXXXXXXXXX......"
+ SPRITE2 "...........X............"
+ SPRITE2 "...........X............"
+ SPRITE2 "...........X............"
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+
+ENDIF
+
 IF _GMA_RELEASE OR _SOURCE_DISK_FILES
 
  EQUB $31               ; This byte appears to be unused and just contains
@@ -362,29 +368,8 @@ ELIF _SOURCE_DISK_BUILD
 
 ENDIF
 
- ; ATARIBABY changed sprite to simple aim cross
- ; SPRITE2 "........................"     ; The laser sights for a military laser
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- ; SPRITE2 "........XXXXXXX........."
- ; SPRITE2 ".........X...X.........."
- ; SPRITE2 "..........X.X..........."
- ; SPRITE2 "...........X............"
- ; SPRITE2 "..XX...............XX..."
- ; SPRITE2 "..X.X.............X.X..."
- ; SPRITE2 "..X..X...........X..X..."
- ; SPRITE2 "..X...X....+....X...X..."
- ; SPRITE2 "..X..X...........X..X..."
- ; SPRITE2 "..X.X.............X.X..."
- ; SPRITE2 "..XX...............XX..."
- ; SPRITE2 "...........X............"
- ; SPRITE2 "..........X.X..........."
- ; SPRITE2 ".........X...X.........."
- ; SPRITE2 "........XXXXXXX........."
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- ; SPRITE2 "........................"
- 
+IF _SIGHTS = 2 ; ATARIBABY always crosshair laser sight
+
  SPRITE2 "........................"     ; The laser sights for a military laser
  SPRITE2 "........................"
  SPRITE2 "...........X............"
@@ -407,6 +392,32 @@ ENDIF
  SPRITE2 "........................"
  SPRITE2 "........................"
 
+ELSE ; ATARIBABY laser-type dependent crosshair laser sight
+
+ SPRITE2 "........................"     ; The laser sights for a military laser
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+ SPRITE2 "........XXXXXXX........."
+ SPRITE2 ".........X...X.........."
+ SPRITE2 "..........X.X..........."
+ SPRITE2 "...........X............"
+ SPRITE2 "..XX...............XX..."
+ SPRITE2 "..X.X.............X.X..."
+ SPRITE2 "..X..X...........X..X..."
+ SPRITE2 "..X...X....+....X...X..."
+ SPRITE2 "..X..X...........X..X..."
+ SPRITE2 "..X.X.............X.X..."
+ SPRITE2 "..XX...............XX..."
+ SPRITE2 "...........X............"
+ SPRITE2 "..........X.X..........."
+ SPRITE2 ".........X...X.........."
+ SPRITE2 "........XXXXXXX........."
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+ SPRITE2 "........................"
+
+ENDIF
+
 IF _GMA_RELEASE OR _SOURCE_DISK_FILES
 
  EQUB $45               ; This byte appears to be unused and just contains
@@ -420,30 +431,9 @@ ELIF _SOURCE_DISK_BUILD
                         ; assembly process
 
 ENDIF
-
- ; ATARIBABY changed sprite to simple aim cross
- ; SPRITE2 "..XXXXXXXXXXXXXXXXXXX..."     ; The laser sights for a mining laser
- ; SPRITE2 "..X........X........X..."
- ; SPRITE2 "..X.......XXX.......X..."
- ; SPRITE2 "....X......X......X....."
- ; SPRITE2 "XX...X....XXX....X...XX."
- ; SPRITE2 "X.....X....X....X.....X."
- ; SPRITE2 "X......X..XXX..X......X."
- ; SPRITE2 "X..........X..........X."
- ; SPRITE2 "X........XXXXX........X."
- ; SPRITE2 "X.X..XX..X...X..XX..X.X."
- ; SPRITE2 "XXXXXX.....X.....XXXXXX."
- ; SPRITE2 "X.X..XX..X...X..XX..X.X."
- ; SPRITE2 "X........XXXXX........X."
- ; SPRITE2 "X..........X..........X."
- ; SPRITE2 "X......X..XXX..X......X."
- ; SPRITE2 "X.....X....X....X.....X."
- ; SPRITE2 "XX...X....XXX....X...XX."
- ; SPRITE2 "....X......X......X....."
- ; SPRITE2 "..X.......XXX.......X..."
- ; SPRITE2 "..X........X........X..."
- ; SPRITE2 "..XXXXXXXXXXXXXXXXXXX..."
  
+IF _SIGHTS = 2 ; ATARIBABY always crosshair laser sight
+
  SPRITE2 "........................"     ; The laser sights for a mining laser
  SPRITE2 "........................"
  SPRITE2 "...........X............"
@@ -465,6 +455,32 @@ ENDIF
  SPRITE2 "...........X............"
  SPRITE2 "........................"
  SPRITE2 "........................"
+
+ELSE ; ATARIBABY laser-type dependent crosshair laser sight
+
+ SPRITE2 "..XXXXXXXXXXXXXXXXXXX..."     ; The laser sights for a mining laser
+ SPRITE2 "..X........X........X..."
+ SPRITE2 "..X.......XXX.......X..."
+ SPRITE2 "....X......X......X....."
+ SPRITE2 "XX...X....XXX....X...XX."
+ SPRITE2 "X.....X....X....X.....X."
+ SPRITE2 "X......X..XXX..X......X."
+ SPRITE2 "X..........X..........X."
+ SPRITE2 "X........XXXXX........X."
+ SPRITE2 "X.X..XX..X...X..XX..X.X."
+ SPRITE2 "XXXXXX.....X.....XXXXXX."
+ SPRITE2 "X.X..XX..X...X..XX..X.X."
+ SPRITE2 "X........XXXXX........X."
+ SPRITE2 "X..........X..........X."
+ SPRITE2 "X......X..XXX..X......X."
+ SPRITE2 "X.....X....X....X.....X."
+ SPRITE2 "XX...X....XXX....X...XX."
+ SPRITE2 "....X......X......X....."
+ SPRITE2 "..X.......XXX.......X..."
+ SPRITE2 "..X........X........X..."
+ SPRITE2 "..XXXXXXXXXXXXXXXXXXX..."
+
+ENDIF
 
 IF _GMA_RELEASE OR _SOURCE_DISK_FILES
 

@@ -40,6 +40,11 @@ C1541?=c1541
 #                         old (default)
 #                         new (without ELITE label under radar and with some corners clean-up)
 #
+#   sights=<sights>       Set specified laser sights
+#
+#                         old (default, laser-type dependent sights)
+#                         cross (always crosshair laser sights)
+#
 # So, for example:
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
@@ -83,6 +88,10 @@ C1541?=c1541
 # _DIALS
 #   1 = Old (default)
 #   2 = New
+#
+# _SIGHTS
+#   1 = Old (default)
+#   2 = Cross
 #
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
@@ -145,6 +154,12 @@ else
   dials-number=1
 endif
 
+ifeq ($(sights), cross)
+  sights-number=2
+else
+  sights-number=1
+endif
+
 .PHONY:all
 all: c64-build c64-disk
 
@@ -157,6 +172,7 @@ c64-build:
 	echo _LASER_BEAM=$(laserbeam-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _FONT=$(font-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _DIALS=$(dials-number) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _SIGHTS=$(sights-number) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)
