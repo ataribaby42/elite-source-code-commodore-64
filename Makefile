@@ -30,6 +30,11 @@ C1541?=c1541
 #                         ray (one thin laser ray originating from the nose of the craft, as it should be on the Cobra Mk. III)
 #                         line (one laser line originating from the nose of the craft, as it should be on the Cobra Mk. III, and matching the AI ships’ lasers)
 #
+#   font=<font>    		Set specified font
+#
+#                         c64 (default)
+#                         zx (ZX Spectrum Elite font)
+#
 # So, for example:
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
@@ -65,6 +70,10 @@ C1541?=c1541
 #   1 = rays (default)
 #   2 = ray
 #   3 = line
+#
+# _FONT
+#   1 = C64 (default)
+#   2 = ZX Spectrum Elite
 #
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
@@ -115,6 +124,12 @@ else
   laserbeam-number=1
 endif
 
+ifeq ($(font), zx)
+  font-number=2
+else
+  font-number=1
+endif
+
 .PHONY:all
 all: c64-build c64-disk
 
@@ -125,6 +140,7 @@ c64-build:
 	echo _MATCH_ORIGINAL_BINARIES=$(match-original-binaries) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _MAX_COMMANDER=$(max-commander) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _LASER_BEAM=$(laserbeam-number) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _FONT=$(font-number) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)
