@@ -1616,13 +1616,11 @@ ENDIF
 
 .FONT
 
-; ATARIBABY Changed for new zx spectrum inspired font
-
-IF _FONT = 2
+IF _FONT = 2 ; ATARIBABY new ZX Spectrum Elite inspired font
 
  INCBIN "1-source-files/fonts/C.ZXFONT.bin"
 
-ELSE
+ELSE ; ATARIBABY default C64 Elite font
  
  INCBIN "1-source-files/fonts/C.FONT.bin"
 
