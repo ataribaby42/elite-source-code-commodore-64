@@ -3043,6 +3043,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  JSR DORND              ; Set A and X to random numbers
 
  CMP #235               ; If the random number in A < 235 (92% chance), jump to
@@ -3210,6 +3211,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  JMP NOMVETR            ; Jump to NOMVETR to return to the main game loop
 
 ; ******************************************************************************
@@ -4926,6 +4928,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  LDA VIC+$15            ; Clear bits 2-7 of VIC register $15 to disable sprites
  AND #%00000011         ; 2 to 7, so this hides the Trumble sprites
  STA VIC+$15
@@ -4942,6 +4945,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  LSR TRIBBLE+1          ; Halve the number of Trumbles in TRIBBLE(1 0) as the
  ROR TRIBBLE            ; cabin temperature is high enough to kill them off
                         ; (this will eventually bring the number down to zero)
@@ -24410,6 +24414,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
                         ; We now set up sprite 1, so we can use it to show the
                         ; explosion burst as a colourful sprite (along with the
                         ; usual cloud of explosion particles)
@@ -24699,6 +24704,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  LDA K%+6               ; Store the z_lo coordinate for the planet (which will
  STA RAND+3             ; be pretty random) in the RAND+3 seed
 
@@ -28735,6 +28741,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  LDA #%00000000         ; Clear bits 0 to 7 of VIC register $15 to disable all
  STA VIC+$15            ; eight sprites
 
@@ -28784,6 +28791,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
 ; ******************************************************************************
 ;
 ;       Name: SETL1
@@ -28851,6 +28859,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
 ; ******************************************************************************
 ;
 ;       Name: KS3
@@ -32840,6 +32849,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  CLI                    ; Enable interrupts again
 
  JSR SWAPPZERO          ; The call to KERNALSETUP above swapped the contents of
@@ -33192,6 +33202,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  CLI                    ; Enable interrupts again
 
  JSR SWAPPZERO          ; The call to KERNALSETUP above swapped the contents of
@@ -34143,6 +34154,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  LDA VIC+$15            ; Clear bit 1 of VIC register $15 to disable sprite 1,
  AND #%11111101         ; so this removes the explosion sprite from the screen
  STA VIC+$15            ; if there is one (so that the explosion burst only
@@ -34521,6 +34533,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  PLA                    ; Retrieve the value of Y from the stack, which we
  TAY                    ; stored at the start of the subroutine, so the value of
                         ; Y is preserved
@@ -34851,6 +34864,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  SEI                    ; Disable interrupts while we read the keyboard matrix
 
  STX $DC00              ; Set $DC00 = X to select the column in the keyboard
@@ -34885,6 +34899,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  TXA                    ; Copy the result from X into A
 
  RTS                    ; Return from the subroutine
@@ -36454,6 +36469,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  JSR BDENTRY            ; Start playing the configured background music
 
  LDA #$FF               ; Set MUPLA to $FF to indicate that music is now playing
@@ -36553,6 +36569,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  LDA #0                 ; Set MUPLA to 0 to indicate that no music is playing
  STA MUPLA
 
@@ -36600,6 +36617,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
 ; ******************************************************************************
 ;
 ;       Name: KTRAN
@@ -43937,6 +43955,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
 .iansint
 
  LDA VIC+$19            ; Set bit 7 of VIC register $19, to acknowledge any IRQ
@@ -44968,6 +44987,7 @@ ENDIF
                         ; See the memory map at the top of page 264 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  SEI                    ; Disable interrupts while we configure the VIC-II, CIA
                         ; and SID chips and update the interrupt handlers
 
@@ -45098,6 +45118,7 @@ ENDIF
                         ; See the memory map at the top of page 265 in the
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
+						
  LDA #%100              ; Set L1M to %100, so the default action of the SETL1
  STA L1M                ; routine will configure memory as above
 
