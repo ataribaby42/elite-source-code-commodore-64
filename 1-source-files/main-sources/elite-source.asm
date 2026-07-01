@@ -3447,7 +3447,7 @@ ENDIF
 ; The key presses that are processed are as follows:
 ;
 ;   * Space and "?" to speed up and slow down
-;   * "U", "T" and "M" to disarm, arm and fire missiles
+;   * "U", "T" and "M" to unarm, target and fire missiles
 ;   * "C=" to fire an energy bomb
 ;   * Left arrow to launch an escape pod
 ;   * "J" to initiate an in-system jump
@@ -3487,12 +3487,12 @@ ENDIF
  AND NOMSL              ; in NOMSL is non-zero, keep going, otherwise jump down
  BEQ MA20               ; to MA20 to skip the following
 
- LDY #GREEN2            ; The "disarm missiles" key is being pressed, so call
- JSR ABORT              ; ABORT to disarm the missile and update the missile
+ LDY #GREEN2            ; The "unarm missiles" key is being pressed, so call
+ JSR ABORT              ; ABORT to unarm the missile and update the missile
                         ; indicators on the dashboard to green (Y = $EE)
 
  LDY #sfxboop           ; Call the NOISE routine with Y = sfxboop to make a low,
- JSR NOISE              ; long beep to indicate the missile is now disarmed
+ JSR NOISE              ; long beep to indicate the missile is now unarmed
 
  LDA #0                 ; Set MSAR to 0 to indicate that no missiles are
  STA MSAR               ; currently armed
@@ -26094,7 +26094,7 @@ ENDIF
 ;       Name: ABORT
 ;       Type: Subroutine
 ;   Category: Dashboard
-;    Summary: Disarm missiles and update the dashboard indicators
+;    Summary: Unarm missiles and update the dashboard indicators
 ;
 ; ------------------------------------------------------------------------------
 ;
@@ -26108,7 +26108,7 @@ ENDIF
 ;
 ;                         * #YELLOW2 = yellow/white (armed)
 ;
-;                         * #GREEN2 = green (disarmed)
+;                         * #GREEN2 = green (unarmed)
 ;
 ; ******************************************************************************
 
@@ -26118,7 +26118,7 @@ ENDIF
                         ; no target lock for our missile
 
                         ; Fall through into ABORT2 to set the missile lock to
-                        ; the value in X, which effectively disarms the missile
+                        ; the value in X, which effectively unarms the missile
 
 ; ******************************************************************************
 ;
@@ -26146,7 +26146,7 @@ ENDIF
 ;
 ;                         * #YELLOW2 = yellow/white (armed)
 ;
-;                         * #GREEN2 = green (disarmed)
+;                         * #GREEN2 = green (unarmed)
 ;
 ; ******************************************************************************
 
@@ -29387,7 +29387,7 @@ ENDIF
  BNE KS5                ; If our missile is not locked on this ship, jump to KS5
 
  LDY #GREEN2            ; Otherwise we need to remove our missile lock, so call
- JSR ABORT              ; ABORT to disarm the missile and update the missile
+ JSR ABORT              ; ABORT to unarm the missile and update the missile
                         ; indicators on the dashboard to green (Y = #GREEN2)
 
  LDA #200               ; Print recursive token 40 ("TARGET LOST") as an
@@ -35003,7 +35003,7 @@ ENDIF
 
  EQUB $60               ; TAB       KYTB+8      Energy bomb
  EQUB $70               ; ESCAPE    KYTB+9      Launch escape pod
- EQUB $23               ; T         KYTB+10     Arm missile
+ EQUB $23               ; T         KYTB+10     Target missile
  EQUB $35               ; U         KYTB+11     Unarm missile
  EQUB $65               ; M         KYTB+12     Fire missile
  EQUB $22               ; E         KYTB+13     E.C.M.
@@ -41918,8 +41918,7 @@ ENDIF
 .MV30
 
  JSR SCAN               ; Draw the ship on the scanner, which has the effect of
-                        ; removing it, as it's already at this point and hasn't
-                        ; yet moved
+                        ; removing it as it hasn't yet moved
 
 ; ******************************************************************************
 ;
@@ -48352,7 +48351,7 @@ ENDIF
 ;
 ;                         * #YELLOW2 = yellow/white (armed)
 ;
-;                         * #GREEN2 = green (disarmed)
+;                         * #GREEN2 = green (unarmed)
 ;
 ; ------------------------------------------------------------------------------
 ;
