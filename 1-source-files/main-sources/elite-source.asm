@@ -34650,6 +34650,13 @@ ENDIF
                         ; them in the z-axis by a fixed amount in the opposite
                         ; direction to travel, thus performing a jump towards
                         ; our destination
+						
+IF _WARPJUNK      		; ATARIBABY warp junk modification 						
+
+ JSR WARPJUNK           ; ATARIBABY Remove any junk from the local bubble before the
+                        ; jump, otherwise asteroids, cargo canisters and escape
+                        ; pods get dragged along for the ride
+ENDIF
 
  LDA #$81               ; Set R = R = P = $81
  STA S
@@ -34712,6 +34719,116 @@ ENDIF
  JMP NOISE              ; call the NOISE routine with Y = sfxboop to make a
                         ; long, low beep and return from the subroutine using a
                         ; tail call
+IF _WARPJUNK      		; ATARIBABY warp junk modification
+
+; ATARIBABY
+; ******************************************************************************
+;
+;       Name: WARPJUNK
+;       Type: Subroutine
+;   Category: Flight
+;    Summary: Remove junk before an accepted in-system jump
+;
+; ------------------------------------------------------------------------------
+;
+; Remove all junk objects from the local bubble before we perform an accepted
+; in-system jump. Any junk currently shown on the scanner is erased first, so
+; removing it does not leave a frozen scanner blip behind.
+;
+; This routine must only be called once WARP has already checked that the jump is
+; allowed, otherwise pressing "J" too close to the planet or sun would delete
+; junk even though the in-system jump is blocked.
+;
+; Junk is defined in the same way as the JUNK counter: escape pods, alloy plates,
+; cargo canisters, boulders, asteroids, splinters, Shuttles, Transporters, and
+; the special-cased rock hermit.
+;
+; ******************************************************************************
+
+.WARPJUNK
+
+ LDX #2                 ; Start with ship slot 2, as slots 0 and 1 are reserved
+                        ; for the planet and sun/station
+
+.WJLOOP
+
+ LDA FRIN,X             ; Fetch the ship type in this slot
+
+ BEQ WJDONE             ; If this slot is empty then we are done, as FRIN is
+                        ; compacted and zero-terminated
+
+ CMP #HER               ; If this is a rock hermit, then it counts as junk, so
+ BEQ WJKILL             ; jump to WJKILL to remove it
+
+ CMP #JL                ; If A < JL then this object is not junk, so jump to
+ BCC WJNEXT             ; WJNEXT to check the next slot
+
+ CMP #JH                ; If A >= JH then this object is not junk, so jump to
+ BCS WJNEXT             ; WJNEXT to check the next slot
+
+.WJKILL
+
+ STA TYPE               ; Store the ship type in TYPE, as SCAN needs this to
+                        ; remove the ship from the scanner
+
+ PHA                    ; Store the ship type on the stack while we set INF
+
+ JSR GINF               ; Set INF to point to the ship data block for slot X
+
+ LDY #31                ; Copy the ship's data block into INWK, as SCAN works
+                        ; on the ship data in INWK rather than directly in K%
+
+.WJCOPY
+
+ LDA (INF),Y            ; Copy the Y-th byte from the ship data block pointed
+ STA INWK,Y             ; to by INF into the Y-th byte of INWK
+
+ DEY                    ; Decrement the counter to point at the next byte
+ BPL WJCOPY             ; Loop back until all 32 bytes have been copied
+
+ STX XSAV               ; Store the ship slot number while we call SCAN
+
+ JSR SCAN               ; Remove the ship from the scanner, if it is currently
+                        ; shown there; SCAN uses EOR plotting, so drawing an
+                        ; existing scanner blip again erases it
+
+ LDX XSAV               ; Restore the ship slot number into X
+
+ JSR GINF               ; Set INF to point to the ship data block again, in case
+                        ; the drawing routines used by SCAN changed it
+
+ LDY #31                ; Clear bit 4 in the ship's byte #31 in the original
+ LDA (INF),Y            ; data block, so it is marked as hidden from the scanner
+ AND #%11101111         ; before KILLSHP removes the ship from the local bubble
+ STA (INF),Y
+
+ PLA                    ; Restore the ship type so we can fetch its blueprint
+ ASL A                  ; Set Y = ship type * 2
+ TAY
+
+ LDA XX21-2,Y           ; Set XX0(1 0) to point to the ship blueprint, as this
+ STA XX0                ; is needed by KILLSHP
+ LDA XX21-1,Y
+ STA XX0+1
+
+ JSR KILLSHP            ; Remove this junk item from the local bubble, shuffling
+                        ; the later FRIN slots and ship data blocks down to fill
+                        ; the gap, and decrementing JUNK
+
+ LDX XX4                ; Restore the slot we just removed
+ JMP WJLOOP             ; Check the same slot again, as the next ship has been
+                        ; shuffled down into this slot by KILLSHP
+
+.WJNEXT
+
+ INX                    ; Move on to the next ship slot
+ BNE WJLOOP             ; Loop back to check it (this BNE is effectively a JMP)
+
+.WJDONE
+
+ RTS                    ; Return from the subroutine
+ 
+ENDIF
 
 ; ******************************************************************************
 ;
