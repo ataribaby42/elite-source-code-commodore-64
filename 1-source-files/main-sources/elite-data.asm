@@ -1195,11 +1195,27 @@ ENDMACRO
  CHAR 'D'
  EQUB 0
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ CHAR 'I'               ; Token 113:    "I.F.F. UNIT"
+ CHAR '.'               ;
+ CHAR 'F'               ; Encoded as:   "I.F.F. [14]"
+ CHAR '.'
+ CHAR 'F'
+ CHAR '.'
+ CHAR ' '
+ RTOK 14
+
+ELSE
+
  RTOK 121               ; Token 113:    "ENERGY BOMB"
  CHAR 'B'               ;
  CHAR 'O'               ; Encoded as:   "[121]BOMB"
  CHAR 'M'
  CHAR 'B'
+
+ENDIF
+
  EQUB 0
 
 IF _GMA_RELEASE OR _SOURCE_DISK_FILES
@@ -1479,11 +1495,27 @@ ENDIF
 
 IF _GMA_RELEASE OR _SOURCE_DISK_FILES
 
- SKIP 4                 ; These bytes appear to be unused
+ IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+  SKIP 1                ; These bytes appear to be unused
+
+ ELSE
+
+  SKIP 4                ; These bytes appear to be unused
+
+ ENDIF
 
 ELIF _SOURCE_DISK_BUILD
 
- SKIP 5                 ; These bytes appear to be unused
+ IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+  SKIP 2                ; These bytes appear to be unused
+
+ ELSE
+
+  SKIP 5                ; These bytes appear to be unused
+
+ ENDIF
 
 ENDIF
 

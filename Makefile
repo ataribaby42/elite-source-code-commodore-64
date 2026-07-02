@@ -47,6 +47,8 @@ C1541?=c1541
 #
 #   warpjunk=yes        Enables junk objects are deleted before warp engages, so they are not dragged along
 #
+#   iffunit=yes         Enables I.F.F. Unit replaces Energy Bomb
+#
 # So, for example:
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
@@ -98,6 +100,10 @@ C1541?=c1541
 # _WARPJUNK
 #   FALSE = Old behaviour (default)
 #   TRUE = Junk objects are deleted before warp engages, so they are not dragged along
+#
+# _IFFUNIT
+#   FALSE = Energy Bomb (default)
+#   TRUE  = I.F.F. Unit
 #
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
@@ -172,6 +178,12 @@ else
   warpjunk-enabled=FALSE
 endif
 
+ifeq ($(iffunit), yes)
+  iffunit-enabled=TRUE
+else
+  iffunit-enabled=FALSE
+endif
+
 .PHONY:all
 all: c64-build c64-disk
 
@@ -186,6 +198,7 @@ c64-build:
 	echo _DIALS=$(dials-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _SIGHTS=$(sights-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _WARPJUNK=$(warpjunk-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _IFF_UNIT=$(iffunit-enabled) >> 1-source-files/main-sources/elite-build-options.asm	
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)
