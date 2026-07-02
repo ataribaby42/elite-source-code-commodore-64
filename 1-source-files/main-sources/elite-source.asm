@@ -1716,11 +1716,23 @@ ENDIF
 
 .BOMB
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ SKIP 1                 ; I.F.F. unit
+                        ;
+                        ;   * 0 = not fitted
+                        ;
+                        ;   * $7F = fitted
+
+ELSE
+
  SKIP 1                 ; Energy bomb
                         ;
                         ;   * 0 = not fitted
                         ;
                         ;   * $7F = fitted
+
+ENDIF
 
 .ENGY
 
@@ -3448,7 +3460,7 @@ ENDIF
 ;
 ;   * Space and "?" to speed up and slow down
 ;   * "U", "T" and "M" to unarm, target and fire missiles
-;   * "C=" to fire an energy bomb
+;   * "C=" to fire an energy bomb, or ignored when _IFF_UNIT is TRU
 ;   * Left arrow to launch an escape pod
 ;   * "J" to initiate an in-system jump
 ;   * "E" to deploy E.C.M. anti-missile countermeasures
@@ -3540,6 +3552,14 @@ ENDIF
 
 .MA24
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ LDA KY12               ; The "C=" key normally fires the energy bomb, but the
+                        ; energy bomb has been replaced by the passive I.F.F.
+                        ; unit, so pressing "C=" no longer does anything
+
+ELSE
+
  LDA KY12               ; If "C=" is being pressed, keep going, otherwise jump
  BEQ MA76               ; down to MA76 to skip the following
 
@@ -3567,6 +3587,8 @@ ENDIF
 
  LDY #sfxbomb           ; Call the NOISE routine with Y = sfxbomb to make the
  JSR NOISE              ; sound of the energy bomb going off
+
+ENDIF
 
 .MA76
 
@@ -23103,7 +23125,17 @@ ENDIF
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 5250              ; 6  Fuel Scoops                525.0 Cr
  EQUW 10000             ; 7  Escape Pod                1000.0 Cr
- EQUW 9000              ; 8  Energy Bomb                900.0 Cr
+
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+  
+ EQUW 25000             ; 8  I.F.F. Unit               1500.0 Cr
+ 
+ELSE 
+ 
+ EQUW 900               ; 8  Energy Bomb                900.0 Cr
+  
+ENDIF
+
  EQUW 15000             ; 9  Energy Unit               1500.0 Cr
  EQUW 10000             ; 10 Docking Computer          1000.0 Cr
  EQUW 50000             ; 11 Galactic Hyperspace       5000.0 Cr
@@ -25164,8 +25196,18 @@ ENDIF
  JSR GINF               ; Call GINF to get the address of the data block for
                         ; ship slot X and store it in INF
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ LDY #NI%-1             ; We now want to copy the whole ship data block into
+                        ; INWK, including the NEWB flags in byte #36, so the
+                        ; I.F.F. scanner tail knows whether the ship is hostile
+
+ELSE
+
  LDY #31                ; We now want to copy the first 32 bytes from the ship's
                         ; data block into INWK, so set a counter in Y
+
+ENDIF
 
 .WSL2
 
@@ -50235,6 +50277,13 @@ ENDIF
 
  ADC #123               ; Set X1 = 123 + (x_sign x_hi)
  STA X1
+ 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ STA T1                 ; Store the scanner x-coordinate so IFFTAIL can draw a
+                        ; small tail marker for hostile ships if I.F.F. is fitted
+
+ENDIF
 
                         ; Next, we convert the z_hi coordinate of the ship into
                         ; the y-coordinate of the base of the ship's stick,
@@ -50331,6 +50380,13 @@ ENDIF
  STA Y1                 ; Store A in Y1, as it now contains the screen
                         ; y-coordinate for the ship's dot, clipped so that it
                         ; fits within the dashboard
+
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ STA T                  ; Store the scanner dot y-coordinate so IFFTAIL can add
+                        ; the missing right arm at the top of a hostile blip
+
+ENDIF						
 
  SEC                    ; Set A = A - SC to get the stick length, by reversing
  SBC SC                 ; the ADC SC we did above. This clears the C flag if the
@@ -50452,6 +50508,13 @@ ENDIF
 
  BNE VLL1               ; If we still have more stick to draw, jump up to VLL1
                         ; to draw the next pixel
+						
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ JMP IFFTAIL            ; The stick is finished, so draw the I.F.F. hostile tail
+                        ; if required, returning from SCAN via IFFTAIL
+
+ENDIF						
 
 .RTS
 
@@ -50523,7 +50586,100 @@ ENDIF
  BNE VLL2               ; If we still have more stick to draw, jump up to VLL2
                         ; to draw the next pixel
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ JMP IFFTAIL            ; The stick is finished, so draw the I.F.F. hostile tail
+                        ; if required, returning from SCAN via IFFTAIL
+
+ELSE
+
  RTS                    ; Return from the subroutine
+
+ENDIF
+
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+; ******************************************************************************
+;
+;       Name: IFFTAIL
+;       Type: Subroutine
+;   Category: Dashboard
+;    Summary: Draw the I.F.F. hostile T marker on the scanner
+;
+; ------------------------------------------------------------------------------
+;
+; If the I.F.F. unit is fitted, this completes the top of a hostile ship's
+; scanner blip into a T shape. As SCAN uses EOR logic, calling this both
+; displays the I.F.F. marker and erases it again.
+;
+; ------------------------------------------------------------------------------
+;
+; Arguments:
+;
+;   T1                  The scanner x-coordinate saved by SCAN
+;
+;   T                   The scanner dot y-coordinate saved by SCAN
+;
+;   INWK+36             The ship's NEWB flags; bit 2 means hostile
+;
+;   BOMB                The I.F.F. unit equipment flag, reusing the old energy
+;                       bomb commander byte
+;
+; ******************************************************************************
+
+.IFFTAIL
+
+ LDA BOMB               ; If we do not have an I.F.F. unit fitted, return from
+ BEQ IFFR               ; the subroutine without drawing an I.F.F. tail
+
+ LDA INWK+36            ; If bit 2 of the ship's NEWB flags is clear, then this
+ AND #%00000100         ; ship is not hostile, so return without drawing a tail
+ BEQ IFFR
+
+ LDA T1                 ; The normal scanner dot already gives us the left arm
+ CLC                    ; and centre of a T, with the stick coming out of the
+ ADC #4                 ; right side of the dot. Draw one extra multicolour
+ STA X1                 ; pixel two positions to the right to complete the T.
+
+ LDA T                  ; Draw the extra right arm on the lower row of the
+ STA Y1                 ; double-height scanner dot
+ JSR IFFPIX
+
+ DEC Y1                 ; And draw it again on the upper row, so the hostile
+ JMP IFFPIX             ; marker matches the normal double-height scanner dot
+
+.IFFPIX
+
+ LDY Y1                 ; Fetch the y-coordinate into Y
+
+ LDA X1                 ; Set SC(1 0) to the screen address of the character row
+ AND #%11111000         ; containing the point we want to draw, matching CPIX2
+ CLC
+ ADC ylookupl,Y
+ STA SC
+ LDA ylookuph,Y
+ ADC #0
+ STA SC+1
+
+ TYA                    ; Set Y to the pixel row within the character block
+ AND #7
+ TAY
+
+ LDA X1                 ; Set X to the horizontal pixel position within the
+ AND #7                 ; character block
+ TAX
+
+ LDA CTWOS2,X           ; Fetch a one-pixel multicolour bitmap byte and mask it
+ AND COL                ; with the scanner colour
+
+ EOR (SC),Y             ; Draw the extra T arm using EOR logic, so the same
+ STA (SC),Y             ; routine erases it again when the ship is redrawn
+
+.IFFR
+
+ RTS                    ; Return from the subroutine
+
+ENDIF
 
 ; ******************************************************************************
 ;
