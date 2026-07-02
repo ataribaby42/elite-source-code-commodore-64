@@ -45,6 +45,8 @@ C1541?=c1541
 #                         old (default, laser-type dependent sights)
 #                         cross (always crosshair laser sights)
 #
+#   warpjunk=yes        Enables junk objects are deleted before warp engages, so they are not dragged along
+#
 # So, for example:
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
@@ -92,6 +94,10 @@ C1541?=c1541
 # _SIGHTS
 #   1 = Old (default)
 #   2 = Cross
+#
+# _WARPJUNK
+#   FALSE = Old behaviour (default)
+#   TRUE = Junk objects are deleted before warp engages, so they are not dragged along
 #
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
@@ -160,6 +166,12 @@ else
   sights-number=1
 endif
 
+ifeq ($(warpjunk), yes)
+  warpjunk-enabled=TRUE
+else
+  warpjunk-enabled=FALSE
+endif
+
 .PHONY:all
 all: c64-build c64-disk
 
@@ -173,6 +185,7 @@ c64-build:
 	echo _FONT=$(font-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _DIALS=$(dials-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _SIGHTS=$(sights-number) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _WARPJUNK=$(warpjunk-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)
