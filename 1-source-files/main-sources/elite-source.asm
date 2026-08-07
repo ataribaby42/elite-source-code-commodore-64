@@ -1430,6 +1430,14 @@ ENDIF
                         ;
                         ;   * 10 for a pulse laser
                         ;
+						; It gets decremented by 2 on each iteration around the
+                        ; main game loop and is set to a non-zero value for
+                        ; pulse lasers only
+                        ;
+                        ; The laser only fires when the value of LASCT hits
+                        ; zero, so for pulse lasers with a value of 10, that
+                        ; means the laser fires once every five iterations
+                        ; around the main game loop (LASCT = 10, 8, 6, 4, 2, 0)
                         ;
                         ; In comparison, beam lasers fire continuously as the
                         ; value of LASCT is always 0
@@ -14579,7 +14587,7 @@ ENDIF
  STA T
 
  TXA                    ; Set A = |A|
- AND #127
+ AND #%01111111
 
  BEQ MU6                ; If A = 0, jump to MU6 to set P(1 0) = 0 and return
                         ; from the subroutine using a tail call
@@ -24262,8 +24270,8 @@ ENDIF
                         ;           = y +/- random * cloud size
 
  BNE EX11               ; If A is non-zero, the particle is off-screen as the
-                        ; coordinate is bigger than 255), so jump to EX11 to do
-                        ; the next particle
+                        ; coordinate is either negative or bigger than 255, so
+                        ; jump to EX11 to do the next particle
 
  CPX #2*Y-1             ; If X > the y-coordinate of the bottom of the screen,
  BCS EX11               ; the particle is off the bottom of the screen, so jump
