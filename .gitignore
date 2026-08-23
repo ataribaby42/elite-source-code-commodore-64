@@ -24,5 +24,6 @@ $RECYCLE.BIN/
 run.bat
 
 # Build artifacts
-/5-compiled-game-disks
 /3-assembled-output
+/5-compiled-game-disks
+/5-compiled-game-tapes
