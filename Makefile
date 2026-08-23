@@ -10,8 +10,10 @@ C1541?=c1541
 #
 #   variant=<release>   Build the specified variant:
 #
-#                         gma85-ntsc (default)
+#                         gma85-ntsc (default disk build)
 #                         gma86-pal
+#                         tape-pal
+#                         tape-ntsc
 #                         source-disk-build (the binaries we get from running a build)
 #                         source-disk-files (the binaries already on the source disk)
 #
@@ -53,8 +55,18 @@ C1541?=c1541
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
 #
-# will build an unencrypted GMA85 PAL variant with a maxed-out commander,
-# no workspace noise and no crc32 verification
+# will build an unencrypted PAL disk variant with a maxed-out commander,
+# no workspace noise and no crc32 verification.
+#
+#   make variant=tape-pal encrypt=no match=no verify=no
+#
+# builds the PAL cassette:
+#
+#   5-compiled-game-tapes/elite-commodore-64-flicker-free-pal.tap
+#
+# Use variant=tape-ntsc for:
+#
+#   5-compiled-game-tapes/elite-commodore-64-flicker-free-ntsc.tap
 #
 # The following variables are written into elite-build-options.asm depending on
 # the above arguments, so they can be passed to BeebAsm:
@@ -132,18 +144,42 @@ ifeq ($(variant), source-disk-build)
   variant-number=3
   folder=source-disk-build
   suffix=-flicker-free-source-disk-build
+  tape-video=pal
+  media-target=c64-disk
 else ifeq ($(variant), source-disk-files)
   variant-number=4
   folder=source-disk-files
   suffix=-flicker-free-source-disk-files
+  tape-video=pal
+  media-target=c64-disk
 else ifeq ($(variant), gma86-pal)
   variant-number=2
   folder=gma86-pal
   suffix=-flicker-free-gma86-pal
+  tape-video=pal
+  media-target=c64-disk
+else ifeq ($(variant), tape-pal)
+  # Tape PAL uses the PAL/GMA86 game build.
+  variant-number=2
+  folder=gma86-pal
+  suffix=-flicker-free-pal
+  tape-video=pal
+  tape-output=5-compiled-game-tapes/elite-commodore-64-flicker-free-pal.tap
+  media-target=c64-tape
+else ifeq ($(variant), tape-ntsc)
+  # Tape NTSC uses the NTSC/GMA85 game build.
+  variant-number=1
+  folder=gma85-ntsc
+  suffix=-flicker-free-ntsc
+  tape-video=ntsc
+  tape-output=5-compiled-game-tapes/elite-commodore-64-flicker-free-ntsc.tap
+  media-target=c64-tape
 else
   variant-number=1
   folder=gma85-ntsc
   suffix=-flicker-free-gma85-ntsc
+  tape-video=ntsc
+  media-target=c64-disk
 endif
 
 ifeq ($(laserbeam), ray)
@@ -184,8 +220,8 @@ else
   iffunit-enabled=FALSE
 endif
 
-.PHONY:all
-all: c64-build c64-disk
+.PHONY: all c64-build c64-disk c64-tape
+all: c64-build $(media-target)
 
 c64-build:
 	echo _VERSION=8 > 1-source-files/main-sources/elite-build-options.asm
@@ -250,3 +286,27 @@ else ifeq ($(variant-number), 2)
     -write 3-assembled-output/gma6.bin gma6 \
     -write 3-assembled-output/readme.txt "readme,s"
 endif
+
+# -----------------------------------------------------------------------------
+# Cassette build
+# -----------------------------------------------------------------------------
+#
+# Selected by:
+#
+#   variant=tape-pal
+#   variant=tape-ntsc
+#
+# On-tape KERNAL filename is simply "ELITE".
+#
+c64-tape: c64-build
+	$(BEEBASM) -i 1-source-files/main-sources/elite-tape-loader.asm -v >> 3-assembled-output/compile.txt
+	$(BEEBASM) -i 1-source-files/main-sources/elite-tape-boot.asm -v >> 3-assembled-output/compile.txt
+	$(PYTHON) 2-build-files/elite-tape.py \
+		--boot 3-assembled-output/elite-tape-boot.prg \
+		--comlod 3-assembled-output/COMLOD.bin \
+		--locode 3-assembled-output/LOCODE.bin \
+		--hicode 3-assembled-output/HICODE.bin \
+		--video $(tape-video) \
+		--name ELITE \
+		--full-boot \
+		--output $(tape-output)
