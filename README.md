@@ -55,6 +55,7 @@ See the [introduction](#introduction) for more information, or jump straight int
   * [Building the source disk build variant](#building-the-source-disk-build-variant)
   * [Building the source disk files variant](#building-the-source-disk-files-variant)
   * [Differences between the variants](#differences-between-the-variants)
+  * [Notes about tape version](#notes-about-tape-version)
 
 * [Notes on the original source files](#notes-on-the-original-source-files)
 
