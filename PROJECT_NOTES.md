@@ -14,8 +14,8 @@ GitHub:
 
 | Větev | Windows pracovní kopie | Známý kontrolní bod |
 |---|---|---|
-| main | E:\Development\Elite-C64\elite-source-code-commodore-64 | 7772b6d |
-| flicker-free | E:\Development\Elite-C64\elite-source-code-commodore-64-flicker-free | 79fefc9 |
+| main | E:\Development\Elite-C64\elite-source-code-commodore-64 | 88c6e66 |
+| flicker-free | E:\Development\Elite-C64\elite-source-code-commodore-64-flicker-free | b02bbe9 |
 
 Obě pracovní kopie používají stejný remote. Větev flicker-free navíc obsahuje
 vlastní vykreslovací úpravy, proto se zdrojové soubory mezi větvemi nesmějí
@@ -32,7 +32,7 @@ Hlavní reference:
 
 ## Běžná konfigurace projektu
 
-    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes
+    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes fpslimiter=yes inputfix=yes
 
 Použité volby projektu zahrnují:
 
@@ -44,7 +44,9 @@ Použité volby projektu zahrnují:
 - iffunit=yes: I.F.F. Unit místo Energy Bomb;
 - randomspawns=yes: opravené náhodné pozice lodí ve stylu Elite-A;
 - whitecockpit=yes: bílé okraje kokpitu, kompas a žlutý kanál scanneru;
-- unbound=yes: Elite: Unbound včetně kupovatelných a létatelných lodí.
+- unbound=yes: Elite: Unbound včetně kupovatelných a létatelných lodí;
+- fpslimiter=yes: limiter herní logiky odvozený z Elite 128;
+- inputfix=yes: současné používání klávesnice a joysticku jako v Elite 128.
 
 Tape PAL používá PAL herní variantu GMA86, ale výsledkem je TAP a nepoužívá
 diskovou sektorovou tabulku. Tape NTSC analogicky používá NTSC herní variantu
@@ -122,10 +124,11 @@ Kontrolní commity:
 
 ## Frame limiter z Elite 128
 
-Při unbound=yes je v main i flicker-free trvale aktivní limiter odvozený z
-Elite 128 Stefana Uhlmanna. Raster IRQ zvýší FrameCounter jednou za kompletní
-videosnímek a rutina FrameLimit čeká, dokud neuplynou čtyři snímky. Potom
-čítač vynuluje.
+Limiter je v main i flicker-free řízen samostatnou volbou fpslimiter=yes,
+nezávisle na unbound. Výchozí hodnota je no, takže build bez nové volby
+zachovává původní neomezené časování. Raster IRQ zvýší FrameCounter jednou za
+kompletní videosnímek a rutina FrameLimit čeká, dokud neuplynou čtyři snímky.
+Potom čítač vynuluje.
 
 Limiter se volá:
 
@@ -134,21 +137,48 @@ Limiter se volá:
 
 Konstanta FRAME_LIMIT je nastavena na 4, což omezuje herní logiku na 12,5 FPS
 u PAL a 15 FPS u NTSC. Na pomalém stock C64 čekání nastane jen tehdy, pokud by
-herní cyklus skončil dříve než za čtyři snímky. Limiter nemá konfigurační
-přepínač a při unbound=no se nevkládá žádný jeho kód.
+herní cyklus skončil dříve než za čtyři snímky. Volba pouze rozhoduje při
+sestavení; přepínač za běhu hry se nepřidával. Kód je uzavřen v
+IF _FPS_LIMITER a funguje i při unbound=no.
 
 Flicker-free implementace byla ověřena v emulátoru: diagnostická hodnota 25
 vytvořila očekávané velmi nízké stabilní FPS a finální hodnota 4 stabilizovala
 FPS v jednoduchých scénách.
 
-Kontrolní buildy main:
+Kontrolní buildy:
 
-- tape-pal unbound=yes prošel včetně TAP round-trip ověření;
-- tape-ntsc unbound=yes prošel včetně TAP round-trip ověření;
-- tape-pal unbound=no má binárně shodné LOCODE, HICODE a COMLOD jako před
-  změnou;
+- tape-pal a tape-ntsc s fpslimiter=yes prošly včetně TAP round-trip ověření
+  v obou větvích;
+- fpslimiter=no inputfix=no má binárně shodné LOCODE, HICODE a COMLOD jako
+  původní build;
+- fpslimiter=yes inputfix=no má binárně shodné binárky jako dřívější
+  implementace limiteru svázaná s unbound=yes;
 - šifrovaný gma86-pal prošel assemblerem, checksumem a šifrováním, ale tvorbu
   D64 nebylo možné dokončit v kontrolním prostředí bez c1541.
+
+Kontrolní commity původní implementace limiteru:
+
+| Větev | Commit |
+|---|---|
+| main | 88c6e66 Added frame limiter FRAME_LIMIT = 4: 12,5 FPS PAL / 15 FPS NTSC |
+| flicker-free | b02bbe9 Added frame limiter FRAME_LIMIT = 4: 12,5 FPS PAL / 15 FPS NTSC |
+
+## Paralelní klávesnice a joystick z Elite 128
+
+Volba inputfix=yes portuje změnu obsluhy vstupu z binárky Elite 128 1.0.
+Původní C64 rutina RDKEY při zvoleném joysticku po jeho načtení přeskočí celý
+sken klávesnice. Elite 128 po zpracování směrů, fire a reverzace os pokračuje
+na scanmatrix, takže hodnoty joysticku v KY3 až KY7 zůstanou nastavené a ve
+stejném průchodu se doplní klávesy z celé matice.
+
+V současném dokumentovaném zdroji je stejné chování implementováno podmíněným
+JMP scanmatrix za návěštím noswapxs. Není nutné přesouvat celou joystickovou
+část jako v binárce Elite 128. Změna zabírá 3 bajty HICODE a žádný LOCODE.
+
+inputfix=yes nemění volbu režimu JSTK: joystick musí být stále vybrán obvyklým
+způsobem. Jakmile je vybrán, lze současně řídit joystickem a používat klávesy
+pro rychlost, střely, ECM, mapy a další příkazy. Volba je nezávislá na unbound,
+výchozí hodnota je no a při inputfix=no zůstávají původní binárky beze změny.
 
 ## Automatické sektory GMA86 fast loaderu
 
@@ -249,8 +279,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3FA3 | 93 B | 92 B | $CC78 | 392 B | 391 B |
-| flicker-free | $3FF3 | 13 B | 12 B | $CCDC | 292 B | 291 B |
+| main | $3FA3 | 93 B | 92 B | $CC7B | 389 B | 388 B |
+| flicker-free | $3FF3 | 13 B | 12 B | $CCDF | 289 B | 288 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
@@ -271,6 +301,7 @@ Pro každou dotčenou větev:
 4. pokud se mění GMA, loader nebo velikost souborů, sestavit šifrovaný
    gma86-pal a zkontrolovat hlášku o úspěšném ověření sektorové tabulky;
 5. podle povahy změny sestavit také tape-ntsc a gma85-ntsc;
-6. zkontrolovat unbound=no, pokud změna zasahuje společnou cestu;
+6. zkontrolovat unbound=no a také fpslimiter=no inputfix=no, pokud změna
+   zasahuje společnou cestu;
 7. necommitovat ani nepushovat bez výslovného pokynu;
 8. při předání vytvořit ZIP s adresáři main/ a flicker-free/.

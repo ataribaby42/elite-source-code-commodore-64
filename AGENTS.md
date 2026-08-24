@@ -48,6 +48,8 @@ ověřte stav a poznámky aktualizujte.
 - Zachovávejte styl dokumentovaných BeebAsm zdrojů a srozumitelné komentáře.
 - Změny pro Elite: Unbound uzavírejte do IF _UNBOUND / ELSE / ENDIF, pokud
   nemají záměrně platit pro původní hru.
+- Frame limiter a paralelní vstup jsou nezávislé volby. Jejich kód uzavírejte
+  do IF _FPS_LIMITER a IF _INPUT_FIX, nikoli do IF _UNBOUND.
 - Při unbound=no musí zůstat původní chování. Pokud je to součástí zadání,
   ověřte také shodu původních binárek.
 - Upřednostňujte hodnoty odvozené z aktuálního buildu před pevnými adresami,
@@ -64,7 +66,7 @@ ověřte stav a poznámky aktualizujte.
 
 Nejčastěji používaná konfigurace:
 
-    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes
+    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes fpslimiter=yes inputfix=yes
 
 Spouštějte ji samostatně v main i flicker-free.
 
@@ -72,13 +74,13 @@ Po změně, která může ovlivnit velikost kódu, checksumy, GMA soubory, loade
 nebo tvorbu disku, sestavte také šifrovaný GMA86 PAL disk. Parametr encrypt=no
 je zde úmyslně vynechán:
 
-    make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes
+    make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes fpslimiter=yes inputfix=yes
 
 Podle rozsahu změny otestujte také:
 
-    make variant=tape-ntsc encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes
+    make variant=tape-ntsc encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes fpslimiter=yes inputfix=yes
 
-    make variant=gma85-ntsc match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes
+    make variant=gma85-ntsc match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes fpslimiter=yes inputfix=yes
 
 Build vyžaduje BeebAsm, Python 3 a pro diskové varianty c1541 z VICE.
 Výstupy jsou v adresářích 3-assembled-output,
@@ -157,4 +159,3 @@ V závěru vždy uveďte:
 - aktuální volnou paměť, pokud změna ovlivnila ASM kód;
 - zda je pracovní kopie čistá nebo jaké změny zůstávají;
 - že commit ani push nebyl proveden, pokud si je uživatel výslovně nevyžádal.
-

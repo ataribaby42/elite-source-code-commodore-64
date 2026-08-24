@@ -71,6 +71,10 @@ endef
 #
 #   unbound=yes         Enables all ELITE: Unbound gameplay and UI changes
 #
+#   fpslimiter=yes      Enables the Elite 128-style frame limiter
+#
+#   inputfix=yes        Enables parallel keyboard and joystick input
+#
 #   randomspawns=yes    Enables Elite-A-style random ship spawn positions
 #
 #   whitecockpit=yes    Draws the cockpit borders, compass and scanner yellow channel in white
@@ -144,6 +148,14 @@ endef
 # _UNBOUND
 #   FALSE = Original main-branch gameplay (default)
 #   TRUE  = ELITE: Unbound gameplay and UI changes
+#
+# _FPS_LIMITER
+#   FALSE = Original unrestricted game-loop timing (default)
+#   TRUE  = Limit game logic to one iteration every four video frames
+#
+# _INPUT_FIX
+#   FALSE = Original mutually exclusive keyboard/joystick input (default)
+#   TRUE  = Scan the keyboard while the joystick is enabled, as in Elite 128
 #
 # _RANDOM_SPAWNS
 #   FALSE = Original correlated ship spawn positions (default)
@@ -268,6 +280,18 @@ else
   unbound-enabled=FALSE
 endif
 
+ifeq ($(fpslimiter), yes)
+  fpslimiter-enabled=TRUE
+else
+  fpslimiter-enabled=FALSE
+endif
+
+ifeq ($(inputfix), yes)
+  inputfix-enabled=TRUE
+else
+  inputfix-enabled=FALSE
+endif
+
 ifeq ($(randomspawns), yes)
   randomspawns-enabled=TRUE
 else
@@ -296,6 +320,8 @@ c64-build:
 	echo _WARPJUNK=$(warpjunk-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _IFF_UNIT=$(iffunit-enabled) >> 1-source-files/main-sources/elite-build-options.asm	
 	echo _UNBOUND=$(unbound-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _FPS_LIMITER=$(fpslimiter-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _INPUT_FIX=$(inputfix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _RANDOM_SPAWNS=$(randomspawns-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _WHITE_COCKPIT=$(whitecockpit-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
