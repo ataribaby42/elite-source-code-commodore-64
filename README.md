@@ -204,10 +204,41 @@ By default the build process will create a typical Elite game disk with a standa
 
   * `variant=gma85-ntsc` (default)
   * `variant=gma86-pal`
+  * `variant=tape-pal`
+  * `variant=tape-ntsc`
   * `variant=source-disk-build`
   * `variant=source-disk-files`
 
 * `commander=max` - Start with a maxed-out commander (specifically, this is the test commander file from the original source, which is almost but not quite maxed-out)
+
+* `laserbeam=<mode>` - Set the player laser rendering mode:
+
+  * `laserbeam=rays` (default) - Use the original four laser rays.
+  * `laserbeam=ray` - Use one thin laser ray originating from the nose of the Cobra Mk III.
+  * `laserbeam=line` - Use one laser line originating from the nose of the Cobra Mk III, matching the AI ships' lasers.
+
+* `font=<font>` - Select the in-game font:
+
+  * `font=c64` (default) - Use the original Commodore 64 font.
+  * `font=zx` - Use the ZX Spectrum Elite font.
+
+* `dials=<dials>` - Select the dashboard bitmap:
+
+  * `dials=old` (default) - Use the original dashboard.
+  * `dials=new` - Use the updated dashboard without the ELITE label below the scanner and with cleaned-up corners.
+
+* `sights=<sights>` - Select the laser sights:
+
+  * `sights=old` (default) - Use the original laser-type-dependent sights.
+  * `sights=cross` - Always use crosshair laser sights.
+
+* `warpjunk=yes` - Delete junk objects before engaging the warp drive, so they are not dragged along. This option is disabled by default.
+
+* `iffunit=yes` - Replace the Energy Bomb with an I.F.F. Unit. This option is disabled by default.
+
+* `randomspawns=yes` - Use the Elite-A ship-position fix for traders, junk and AI ships. It gives both axes random signs and wider high-byte ranges, so ship types are no longer tied to a particular part of the screen. This option is disabled by default and can be combined with `unbound=yes`.
+
+* `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA and tape variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
 
 * `encrypt=no` - Disable encryption and checksum routines
 
@@ -220,6 +251,10 @@ So, for example:
 `make variant=gma86-pal commander=max encrypt=no match=no verify=no`
 
 will build an unencrypted GMA85 PAL variant with a maxed-out commander, no workspace noise and no crc32 verification.
+
+For example, the following enables all the added visual and gameplay options in a PAL tape build:
+
+`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes encrypt=no match=no verify=no`
 
 The unencrypted version should be more useful for anyone who wants to make modifications to the game code. As this argument produces unencrypted files, the binaries produced will be quite different to the binaries on the original source disk, which are encrypted.
 
@@ -538,6 +573,40 @@ The main differences in the source disk variants compared to the Firebird varian
 * In the source disk build variant only, the text token for the energy unit is "ENERGY UNIT", rather than the "EXTRA ENERGY UNIT" that is found in all the other variants.
 
 See the [accompanying website](https://elite.bbcelite.com/c64/releases.html) for a comprehensive list of differences between the variants.
+
+### Notes about tape version
+
+The tape builds contain the same game code and support the same build options as the corresponding GMA disk builds. Only the boot and loading process is different.
+
+Two tape variants are available:
+
+* `variant=tape-pal` uses the PAL/GMA86 game build.
+* `variant=tape-ntsc` uses the NTSC/GMA85 game build.
+
+For example:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no
+make variant=tape-ntsc encrypt=no match=no verify=no
+```
+
+The generated TAP image starts with a standard C64 boot program and then loads the game binaries using the cassette turbo loader. The on-tape filename is `ELITE`.
+
+The main branch produces:
+
+```text
+5-compiled-game-tapes/elite-commodore-64-pal.tap
+5-compiled-game-tapes/elite-commodore-64-ntsc.tap
+```
+
+The `flicker-free` branch produces:
+
+```text
+5-compiled-game-tapes/elite-commodore-64-flicker-free-pal.tap
+5-compiled-game-tapes/elite-commodore-64-flicker-free-ntsc.tap
+```
+
+Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns` and `unbound` can be used with the tape variants in the same way as with the GMA disk variants.
 
 ## Notes on the original source files
 

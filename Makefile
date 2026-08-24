@@ -51,6 +51,10 @@ C1541?=c1541
 #
 #   iffunit=yes         Enables I.F.F. Unit replaces Energy Bomb
 #
+#   unbound=yes         Enables all ELITE: Unbound gameplay and UI changes
+#
+#   randomspawns=yes    Enables Elite-A-style random ship spawn positions
+#
 # So, for example:
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
@@ -117,6 +121,14 @@ C1541?=c1541
 #   FALSE = Energy Bomb (default)
 #   TRUE  = I.F.F. Unit
 #
+# _UNBOUND
+#   FALSE = Original flicker-free branch gameplay (default)
+#   TRUE  = ELITE: Unbound gameplay and UI changes
+#
+# _RANDOM_SPAWNS
+#   FALSE = Original correlated ship spawn positions (default)
+#   TRUE  = Elite-A-style random ship spawn positions
+#
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
 
@@ -182,6 +194,12 @@ else
   media-target=c64-disk
 endif
 
+ifeq ($(unbound), yes)
+  ifneq ($(filter $(variant),source-disk-build source-disk-files),)
+    $(error unbound=yes is supported by the GMA and tape variants only; the source-disk variants exceed the original HICODE limit)
+  endif
+endif
+
 ifeq ($(laserbeam), ray)
   laserbeam-number=2
 else ifeq ($(laserbeam), line)
@@ -220,6 +238,18 @@ else
   iffunit-enabled=FALSE
 endif
 
+ifeq ($(unbound), yes)
+  unbound-enabled=TRUE
+else
+  unbound-enabled=FALSE
+endif
+
+ifeq ($(randomspawns), yes)
+  randomspawns-enabled=TRUE
+else
+  randomspawns-enabled=FALSE
+endif
+
 .PHONY: all c64-build c64-disk c64-tape
 all: c64-build $(media-target)
 
@@ -235,6 +265,8 @@ c64-build:
 	echo _SIGHTS=$(sights-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _WARPJUNK=$(warpjunk-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _IFF_UNIT=$(iffunit-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _UNBOUND=$(unbound-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _RANDOM_SPAWNS=$(randomspawns-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)
