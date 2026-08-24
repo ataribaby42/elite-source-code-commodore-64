@@ -135,6 +135,11 @@ IF _GMA86_PAL
 
 .trackSector
 
+                        ; The GMA2 to GMA6 values below are provisional. The
+                        ; build process reads their actual locations from a
+                        ; first-pass D64 image, patches them into GMA1 and then
+                        ; creates and verifies the final D64 image.
+
  EQUB $00, $00          ; Track and sector for the "FIREBIRD" file
 
  EQUB $00, $00          ; Track and sector for the "GMA1" file

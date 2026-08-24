@@ -2,6 +2,24 @@ BEEBASM?=beebasm
 PYTHON?=python
 C1541?=c1541
 
+GMA86_DISK=5-compiled-game-disks/elite-commodore-64$(suffix).d64
+
+define CREATE_GMA86_DISK
+$(C1541) \
+    -format "elite,1" \
+            d64 \
+            $(GMA86_DISK) \
+    -attach $(GMA86_DISK) \
+    -write 3-assembled-output/firebird.bin firebird \
+    -write 3-assembled-output/byebyejulie.bin byebyejulie \
+    -write 3-assembled-output/gma1.unprot.bin gma1 \
+    -write 3-assembled-output/gma3.bin gma3 \
+    -write 3-assembled-output/gma4.bin gma4 \
+    -write 3-assembled-output/gma5.bin gma5 \
+    -write 3-assembled-output/gma6.bin gma6 \
+    -write 3-assembled-output/readme.txt "readme,s"
+endef
+
 # A make command with no arguments will build the GMA85 variant with
 # encrypted binaries, checksums enabled, the standard commander and
 # crc32 verification of the game binaries
@@ -302,7 +320,7 @@ ifneq ($(verify), no)
 	@$(PYTHON) 2-build-files/crc32.py 4-reference-binaries/$(folder) 3-assembled-output
 endif
 
-c64-disk:
+c64-disk: c64-build
 ifeq ($(variant-number), 1)
 	@$(C1541) \
     -format "elite,1" \
@@ -317,19 +335,15 @@ ifeq ($(variant-number), 1)
     -write 3-assembled-output/gma6.bin gma6 \
     -write 3-assembled-output/readme.txt "readme,s"
 else ifeq ($(variant-number), 2)
-	@$(C1541) \
-    -format "elite,1" \
-            d64 \
-            5-compiled-game-disks/elite-commodore-64$(suffix).d64 \
-    -attach 5-compiled-game-disks/elite-commodore-64$(suffix).d64 \
-    -write 3-assembled-output/firebird.bin firebird \
-    -write 3-assembled-output/byebyejulie.bin byebyejulie \
-    -write 3-assembled-output/gma1.unprot.bin gma1 \
-    -write 3-assembled-output/gma3.bin gma3 \
-    -write 3-assembled-output/gma4.bin gma4 \
-    -write 3-assembled-output/gma5.bin gma5 \
-    -write 3-assembled-output/gma6.bin gma6 \
-    -write 3-assembled-output/readme.txt "readme,s"
+	@$(CREATE_GMA86_DISK)
+	@$(PYTHON) 2-build-files/elite-gma-sectors.py \
+        --disk $(GMA86_DISK) \
+        --gma1 3-assembled-output/gma1.unprot.bin
+	@$(CREATE_GMA86_DISK)
+	@$(PYTHON) 2-build-files/elite-gma-sectors.py \
+        --disk $(GMA86_DISK) \
+        --gma1 3-assembled-output/gma1.unprot.bin \
+        --verify
 endif
 
 # -----------------------------------------------------------------------------
