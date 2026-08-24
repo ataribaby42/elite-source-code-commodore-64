@@ -13,6 +13,7 @@
 # ******************************************************************************
 
 from __future__ import print_function
+import re
 import sys
 
 argv = sys.argv
@@ -34,28 +35,35 @@ for arg in argv[1:]:
 print("Commodore 64 Elite Checksum")
 print("Encryption = ", encrypt)
 
-# Configuration variables for scrambling code and calculating checksums
-#
-# Values must match those in 3-assembled-output/compile.txt
-#
-# If you alter the source code, then you should extract the correct values for
-# the following variables and plug them into the following, otherwise the game
-# will fail the checksum process and will hang on loading
-#
-# You can find the correct values for these variables by building your updated
-# source, and then searching compile.txt for "elite-checksum.py", where the new
-# values will be listed
+# Configuration values for scrambling code and calculating checksums. The
+# addresses are emitted by BeebAsm into compile.txt, so read them from there
+# instead of hard-coding values that become stale whenever optional code moves
+# NA2%, X% or U%.
+
+address_names = ("B%", "G%", "NA2%", "W%", "X%", "U%")
+addresses = {}
+
+with open("3-assembled-output/compile.txt", "r") as compile_file:
+    for line in compile_file:
+        match = re.match(r"^(B%|G%|NA2%|W%|X%|U%) = &([0-9A-Fa-f]+)", line)
+        if match:
+            addresses[match.group(1)] = int(match.group(2), 16)
+
+missing_addresses = [name for name in address_names if name not in addresses]
+if missing_addresses:
+    raise RuntimeError("Missing build addresses in compile.txt: " +
+                       ", ".join(missing_addresses))
+
+b = addresses["B%"]
+g = addresses["G%"]
+na2_per_cent = addresses["NA2%"]
+w = addresses["W%"]
+x = addresses["X%"]
+u = addresses["U%"]
 
 if release == 1 or release == 2:
 
     # GMA85
-    b = 0x1D00                  # B%
-    g = 0x1D81                  # G%
-    na2_per_cent = 0x2619       # NA2%
-    w = 0x4000                  # W%
-    x = 0x7590                  # X%
-    u = 0x75E4                  # U%
-
     prg_comlod = b'\x00\x40'    # gma4
     prg_locode = b'\x00\x1D'    # gma5
     prg_hicode = b'\x00\x6A'    # gma6
@@ -67,13 +75,6 @@ if release == 1 or release == 2:
 elif release == 3 or release == 4:
 
     # Source disk
-    b = 0x1D00                  # B%
-    g = 0x1D7E                  # G%
-    na2_per_cent = 0x2616       # NA2%
-    w = 0x4000                  # W%
-    x = 0x7601                  # X%
-    u = 0x7655                  # U%
-
     prg_comlod = b''
     prg_locode = b''
     prg_hicode = b''
