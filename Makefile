@@ -55,6 +55,8 @@ C1541?=c1541
 #
 #   randomspawns=yes    Enables Elite-A-style random ship spawn positions
 #
+#   whitecockpit=yes    Draws the cockpit borders, compass and scanner yellow channel in white
+#
 # So, for example:
 #
 #   make variant=gma86-pal commander=max encrypt=no match=no verify=no
@@ -128,6 +130,10 @@ C1541?=c1541
 # _RANDOM_SPAWNS
 #   FALSE = Original correlated ship spawn positions (default)
 #   TRUE  = Elite-A-style random ship spawn positions
+#
+# _WHITE_COCKPIT
+#   FALSE = Original yellow cockpit border (default)
+#   TRUE  = White cockpit borders, dashboard compass and scanner yellow channel
 #
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
@@ -250,6 +256,12 @@ else
   randomspawns-enabled=FALSE
 endif
 
+ifeq ($(whitecockpit), yes)
+  whitecockpit-enabled=TRUE
+else
+  whitecockpit-enabled=FALSE
+endif
+
 .PHONY: all c64-build c64-disk c64-tape
 all: c64-build $(media-target)
 
@@ -267,6 +279,7 @@ c64-build:
 	echo _IFF_UNIT=$(iffunit-enabled) >> 1-source-files/main-sources/elite-build-options.asm	
 	echo _UNBOUND=$(unbound-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _RANDOM_SPAWNS=$(randomspawns-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _WHITE_COCKPIT=$(whitecockpit-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)
