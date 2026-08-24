@@ -52516,14 +52516,16 @@ ENDIF
                         ; from the screen
 
                         ; We now set the colour of the top row of the screen to
-                        ; yellow on black, for the border box
+                        ; the selected border colour on black
 
  LDY #31                ; The border box is 32 characters wide, so set a column
                         ; counter in Y
 
- LDA #$70               ; Set A to a colour data byte that sets colour 7
-                        ; (yellow) for the foreground and colour 0 (black) for
-                        ; the background, so the border box gets drawn in yellow
+IF _WHITE_COCKPIT      ; White cockpit border build option (begin)
+ LDA #$10               ; Set the border palette to white on black
+ELSE                   ; White cockpit border build option (else)
+ LDA #$70               ; Set the border palette to yellow on black
+ENDIF                  ; White cockpit border build option (end)
 
 .BOL5
 
@@ -52533,8 +52535,8 @@ ENDIF
 
  DEY                    ; Decrement the column counter in Y
 
- BPL BOL5               ; Loop back until the whole top character row is set to
-                        ; a palette of yellow on black
+ BPL BOL5               ; Loop back until the whole top character row uses the
+                        ; selected border palette
 
  LDX QQ11               ; If QQ11 is one of the following:
  CPX #2                 ;
@@ -52544,13 +52546,13 @@ ENDIF
  CPX #128               ;
  BEQ BOX                ;   * 128 (Short-range Chart)
                         ;
-                        ; then jump to BOX to skip setting the third row to
-                        ; yellow on black (as otherwise this will affect the
+                        ; then jump to BOX to skip setting the third row to the
+                        ; border colour (as otherwise this will affect the
                         ; colours just below the line beneath the title text)
 
                         ; We now set the colour of the third row of the screen
-                        ; to yellow on black, for the line beneath the title
-                        ; text
+                        ; to the selected border colour on black, for the line
+                        ; beneath the title text
 
  LDY #31                ; The title box is 32 characters wide, so set a column
                         ; counter in Y
@@ -52572,7 +52574,7 @@ ENDIF
  DEY                    ; Decrement the column counter in Y
 
  BPL BOL6               ; Loop back until the whole of the third character row
-                        ; is set to a palette of yellow on black
+                        ; uses the selected border palette
 
 .BOX
 

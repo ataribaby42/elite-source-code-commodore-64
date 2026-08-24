@@ -809,8 +809,8 @@ ENDIF
                         ; The innermost of the four character blocks on each
                         ; side is used to draw the border box, with the border
                         ; being right up against the game screen, so for this we
-                        ; need a palette of yellow on black, so we can draw the
-                        ; border box in yellow
+                        ; need the selected border palette on black (yellow by
+                        ; default, or white when _WHITE_COCKPIT is enabled)
 
  LDA #0                 ; Set ZP(1 0) = $6000
  STA ZP                 ;
@@ -822,16 +822,17 @@ ENDIF
 
 .LOOP10
 
- LDA #$70               ; Set A to the colour byte that we want to apply to the
-                        ; border box, which is $70 to set the palette to
-                        ; foreground colour 7 (yellow) and background colour 0
-                        ; (black)
+IF _WHITE_COCKPIT      ; White cockpit border build option (begin)
+ LDA #$10               ; Set the border palette to white on black
+ELSE                   ; White cockpit border build option (else)
+ LDA #$70               ; Set the border palette to yellow on black
+ENDIF                  ; White cockpit border build option (end)
 
  LDY #36                ; Set the colour data for column 36 (i.e. the right edge
- STA (ZP),Y             ; of the border box) to the yellow/black palette
+ STA (ZP),Y             ; of the border box) to the selected border palette
 
  LDY #3                 ; Set the colour data for column 3 (i.e. the left edge
- STA (ZP),Y             ; of the border box) to the yellow/black palette
+ STA (ZP),Y             ; of the border box) to the selected border palette
 
                         ; Next, we set the palette to black on black for the
                         ; outside three character blocks on the left side of the
@@ -900,16 +901,17 @@ ENDIF
 
 .LOOP11
 
- LDA #$70               ; Set A to the colour byte that we want to apply to the
-                        ; border box, which is $70 to set the palette to
-                        ; foreground colour 7 (yellow) and background colour 0
-                        ; (black)
+IF _WHITE_COCKPIT      ; White cockpit border build option (begin)
+ LDA #$10               ; Set the border palette to white on black
+ELSE                   ; White cockpit border build option (else)
+ LDA #$70               ; Set the border palette to yellow on black
+ENDIF                  ; White cockpit border build option (end)
 
  LDY #36                ; Set the colour data for column 36 (i.e. the right edge
- STA (ZP),Y             ; of the border box) to the yellow/black palette
+ STA (ZP),Y             ; of the border box) to the selected border palette
 
  LDY #3                 ; Set the colour data for column 3 (i.e. the left edge
- STA (ZP),Y             ; of the border box) to the yellow/black palette
+ STA (ZP),Y             ; of the border box) to the selected border palette
 
                         ; Next, we set the palette to black on black for the
                         ; outside three character blocks on the left side of the
@@ -965,13 +967,14 @@ ENDIF
                         ; left and right border box edges in the space view
 
                         ; Finally, we set the colour data for the bottom row in
-                        ; the text view, so the bottom of the border box is also
-                        ; shown in yellow
+                        ; the text view, so the bottom of the border box uses
+                        ; the selected border colour
 
- LDA #$70               ; Set A to the colour byte that we want to apply to the
-                        ; border box, which is $70 to set the palette to
-                        ; foreground colour 7 (yellow) and background colour 0
-                        ; (black)
+IF _WHITE_COCKPIT      ; White cockpit border build option (begin)
+ LDA #$10               ; Set the border palette to white on black
+ELSE                   ; White cockpit border build option (else)
+ LDA #$70               ; Set the border palette to yellow on black
+ENDIF                  ; White cockpit border build option (end)
 
  LDY #31                ; Set a counter in Y to work through the 31 character
                         ; columns in the text view
@@ -979,7 +982,7 @@ ENDIF
 .LOOP16
 
  STA $63C4,Y            ; Set the colour data for column Y + 4 on row 24 to
-                        ; yellow on black
+                        ; the selected border colour on black
                         ;
                         ; The address breaks down as follows:
                         ;
@@ -1055,15 +1058,14 @@ ENDIF
                         ; with the data that we already copied into screen RAM
                         ; in part 5)
 
-                        ; Finally, we set the top row of colour RAM to yellow,
-                        ; so the top of the border box in the space view is
-                        ; shown in the correct colour in the event of the raster
-                        ; interrupt firing slightly late
+                        ; Finally, we set the top row of colour RAM to the
+                        ; selected border colour, so the top of the border box
+                        ; in the space view is shown in the correct colour in
+                        ; the event of the raster interrupt firing slightly late
                         ;
                         ; To ensure we don't get a flicker effect on the top row
-                        ; of the screen, we set colour RAM for the top row to
-                        ; $07, which sets colour %11 in the multicolour bitmap
-                        ; mode to colour 7 (yellow)
+                        ; of the screen, we set colour %11 in multicolour bitmap
+                        ; mode to the selected border colour
                         ;
                         ; The top border is drawn with bytes of %11111111, which
                         ; maps to pixels of colour %11, so this ensures that if
@@ -1076,13 +1078,15 @@ ENDIF
  LDY #34                ; Set Y to a character counter so we set colour RAM for
                         ; characters 3 to 36 on the top row
 
- LDA #$07               ; Set the low nibble of A to colour 7 (yellow), as this
-                        ; is where multicolour bitmap mode gets the palette for
-                        ; colour %11
+IF _WHITE_COCKPIT      ; White cockpit border build option (begin)
+ LDA #$01               ; Set multicolour bitmap colour %11 to white
+ELSE                   ; White cockpit border build option (else)
+ LDA #$07               ; Set multicolour bitmap colour %11 to yellow
+ENDIF                  ; White cockpit border build option (end)
 
 .LOOP15
 
- STA COLMEM+2,Y         ; Set the palette to yellow for character Y
+ STA COLMEM+2,Y         ; Set the selected border colour for character Y
 
  DEY                    ; Decrement the counter in Y
 
@@ -1347,47 +1351,69 @@ ENDIF
 ; ------------------------------------------------------------------------------
 ;
 ; The sdump and cdump variables contain screen and colour RAM that sets the
-; default colours for the dashboard.
+; default colours for the dashboard. WCxx values preserve the original
+; attributes unless _WHITE_COCKPIT is enabled, in which case the yellow
+; dashboard frame, compass-ring and scanner attributes are remapped to white.
 ;
 ; ******************************************************************************
 
+IF _WHITE_COCKPIT      ; White cockpit dashboard attributes (begin)
+ WC07 = $01
+ WC17 = $11
+ WC27 = $21
+ WC37 = $31
+ WC67 = $61
+ WCS67 = $21           ; Scanner cell left of the compass: red and white
+ WC74 = $14
+ WCC7 = $C1
+ELSE                   ; White cockpit dashboard attributes (else)
+ WC07 = $07
+ WC17 = $17
+ WC27 = $27
+ WC37 = $37
+ WC67 = $67
+ WCS67 = $67           ; Preserve the original scanner palette
+ WC74 = $74
+ WCC7 = $C7
+ENDIF                  ; White cockpit dashboard attributes (end)
+
 .sdump
 
- EQUB $00, $00, $00, $07, $17, $17, $74, $74
- EQUB $74, $74, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $67, $27, $27, $27
- EQUB $27, $27, $37, $37, $07, $00, $00, $00
- EQUB $00, $00, $00, $07, $17, $17, $24, $24
- EQUB $24, $24, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $67, $67, $67, $67, $23, $23
- EQUB $23, $23, $37, $37, $07, $00, $00, $00
- EQUB $00, $00, $00, $07, $37, $37, $29, $29
- EQUB $29, $29, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $67, $27, $23, $23
- EQUB $23, $23, $37, $37, $07, $00, $00, $00
- EQUB $00, $00, $00, $07, $37, $37, $28, $28
- EQUB $28, $28, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $24, $24
- EQUB $24, $24, $17, $17, $07, $00, $00, $00
- EQUB $00, $00, $00, $07, $37, $37, $2A, $2A
- EQUB $2A, $2A, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $24, $24
- EQUB $24, $24, $17, $17, $07, $00, $00, $00
- EQUB $00, $00, $00, $07, $37, $37, $2D, $2D
- EQUB $2D, $2D, $27, $07, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $07, $27, $24, $24
- EQUB $24, $24, $17, $17, $07, $00, $00, $00
- EQUB $00, $00, $00, $07, $C7, $C7, $07, $07
- EQUB $07, $07, $27, $07, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $27, $27, $27, $27
- EQUB $27, $27, $27, $27, $07, $27, $24, $24
- EQUB $24, $24, $17, $17, $07, $00, $00, $00
+ EQUB $00, $00, $00, WC07, WC17, WC17, WC74, WC74
+ EQUB WC74, WC74, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC67, WC27, WC27, WC27
+ EQUB WC27, WC27, WC37, WC37, WC07, $00, $00, $00
+ EQUB $00, $00, $00, WC07, $17, $17, $24, $24
+ EQUB $24, $24, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WCS67, WC67, WC67, WC67, $23, $23
+ EQUB $23, $23, $37, $37, WC07, $00, $00, $00
+ EQUB $00, $00, $00, WC07, $37, $37, $29, $29
+ EQUB $29, $29, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC67, WC27, $23, $23
+ EQUB $23, $23, $37, $37, WC07, $00, $00, $00
+ EQUB $00, $00, $00, WC07, $37, $37, $28, $28
+ EQUB $28, $28, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, $24, $24
+ EQUB $24, $24, $17, $17, WC07, $00, $00, $00
+ EQUB $00, $00, $00, WC07, $37, $37, $2A, $2A
+ EQUB $2A, $2A, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, $24, $24
+ EQUB $24, $24, $17, $17, WC07, $00, $00, $00
+ EQUB $00, $00, $00, WC07, $37, $37, $2D, $2D
+ EQUB $2D, $2D, WC27, WC07, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC07, WC27, $24, $24
+ EQUB $24, $24, $17, $17, WC07, $00, $00, $00
+ EQUB $00, $00, $00, WC07, WCC7, WCC7, WC07, WC07
+ EQUB WC07, WC07, WC27, WC07, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC27, WC27, WC27, WC27
+ EQUB WC27, WC27, WC27, WC27, WC07, WC27, $24, $24
+ EQUB $24, $24, WC17, WC17, WC07, $00, $00, $00
 
 IF _GMA_RELEASE
 
@@ -1459,11 +1485,11 @@ ENDIF
  EQUB $0D, $0D, $0D, $0D, $0D, $0D, $0D, $0D
  EQUB $0D, $0D, $0D, $0D, $0D, $0D, $05, $05
  EQUB $05, $05, $05, $05, $00, $00, $00, $00
- EQUB $00, $00, $00, $00, $0F, $0F, $07, $07
- EQUB $07, $07, $0D, $0D, $0D, $0D, $0D, $0D
+ EQUB $00, $00, $00, $00, $0F, $0F, WC07, WC07
+ EQUB WC07, WC07, $0D, $0D, $0D, $0D, $0D, $0D
  EQUB $0D, $03, $03, $03, $03, $03, $0D, $0D
- EQUB $0D, $0D, $0D, $0D, $0D, $0D, $07, $07
- EQUB $07, $07, $05, $05, $00, $00, $00, $00
+ EQUB $0D, $0D, $0D, $0D, $0D, $0D, WC07, WC07
+ EQUB WC07, WC07, $05, $05, $00, $00, $00, $00
 
 IF _GMA_RELEASE
 

@@ -241,6 +241,8 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA and tape variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
 
+* `whitecockpit=yes` - Draw the program-generated cockpit borders and screen-divider lines in white instead of yellow, and replace yellow with white throughout the dashboard frame, compass ring and entire scanner area, including all parts of scanner blips. The dashboard bitmap is not changed. This option is disabled by default.
+
 * `encrypt=no` - Disable encryption and checksum routines
 
 * `match=no` - Do not attempt to match the original game binaries (i.e. omit workspace noise)
@@ -255,7 +257,7 @@ will build an unencrypted GMA85 PAL variant with a maxed-out commander, no works
 
 For example, the following enables all the added visual and gameplay options in a PAL tape build:
 
-`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes encrypt=no match=no verify=no`
+`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes whitecockpit=yes encrypt=no match=no verify=no`
 
 The unencrypted version should be more useful for anyone who wants to make modifications to the game code. As this argument produces unencrypted files, the binaries produced will be quite different to the binaries on the original source disk, which are encrypted.
 
@@ -607,7 +609,7 @@ The `flicker-free` branch produces:
 5-compiled-game-tapes/elite-commodore-64-flicker-free-ntsc.tap
 ```
 
-Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns` and `unbound` can be used with the tape variants in the same way as with the GMA disk variants.
+Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns`, `unbound` and `whitecockpit` can be used with the tape variants in the same way as with the GMA disk variants.
 
 ## Notes on the original source files
 
