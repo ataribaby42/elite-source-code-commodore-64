@@ -135,6 +135,11 @@ IF _GMA86_PAL
 
 .trackSector
 
+                        ; The GMA2 to GMA6 values below are provisional. The
+                        ; build process reads their actual locations from a
+                        ; first-pass D64 image, patches them into GMA1 and then
+                        ; creates and verifies the final D64 image.
+
  EQUB $00, $00          ; Track and sector for the "FIREBIRD" file
 
  EQUB $00, $00          ; Track and sector for the "GMA1" file
@@ -147,17 +152,7 @@ IF _GMA86_PAL
 
  EQUB $13, $00          ; Track and sector for the "GMA5" file
 
-IF _UNBOUND
-
- EQUB $14, $09          ; Track and sector for the "GMA6" file. The flicker-free
-                        ; Unbound GMA5 file occupies one extra disk block, so
-                        ; GMA6 starts one sector later.
-
-ELSE
-
  EQUB $14, $08          ; Track and sector for the "GMA6" file
-
-ENDIF
 
 ENDIF
 

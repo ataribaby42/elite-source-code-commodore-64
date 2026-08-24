@@ -10946,6 +10946,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
  LDA #14                ; Set T1 to 14, the threshold at which we change the
  STA T1                 ; indicator's colour
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipNormalizeSpeedBar ; Normalise speed to 0..15 for the current hull
+ JSR DIL                ; Draw the already-normalised speed indicator and move
+                        ; SC to the roll indicator
+ELSE                   ; ELITE: Unbound build option (else)
  LDA DELTA              ; Fetch our ship's speed into A, in the range 0-40
 
 ;LSR A                  ; Draw the speed indicator using a range of 0-31, and
@@ -10953,6 +10958,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; indicator). The LSR is commented out as it isn't
                         ; required with a call to DIL-1, so perhaps this was
                         ; originally a call to DIL that got optimised
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -11194,9 +11200,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JSR DILX               ; and increment SC to point to the next indicator (the
                         ; fuel level)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipNormalizeFuelBar ; Normalise fuel to 0..15 for the current hull
+ JSR DIL                ; Draw the already-normalised fuel indicator and move
+                        ; SC to the cabin temperature indicator
+ELSE                   ; ELITE: Unbound build option (else)
  LDA QQ14               ; Draw the fuel level indicator using a range of 0-63,
  JSR DILX+2             ; and increment SC to point to the next indicator (the
                         ; cabin temperature)
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR PZW                ; Call PZW to set A to the colour for dangerous values
                         ; and X to the colour for safe values
@@ -24969,6 +24981,68 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  RTS
 
 ; ------------------------------------------------------------------------------
+; ShipNormalizeSpeedBar / ShipNormalizeFuelBar / ShipNormalizeBarDial
+; Scale a ship-dependent speed or fuel value to the dashboard's 0..15 range.
+;
+; Inputs: A = current value, X = maximum value for the current hull.
+; Return: A = floor(current * 15 / maximum), clamped to 15.
+; ------------------------------------------------------------------------------
+
+.ShipNormalizeSpeedBar
+
+ LDA DELTA              ; Preserve the speed while fetching the hull maximum
+ PHA
+ JSR PlayerMaxSpeed
+ BNE shipNormalizeBarValue ; All player hulls have a non-zero maximum speed
+
+.ShipNormalizeFuelBar
+
+ LDA QQ14               ; Preserve the fuel level while fetching tank capacity
+ PHA
+ JSR PlayerFuelCapacity
+
+.shipNormalizeBarValue
+
+ TAX                    ; X = maximum, A = current value restored from stack
+ PLA
+
+.ShipNormalizeBarDial
+
+ STA Q                  ; Q = current value
+ STX T                  ; T = maximum value for this hull
+ CMP T
+ BCC shipNormalizeBarStart
+
+ LDA #15                ; Maximum (or an over-range value) fills the bar
+ RTS
+
+.shipNormalizeBarStart
+
+ LDA #0
+ STA R                  ; R = division remainder
+ STA P                  ; P = normalised result
+ LDY #15                ; Add current/maximum fifteen times to multiply by 15
+
+.shipNormalizeBarLoop
+
+ LDA R
+ CLC
+ ADC Q
+ CMP T
+ BCC shipNormalizeBarNext
+ SBC T                  ; Carry is set by CMP
+ INC P
+
+.shipNormalizeBarNext
+
+ STA R
+ DEY
+ BNE shipNormalizeBarLoop
+
+ LDA P                  ; Return floor(current * 15 / maximum) in A
+ RTS
+
+; ------------------------------------------------------------------------------
 ; ShipClampRateX
 ; Clamp joystick/keyboard pitch or roll rate in X to the current ship's
 ; Elite-A handling envelope. The neutral point is 128. Elite-A derives the
@@ -25179,7 +25253,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.10"
+ EQUS "v0.20"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
