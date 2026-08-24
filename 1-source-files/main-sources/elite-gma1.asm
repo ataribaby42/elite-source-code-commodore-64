@@ -147,7 +147,17 @@ IF _GMA86_PAL
 
  EQUB $13, $00          ; Track and sector for the "GMA5" file
 
+IF _UNBOUND
+
+ EQUB $14, $09          ; Track and sector for the "GMA6" file. The flicker-free
+                        ; Unbound GMA5 file occupies one extra disk block, so
+                        ; GMA6 starts one sector later.
+
+ELSE
+
  EQUB $14, $08          ; Track and sector for the "GMA6" file
+
+ENDIF
 
 ENDIF
 
