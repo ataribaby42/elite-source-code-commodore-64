@@ -3346,6 +3346,14 @@ ENDIF
 
 .NOMVETR
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR FrameLimit        ; Limit the flight loop to one iteration every four
+                        ; video frames, so accelerated systems do not run the
+                        ; game logic too quickly
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
 ; ******************************************************************************
 ;
 ;       Name: Main flight loop (Part 2 of 16)
@@ -35400,6 +35408,13 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR LL9                ; Call LL9 to display the ship
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR FrameLimit        ; Keep the rotating title ship at the same frame-limited
+                        ; speed as the main flight loop
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
  JSR RDKEY              ; Scan the keyboard for a key press and return the
                         ; internal key number in A and X (or 0 for no key press)
                         ;
@@ -47858,6 +47873,52 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;       Name: FrameLimit
+;       Type: Subroutine
+;   Category: Main loop
+;    Summary: Limit the game logic to one iteration every four video frames
+;
+; ------------------------------------------------------------------------------
+;
+; Wait until four complete video frames have elapsed since the previous call.
+; FrameCounter is incremented once per frame by the COMIRQ1 interrupt handler,
+; so this limits the game to 12.5 iterations per second on PAL systems and 15
+; iterations per second on NTSC systems. Slower iterations return immediately.
+;
+; This is based on the frame limiter in Elite 128 by Stefan Uhlmann.
+;
+; ******************************************************************************
+
+FRAME_LIMIT = 4        ; Number of video frames per game iteration
+
+.FrameLimit
+
+ LDA FrameCounter      ; If fewer than FRAME_LIMIT video frames have elapsed,
+ CMP #FRAME_LIMIT      ; loop until the raster interrupt advances the counter
+ BCC FrameLimit
+
+ LDA #0                ; Reset the counter for the next game iteration
+ STA FrameCounter
+
+ RTS                    ; Return from the subroutine
+
+; ******************************************************************************
+;
+;       Name: FrameCounter
+;       Type: Variable
+;   Category: Main loop
+;    Summary: Number of video frames elapsed since the last limited iteration
+;
+; ******************************************************************************
+
+.FrameCounter
+
+ EQUB 0
+
+; ******************************************************************************
+;
+ENDIF                  ; ELITE: Unbound build option (end)
 ;       Name: RASTCT
 ;       Type: Variable
 ;   Category: Drawing the screen
@@ -48311,6 +48372,13 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  BNE COMIRQ3            ; If we just flipped RASCT from 0 to 1 then jump to
                         ; COMIRQ3 to return from the interrupt handler
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ INC FrameCounter      ; This branch runs once per complete video frame, so
+                        ; increment the counter used by FrameLimit
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
                         ; We now play the background music, if configured
                         ;
