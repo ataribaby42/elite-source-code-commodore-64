@@ -73,8 +73,14 @@ ELIF _SOURCE_DISK
 
 ENDIF
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ Q% = _MAX_COMMANDER    ; TRUE for commander=max, enabling the normal maxed-out
+                        ; equipment/cash setup. ShipValidate then adapts ship-
+                        ; dependent items to the current hull.
+ELSE                   ; ELITE: Unbound build option (else)
  Q% = _MAX_COMMANDER    ; Set Q% to TRUE to max out the default commander, FALSE
                         ; for the standard default commander
+ENDIF                  ; ELITE: Unbound build option (end)
 
  USA% = TRUE            ; Set USA% to FALSE to introduce a timing loop to bring
                         ; PAL machines in line with NTSC machines (interestingly
@@ -116,6 +122,10 @@ ENDIF
 
  SH3 = 17               ; Ship type for a Sidewinder
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ MAM = 18               ; Ship type for a Mamba
+
+ENDIF                  ; ELITE: Unbound build option (end)
  KRA = 19               ; Ship type for a Krait
 
  ADA = 20               ; Ship type for an Adder
@@ -839,7 +849,11 @@ ENDIF
 
 .DELTA
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ SKIP 1                 ; Our current speed, in the range 1-60 in V1K
+ELSE                   ; ELITE: Unbound build option (else)
  SKIP 1                 ; Our current speed, in the range 1-40
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .DELT4
 
@@ -1609,12 +1623,21 @@ ENDIF
 
 .QQ14
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ SKIP 1                 ; Our current fuel level
+ELSE                   ; ELITE: Unbound build option (else)
  SKIP 1                 ; Our current fuel level (0-70)
+ENDIF                  ; ELITE: Unbound build option (end)
                         ;
                         ; The fuel level is stored as the number of light years
                         ; multiplied by 10, so QQ14 = 1 represents 0.1 light
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; years. V1K gives each player ship its Elite-A tank
+                        ; capacity, ranging from 6.0 to 12.5 light years here.
+ELSE                   ; ELITE: Unbound build option (else)
                         ; years, and the maximum possible value is 70, for 7.0
                         ; light years
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .COK
 
@@ -1658,8 +1681,20 @@ ENDIF
                         ;       (0 = pulse or mining laser) or is always on
                         ;       (1 = beam or military laser)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ SKIP 1                 ; This byte remains unused (it was originally used for
+                        ; one of the up/down lasers, which were dropped)
+
+.cmdr_type
+
+ SKIP 1                 ; Current player ship type for the Elite-A ship-buying
+                        ; port. Type 0 is Cobra Mk III, so legacy C64 commander
+                        ; files (where this unused byte is normally zero) load
+                        ; as the original Cobra Mk III.
+ELSE                   ; ELITE: Unbound build option (else)
  SKIP 2                 ; These bytes appear to be unused (they were originally
                         ; used for up/down lasers, but they were dropped)
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .CRGO
 
@@ -1777,7 +1812,12 @@ ENDIF
 
 .NOMSL
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ SKIP 1                 ; The number of missiles we have fitted (0-16 in the
+                        ; Elite-A ship subset; the dashboard still has four slots)
+ELSE                   ; ELITE: Unbound build option (else)
  SKIP 1                 ; The number of missiles we have fitted (0-4)
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .FIST
 
@@ -2178,7 +2218,12 @@ ENDIF
 
 .XX24
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ SKIP 1                 ; One row beyond Yx2M1, used as the dynamic clipping
+                        ; height by LL145/LL118
+ELSE                   ; ELITE: Unbound build option (else)
  SKIP 1                 ; This byte appears to be unused
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .ALTIT
 
@@ -3311,6 +3356,11 @@ ENDIF
 
  LDX JSTX               ; Set X to the current rate of roll in JSTX
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipClampRateX     ; Elite-A ships have different maximum roll rates, so
+                        ; clamp JSTX to this ship's allowed range before damping
+
+ENDIF                  ; ELITE: Unbound build option (end)
  JSR cntr               ; Apply keyboard damping twice (if enabled) so the roll
  JSR cntr               ; rate in X creeps towards the centre by 2
 
@@ -3372,6 +3422,10 @@ ENDIF
 
  LDX JSTY               ; Set X to the current rate of pitch in JSTY
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipClampRateX     ; Apply the same Elite-A per-ship limit to pitch
+
+ENDIF                  ; ELITE: Unbound build option (end)
  JSR cntr               ; Apply keyboard damping so the pitch rate in X creeps
                         ; towards the centre by 1
 
@@ -3460,10 +3514,17 @@ ENDIF
  LDA KY2                ; If Space is being pressed, keep going, otherwise jump
  BEQ MA17               ; down to MA17 to skip the following
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerMaxSpeed     ; Get the Elite-A maximum speed for our current ship
+ CMP DELTA               ; If maximum speed <= current speed, we are already at
+ BCC MA17               ; (or above) the limit, so do not accelerate further
+ BEQ MA17
+ELSE                   ; ELITE: Unbound build option (else)
  LDA DELTA              ; The "go faster" key is being pressed, so first we
  CMP #40                ; fetch the current speed from DELTA into A, and if
  BCS MA17               ; A >= 40, we are already going at full pelt, so jump
                         ; down to MA17 to skip the following
+ENDIF                  ; ELITE: Unbound build option (end)
 
  INC DELTA              ; We can go a bit faster, so increment the speed in
                         ; location DELTA
@@ -3512,6 +3573,13 @@ ENDIF
  LDX NOMSL              ; If the number of missiles in NOMSL is zero, jump down
  BEQ MA25               ; to MA25 to skip the following
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ CPX #5                 ; The dashboard only has four missile indicators. Ships
+ BCC targetSlotOK       ; with more than four missiles use the leftmost visible
+ LDX #4                 ; indicator for the currently armed missile.
+.targetSlotOK
+
+ENDIF                  ; ELITE: Unbound build option (end)
  STA MSAR               ; The "target missile" key is being pressed and we have
                         ; at least one missile, so set MSAR = $FF to denote that
                         ; our missile is currently armed (we know A has the
@@ -4593,9 +4661,22 @@ ENDIF
 
 .b
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerEnergyRecharge ; A = the current hull's base recharge rate
+
+ CLC
+ ADC ENGY               ; Energy Unit is a universal +1 bonus (ENGY=1), while
+                        ; Naval Energy Unit is +2 (ENGY=2). Thus most ships are
+                        ; +1/+2/+3 with none/standard/naval, while Fer-de-Lance
+                        ; (base 2) is +2/+3/+4.
+
+ CLC
+ ADC ENERGY             ; Add the resulting recharge amount to the energy bank
+ELSE                   ; ELITE: Unbound build option (else)
  SEC                    ; Set A = ENERGY + ENGY + 1, so our ship's energy
  LDA ENGY               ; level goes up by 2 if we have an energy unit fitted,
  ADC ENERGY             ; otherwise it goes up by 1
+ENDIF                  ; ELITE: Unbound build option (end)
 
  BCS P%+5               ; If the value of A did not overflow (the maximum
  STA ENERGY             ; energy level is $FF), then store A in ENERGY
@@ -4796,19 +4877,35 @@ ENDIF
  JSR m                  ; Call m to calculate the maximum distance to the
                         ; planet in any of the three axes, returned in A
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BEQ ma22PlanetClose    ; V1L: the extra per-ship fuel-scoop cap made the old
+ JMP MA23               ; BNE MA23 exceed the 6502 branch range, so use a
+                        ; short inverse branch followed by a long JMP instead
+
+.ma22PlanetClose
+ELSE                   ; ELITE: Unbound build option (else)
  BNE MA23               ; If A > 0 then we are a fair distance away from the
                         ; planet in at least one axis, so jump to MA23 to skip
                         ; the rest of the altitude check
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR MAS3               ; Set A = x_hi^2 + y_hi^2 + z_hi^2, so using Pythagoras
                         ; we now know that A now contains the square of the
                         ; distance between our ship (at the origin) and the
                         ; centre of the planet at (x_hi, y_hi, z_hi)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BCC ma22DistanceOK     ; This neighbouring branch was right on the +127-byte
+ JMP MA23               ; limit in V1K, so make it a long jump too. If C is
+                        ; clear, continue with C still clear for the SBC below.
+
+.ma22DistanceOK
+ELSE                   ; ELITE: Unbound build option (else)
  BCS MA23               ; If the C flag was set by MAS3, then the result
                         ; overflowed (was greater than $FF) and we are still a
                         ; fair distance from the planet, so jump to MA23 as we
                         ; haven't crashed into the planet
+ENDIF                  ; ELITE: Unbound build option (end)
 
  SBC #36                ; Subtract 37 from x_hi^2 + y_hi^2 + z_hi^2
                         ;
@@ -4991,20 +5088,49 @@ ENDIF
                         ; high byte of DELT4, which contains our current speed
                         ; divided by 4, and halve it to get our current speed
                         ; divided by 8 (so it's now a value between 1 and 5, as
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; faster ships can exceed the original 1..40 range). This
+                        ; gives us the amount of fuel that's being scooped in A, so
+ELSE                   ; ELITE: Unbound build option (else)
                         ; our speed is normally between 1 and 40). This gives
                         ; us the amount of fuel that's being scooped in A, so
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; the faster we go, the more fuel we scoop, and because
                         ; the fuel levels are stored as 10 * the fuel in light
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; years, that means we scoop up to 0.7 light years
+                        ; at a time in the fastest V1K player ship
+ELSE                   ; ELITE: Unbound build option (else)
                         ; years, that means we just scooped between 0.1 and 0.5
                         ; light years of free fuel
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ADC QQ14               ; Add the scooped fuel to the current fuel level
+ STA CNT                 ; Keep the proposed new level while we fetch tank size
+ELSE                   ; ELITE: Unbound build option (else)
  ADC QQ14               ; Set A = A + the current fuel level * 10 (from QQ14)
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerFuelCapacity ; A = this ship's Elite-A fuel-tank capacity
+ CMP CNT                 ; If capacity < proposed fuel, A is already the cap
+ BCC fuelScoopStore
+ LDA CNT                 ; Otherwise keep the proposed value
+ELSE                   ; ELITE: Unbound build option (else)
  CMP #70                ; If A > 70 then set A = 70 (as 70 is the maximum fuel
  BCC P%+4               ; level, or 7.0 light years)
  LDA #70
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.fuelScoopStore
+
+ STA QQ14               ; Store the updated fuel level, capped to this ship's
+                        ; own tank capacity (including ranges above 7.0 LY)
+ELSE                   ; ELITE: Unbound build option (else)
  STA QQ14               ; Store the updated fuel level in QQ14
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #160               ; Set A to token 160 ("FUEL SCOOPS ON")
 
@@ -6469,7 +6595,12 @@ ELSE
  EQUD $E8030000         ; CASH = Amount of cash (100 Cr), #9-12
 ENDIF
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ EQUB 60                ; QQ14 = Fuel level, #13. The default Adder starts with
+                        ; its normal full 6.0 LY tank.
+ELSE                   ; ELITE: Unbound build option (else)
  EQUB 70                ; QQ14 = Fuel level, #13
+ENDIF                  ; ELITE: Unbound build option (end)
 
  EQUB %10000000 AND Q%  ; COK = Competition flags, #14
 
@@ -6481,15 +6612,34 @@ ELSE
  EQUB POW               ; LASER = Front laser, #16
 ENDIF
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ EQUB POW AND Q%        ; LASER = Rear laser, #17
+ELSE                   ; ELITE: Unbound build option (else)
  EQUB POW AND Q%        ; LASER = Rear laser, #16
 
+ENDIF                  ; ELITE: Unbound build option (end)
  EQUB (POW+128) AND Q%  ; LASER+2 = Left laser, #18
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ELSE                   ; ELITE: Unbound build option (else)
 
+ENDIF                  ; ELITE: Unbound build option (end)
  EQUB Mlas AND Q%       ; LASER+3 = Right laser, #19
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; commander=max keeps the original max laser types here;
+                        ; ShipValidate removes any mounts unsupported by the
+                        ; current player ship (Adder -> front/rear only).
+
+ EQUB 0                 ; Unused former up/down laser byte, #20
+
+ EQUB 1                 ; cmdr_type = Adder, #21. New commanders start in an
+                        ; Adder, matching Elite-A's standard starting ship. Type
+                        ; 0 remains Cobra Mk III so old C64 saves stay compatible.
+ELSE                   ; ELITE: Unbound build option (else)
 
  EQUW 0                 ; These bytes appear to be unused (they were originally
                         ; used for up/down lasers, but they were dropped),
                         ; #20-21
+ENDIF                  ; ELITE: Unbound build option (end)
 
  EQUB 22 + (15 AND Q%)  ; CRGO = Cargo capacity, #22
 
@@ -6527,7 +6677,13 @@ ENDIF
 
  EQUD 0                 ; These four bytes appear to be unused, #47-50
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ EQUB 3 + (Q% AND 1)    ; NOMSL = Number of missiles, #51. commander=max keeps
+                        ; the original 4-missile test load; ShipValidate clamps
+                        ; it to the current hull capacity (Adder -> 1).
+ELSE                   ; ELITE: Unbound build option (else)
  EQUB 3 + (Q% AND 1)    ; NOMSL = Number of missiles, #51
+ENDIF                  ; ELITE: Unbound build option (end)
 
  EQUB 0                 ; FIST = Legal status ("fugitive/innocent status"), #52
 
@@ -7488,11 +7644,23 @@ ENDIF
                         ; that segment, and we start a new segment with the next
                         ; call to BLINE that does fit on-screen
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDY LSP                ; If byte LSP-1 of LSY2 is not $FF, continue locally
+ LDA #$FF               ; and add an end-of-segment marker
+ CMP LSY2-1,Y
+ BNE BL5AddMarker
+
+ JMP BL7                ; It is already $FF, so tidy up and return. RC4's BEQ
+                        ; was at the +127-byte limit and RC5 would push it out.
+
+.BL5AddMarker
+ELSE                   ; ELITE: Unbound build option (else)
  LDY LSP                ; If byte LSP-1 of LSY2 = $FF, jump to BL7 to tidy up
  LDA #$FF               ; and return from the subroutine, as the point that has
  CMP LSY2-1,Y           ; been passed to BLINE is the start of a segment, so all
  BEQ BL7                ; we need to do is save the coordinate in K5, without
                         ; moving the pointer in LSP
+ENDIF                  ; ELITE: Unbound build option (end)
 
  STA LSY2,Y             ; Otherwise we just tried to plot a segment but it
                         ; didn't fit on-screen, so put the $FF marker into the
@@ -7531,9 +7699,32 @@ ENDIF
  LDA K6+3               ; Set XX12+1 = y_hi of new point
  STA XX12+1
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA dontclip           ; If dontclip = 1, TT126 has requested the dedicated
+ CMP #1                 ; Short-range Chart circle viewport (y = 20..198)
+ BNE BLCheckLongClip
+
+ JSR ChartCircleClip    ; Clip the circle below the title and above the border
+ JMP BLClipDone
+
+.BLCheckLongClip
+
+ CMP #2                 ; If dontclip = 2, TT14 has requested the dedicated
+ BNE BLStandardClip     ; Long-range Chart circle viewport (y = 24..151)
+
+ JSR LongChartCircleClip
+ JMP BLClipDone
+
+.BLStandardClip
+
+ JSR LL145              ; Otherwise use the normal line-clipping behaviour
+
+.BLClipDone
+ELSE                   ; ELITE: Unbound build option (else)
  JSR LL145              ; Call LL145 to see if the new line segment needs to be
                         ; clipped to fit on-screen, returning the clipped line's
                         ; end-points in (X1, Y1) and (X2, Y2)
+ENDIF                  ; ELITE: Unbound build option (end)
 
  BCS BL5                ; If the C flag is set then the line is not visible on
                         ; screen anyway, so jump to BL5, to avoid drawing and
@@ -7585,6 +7776,14 @@ ENDIF
 
  JSR LOIN               ; Draw a line from (X1, Y1) to (X2, Y2)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA XX13               ; If XX13 is zero, jump down to BL7 and continue
+ BEQ BL7                ; without adding an end-of-segment marker
+
+ JMP BL5                ; XX13 is non-zero after clipping the end of the line,
+                        ; so add a $FF marker to the line heap. This absolute
+                        ; jump replaces the out-of-range RC4 BNE (-136 bytes).
+ELSE                   ; ELITE: Unbound build option (else)
  LDA XX13               ; If XX13 is non-zero, jump up to BL5 to add a $FF
  BNE BL5                ; marker to the end of the line heap. XX13 is non-zero
                         ; after the call to the clipping routine LL145 above if
@@ -7592,6 +7791,7 @@ ENDIF
                         ; sent to BLINE can't join onto the end but has to start
                         ; a new segment, and that's what inserting the $FF
                         ; marker does
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .BL7
 
@@ -7613,6 +7813,143 @@ ENDIF
 
 ; ******************************************************************************
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;       Name: ChartCircleClip
+;       Type: Subroutine
+;   Category: Drawing circles
+;    Summary: Clip a Short-range Chart circle segment to y = 20..198
+;
+; ------------------------------------------------------------------------------
+;
+; RC3 makes LL145 use Yx2M1 as its inclusive bottom clipping coordinate. Here
+; we translate y by -20 and temporarily set Yx2M1 to 178, so LL145's viewport
+; y = 0..178 maps exactly to screen rows 20..198. The title separator is at
+; y = 19 and the bottom border is at y = 199, so both lines remain untouched.
+;
+; Input and output use the same extended-coordinate layout as LL145. The C flag
+; is clear for a visible clipped segment and set if the segment is invisible.
+;
+; ******************************************************************************
+
+.ChartCircleClip
+
+ LDA XX15+2             ; Translate y1 by -20, so the title separator at y = 19
+ SEC                    ; is above LL145's zero coordinate
+ SBC #20
+ STA XX15+2
+ LDA XX15+3
+ SBC #0
+ STA XX15+3
+
+ LDA XX12               ; Apply the same translation to y2
+ SEC
+ SBC #20
+ STA XX12
+ LDA XX12+1
+ SBC #0
+ STA XX12+1
+
+ LDA Yx2M1              ; Preserve the Short-range Chart's normal bottom row
+ PHA                    ; of 199
+
+ LDA #178               ; After the -20 translation, row 178 corresponds to
+ STA Yx2M1              ; screen row 198, directly above the bottom border
+
+ JSR LL145              ; Clip to translated y = 0..178 and x = 0..255
+ BCS ChartCircleReject
+
+ PLA                    ; Restore the normal Short-range Chart bottom row
+ STA Yx2M1
+
+ LDA XX15+1             ; Translate the returned endpoints back to screen rows
+ CLC                    ; 20..198
+ ADC #20
+ STA XX15+1
+ LDA XX15+3
+ CLC
+ ADC #20
+ STA XX15+3
+
+ CLC                    ; The clipped segment is visible
+ RTS
+
+.ChartCircleReject
+
+ PLA                    ; Restore the normal Short-range Chart bottom row
+ STA Yx2M1
+
+ SEC                    ; The segment is outside the dedicated chart viewport
+ RTS
+
+; ******************************************************************************
+;
+;       Name: LongChartCircleClip
+;       Type: Subroutine
+;   Category: Drawing circles
+;    Summary: Clip a Long-range Chart circle segment to y = 24..151
+;
+; ------------------------------------------------------------------------------
+;
+; Translate y by -24 and temporarily set the inclusive LL145 bottom to 127.
+; The translated viewport 0..127 therefore maps exactly to screen rows 24..151,
+; directly between the title separator at y = 23 and the bottom white line at
+; y = 152.
+;
+; ******************************************************************************
+
+.LongChartCircleClip
+
+ LDA XX15+2             ; Translate y1 by -24 so the top of the chart maps to 0
+ SEC
+ SBC #24
+ STA XX15+2
+ LDA XX15+3
+ SBC #0
+ STA XX15+3
+
+ LDA XX12               ; Apply the same translation to y2
+ SEC
+ SBC #24
+ STA XX12
+ LDA XX12+1
+ SBC #0
+ STA XX12+1
+
+ LDA Yx2M1              ; Preserve the normal clipping bottom
+ PHA
+
+ LDA #127               ; Translated row 127 is original screen row 151
+ STA Yx2M1
+
+ JSR LL145              ; Clip to translated y = 0..127 and x = 0..255
+ BCS LongChartCircleReject
+
+ PLA                    ; Restore the normal clipping bottom
+ STA Yx2M1
+
+ LDA XX15+1             ; Translate the clipped endpoints back to rows 24..151
+ CLC
+ ADC #24
+ STA XX15+1
+ LDA XX15+3
+ CLC
+ ADC #24
+ STA XX15+3
+
+ CLC                    ; The clipped segment is visible
+ RTS
+
+.LongChartCircleReject
+
+ PLA                    ; Restore the normal clipping bottom
+ STA Yx2M1
+
+ SEC                    ; The segment is outside the Long-range Chart viewport
+ RTS
+
+; ******************************************************************************
+;
+ENDIF                  ; ELITE: Unbound build option (end)
 ;       Name: FLIP
 ;       Type: Subroutine
 ;   Category: Stardust
@@ -8718,7 +9055,10 @@ ENDIF
                         ;
                         ;         COMMANDER {commander name}
                         ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ELSE                   ; ELITE: Unbound build option (else)
                         ;
+ENDIF                  ; ELITE: Unbound build option (end)
                         ;   Present System      : {current system name}
                         ;   Hyperspace System   : {selected system name}
                         ;   Condition           :
@@ -8852,12 +9192,58 @@ ENDIF
  ADC #21                ; range 136 ("HARMLESS") to 144 ("---- E L I T E ----")
  JSR plf                ; followed by a newline
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; Use the existing blank visual row between RATING and EQUIPMENT for the
+ ; current player ship. Put it at column 1, then move to the next row so the
+ ; EQUIPMENT heading remains on its own original line.
+ LDA #1
+ JSR DOXC
+ JSR ShipPrintStatus
+ JSR TT67K              ; Newline used by the Status-screen code
+
+ JSR ShipPrintEquipmentHeader
+                        ; Print e.g.:
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #18                ; Print recursive token 132, which prints the next bit
  JSR plf2               ; of the Status Mode screen:
+ENDIF                  ; ELITE: Unbound build option (end)
                         ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ;   EQUIPMENT (0t):
+ELSE                   ; ELITE: Unbound build option (else)
                         ;   EQUIPMENT:
+ENDIF                  ; ELITE: Unbound build option (end)
                         ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; followed by a newline and an indent of 6 characters.
+
+ LDA NOMSL              ; If no missiles are fitted, omit the missile line
+ BEQ shipStatusNoMissiles
+
+ LDA NOMSL              ; Show the current missile count as the first equipment
+ JSR ShipPrintByte      ; line so it is visible on the Status screen while
+ LDA #' '               ; docked (e.g. "1 MISSILE" / "2 MISSILES")
+ JSR DASC
+ LDA #106               ; Existing recursive token 106 = "MISSILE"
+ JSR TT27               ; Print it without a newline so we can pluralise it
+
+ LDA NOMSL              ; Singular only when exactly one missile is fitted
+ CMP #1
+ BEQ shipStatusMissileSingular
+
+ LDA #'s'               ; 2+ missiles use the plural "Missiles"
+ JSR DASC               ; Append a lower-case s to match Sentence Case
+
+.shipStatusMissileSingular
+
+ JSR TT67               ; Finish the missile line with a newline
+ LDA #6                 ; Indent the next equipment line to column 6, matching
+ JSR DOXC               ; plf2's normal Status-screen formatting
+
+.shipStatusNoMissiles
+ELSE                   ; ELITE: Unbound build option (else)
                         ; followed by a newline and an indent of 6 characters
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA ESCP               ; If we don't have an escape pod fitted (i.e. ESCP is
  BEQ P%+7               ; zero), skip the following two instructions
@@ -8898,13 +9284,31 @@ ENDIF
  TAY                    ; Fetch byte BOMB+0 through BOMB+4 for values of XX4
  LDX BOMB-113,Y         ; from 113 through 117
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BEQ stqvNext           ; If it is zero then we do not own that piece of
+                        ; equipment, so skip printing it
+
+ CPY #114               ; Token 114 is the Energy Unit slot
+ BNE stqvNormal
+ CPX #2                 ; ENGY=2 is the unique Naval Energy Unit
+ BNE stqvNormal
+ JSR ShipPrintNavalEnergyUnitLine
+ JMP stqvNext
+
+.stqvNormal
+ELSE                   ; ELITE: Unbound build option (else)
  BEQ P%+5               ; If it is zero then we do not own that piece of
                         ; equipment, so skip the next instruction
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR plf2               ; Print the recursive token in A from 113 ("ENERGY
                         ; BOMB") through 116 ("GALACTIC HYPERSPACE "), followed
                         ; by a newline and an indent of 6 characters
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.stqvNext
+
+ENDIF                  ; ELITE: Unbound build option (end)
  INC XX4                ; Increment the counter (and A as well)
  LDA XX4
 
@@ -10452,9 +10856,15 @@ ENDIF
  LDA #8                 ; Set S = 8, which is the value of the centre of the
  STA S                  ; roll indicator
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA ALP1               ; Fetch the roll-angle magnitude and normalise it to
+ JSR ShipNormalizeRollDial ; 0..7 for this hull, so full steering always reaches
+                        ; the end of the RL indicator
+ELSE                   ; ELITE: Unbound build option (else)
  LDA ALP1               ; Fetch the roll angle alpha as a value between 0 and
  LSR A                  ; 31, and divide by 4 to get a value of 0 to 7
  LSR A
+ENDIF                  ; ELITE: Unbound build option (end)
 
  ORA ALP2               ; Apply the roll sign to the value, and flip the sign,
  EOR #%10000000         ; so it's now in the range -7 to +7, with a positive
@@ -10477,19 +10887,29 @@ ENDIF
                         ; and increment SC to point to the next indicator (the
                         ; pitch indicator)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA BET1               ; Fetch the pitch-angle magnitude and normalise it to
+ JSR ShipNormalizePitchDial ; 0..7 for this hull, so full steering always reaches
+                        ; the end of the DC indicator
+ELSE                   ; ELITE: Unbound build option (else)
  LDA BETA               ; Fetch the pitch angle beta as a value between -8 and
                         ; +8
 
  LDX BET1               ; Fetch the magnitude of the pitch angle beta, and if it
  BEQ P%+4               ; is 0 (i.e. we are not pitching), skip the next
                         ; instruction
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ORA BET2               ; Apply the pitch sign to the normalised magnitude
+ELSE                   ; ELITE: Unbound build option (else)
  SBC #1                 ; The pitch angle beta is non-zero, so set A = A - 1
                         ; (the C flag is set by the call to DIL2 above, so we
                         ; don't need to do a SEC). This gives us a value of A
                         ; from -7 to +7 because these are magnitude-based
                         ; numbers with sign bits, rather than two's complement
                         ; numbers
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR ADD                ; We now add A to S to give us a value in the range 1 to
                         ; 15, which we can pass to DIL2 to draw the vertical
@@ -11113,9 +11533,15 @@ ENDIF
 ;
 ; ------------------------------------------------------------------------------
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+; This routine displays our doomed current player ship disappearing off into
+; the ether before arranging our replacement ship. Called when we press ESCAPE
+; during flight and have an escape pod fitted.
+ELSE                   ; ELITE: Unbound build option (else)
 ; This routine displays our doomed Cobra Mk III disappearing off into the ether
 ; before arranging our replacement ship. Called when we press ESCAPE during
 ; flight and have an escape pod fitted.
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ; ******************************************************************************
 
@@ -11123,45 +11549,98 @@ ENDIF
 
  JSR RES2               ; Reset a number of flight variables and workspaces
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDX cmdr_type          ; Convert the player's current hull type to the matching
+ LDA PlayerShipUniverseType,X
+ TAX                    ; C64 universe ship type, so the abandoned ship shown
+ STX TYPE               ; after ejection is the hull we were actually flying
+ELSE                   ; ELITE: Unbound build option (else)
  LDX #CYL               ; Set the current ship type to a Cobra Mk III, so we
  STX TYPE               ; can show our ship disappear into the distance when we
                         ; eject in our pod
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR FRS1               ; Launch the abandoned player ship straight ahead,
+ELSE                   ; ELITE: Unbound build option (else)
  JSR FRS1               ; Call FRS1 to launch the Cobra Mk III straight ahead,
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; like a missile launch, but with our ship instead
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BCC ES2                ; If there is unexpectedly not enough room to add the
+                        ; abandoned ship, skip the visual rather than showing a
+                        ; wrong fallback hull
+ELSE                   ; ELITE: Unbound build option (else)
  BCS ES1                ; If the Cobra was successfully added to the local
                         ; bubble, jump to ES1 to skip the following instructions
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA #8                 ; Set the abandoned ship's byte #27 (speed) to 8
+ELSE                   ; ELITE: Unbound build option (else)
  LDX #CYL2              ; The Cobra wasn't added to the local bubble for some
  JSR FRS1               ; reason, so try launching a pirate Cobra Mk III instead
 
 .ES1
 
  LDA #8                 ; Set the Cobra's byte #27 (speed) to 8
+ENDIF                  ; ELITE: Unbound build option (end)
  STA INWK+27
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA #194               ; Set byte #30 (pitch counter) to 194, so the abandoned
+ STA INWK+30            ; ship pitches up as we pull away
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #194               ; Set the Cobra's byte #30 (pitch counter) to 194, so it
  STA INWK+30            ; pitches up as we pull away
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LSR A                  ; Set byte #32 (AI flag) to %01100001, so it has no AI,
+ STA INWK+32            ; and use this value as a counter for the following loop
+                        ; 97 times
+ELSE                   ; ELITE: Unbound build option (else)
  LSR A                  ; Set the Cobra's byte #32 (AI flag) to %01100001, so it
  STA INWK+32            ; has no AI, and we can use this value as a counter to
                         ; do the following loop 97 times
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .ESL1
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR MVEIT              ; Move the abandoned ship in space
+ELSE                   ; ELITE: Unbound build option (else)
  JSR MVEIT              ; Call MVEIT to move the Cobra in space
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR LL9                ; Draw the abandoned ship on-screen
+ELSE                   ; ELITE: Unbound build option (else)
  JSR LL9                ; Call LL9 to draw the Cobra on-screen
+ENDIF                  ; ELITE: Unbound build option (end)
 
  DEC INWK+32            ; Decrement the counter in byte #32
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BNE ESL1               ; Loop until the ship has had time to drift away from
+                        ; our escape pod
+ELSE                   ; ELITE: Unbound build option (else)
  BNE ESL1               ; Loop back to keep moving the Cobra until the AI flag
                         ; is 0, which gives it time to drift away from our pod
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR SCAN               ; Remove the abandoned ship from the scanner (by
+ELSE                   ; ELITE: Unbound build option (else)
  JSR SCAN               ; Call SCAN to remove the Cobra from the scanner (by
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; redrawing it)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.ES2
+
+ENDIF                  ; ELITE: Unbound build option (end)
  LDA #0                 ; Set A = 0 so we can use it to zero the contents of
                         ; the cargo hold
 
@@ -11198,9 +11677,14 @@ ENDIF
 
 .nosurviv
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerFuelCapacity ; Our replacement ship is delivered with a full tank
+ STA QQ14               ; using the current ship type's Elite-A fuel capacity
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #70                ; Our replacement ship is delivered with a full tank of
  STA QQ14               ; fuel, so set the current fuel level in QQ14 to 70, or
                         ; 7.0 light years
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JMP GOIN               ; Go to the docking bay (i.e. show the Status Mode
                         ; screen) and return from the subroutine with a tail
@@ -11407,8 +11891,13 @@ ENDIF
                         ; damaging our ship
 
  LDA #80                ; Otherwise the missile just got destroyed near us, so
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipShieldedDamage ; apply Elite-A per-ship shield absorption first
+                        ; (then normal OOPS damage if anything gets through)
+ELSE                   ; ELITE: Unbound build option (else)
  JSR OOPS               ; call OOPS to damage the ship by 80, which is nowhere
                         ; near as bad as the 250 damage from a missile slamming
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; straight into us, but it's still pretty nasty
 
 .TA872
@@ -11438,9 +11927,14 @@ ENDIF
 
  JSR EXNO3              ; Make the sound of the missile exploding
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA #250               ; Apply the Elite-A per-ship shield absorption to the
+ JMP ShipShieldedDamage ; direct missile hit, then take any remaining damage
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #250               ; Call OOPS to damage the ship by 250, which is a pretty
  JMP OOPS               ; big hit, and return from the subroutine using a tail
                         ; call
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .TA18
 
@@ -11521,8 +12015,13 @@ ENDIF
                         ; ship, so jump to TA87 to skip damaging our ship
 
  LDA #80                ; Otherwise the missile just got destroyed near us, so
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipShieldedDamage ; apply Elite-A per-ship shield absorption first
+                        ; (then normal OOPS damage if anything gets through)
+ELSE                   ; ELITE: Unbound build option (else)
  JSR OOPS               ; call OOPS to damage the ship by 80, which is nowhere
                         ; near as bad as the 250 damage from a missile slamming
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; straight into us, but it's still pretty nasty
 
 .TA87
@@ -12183,10 +12682,15 @@ ENDIF
                         ; the laser power and number of missiles) to get the
                         ; amount of damage we should take
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipShieldedDamage ; Elite-A n_oops: absorb this hull's shield value first,
+                        ; then pass any remaining laser damage to normal OOPS
+ELSE                   ; ELITE: Unbound build option (else)
  JSR OOPS               ; Call OOPS to take some damage, which could do anything
                         ; from reducing the shields and energy, all the way to
                         ; losing cargo or dying (if the latter, we don't come
                         ; back from this subroutine)
+ENDIF                  ; ELITE: Unbound build option (end)
 
  DEC INWK+28            ; Halve the attacking ship's acceleration in byte #28
 
@@ -13452,6 +13956,12 @@ ENDIF
 
  DEC NOMSL              ; Reduce the number of missiles we have by 1
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR msblob             ; Redraw the four visible indicators. For ships carrying
+                        ; more than four missiles this keeps all four visible
+                        ; slots green until the internal count drops below four.
+
+ENDIF                  ; ELITE: Unbound build option (end)
  LDY #sfxwhosh          ; Call the NOISE routine with Y = sfxwhosh to make the
  JMP NOISE              ; sound of a missile launch, returning from the
                         ; subroutine using a tail call
@@ -17686,6 +18196,11 @@ ENDIF
  BCC kg                 ; and they have different cargo limits to the standard
                         ; tonne canisters
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ CLC                    ; V2N compares against the real capacity directly, so
+                        ; do not use the original routine's implicit +1 trick
+
+ENDIF                  ; ELITE: Unbound build option (end)
 .Tml
 
                         ; Here we count the tonne canisters we have in the hold
@@ -17693,12 +18208,18 @@ ENDIF
                         ; tonnes of cargo, using X as the loop counter, starting
                         ; with X = 12
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ADC QQ20,X             ; Add this cargo type to requested + existing tonnes.
+ BCS tnprCargoFull      ; Any 8-bit overflow is necessarily above every V1G
+                        ; ship capacity (the largest is Anaconda at 215t)
+ELSE                   ; ELITE: Unbound build option (else)
  ADC QQ20,X             ; Set A = A + the number of tonnes we have in the hold
                         ; of market item number X. Note that the first time we
                         ; go round this loop, the C flag is set (as we didn't
                         ; branch with the BCC above, so the effect of this loop
                         ; is to count the number of tonne canisters in the hold,
                         ; and add 1
+ENDIF                  ; ELITE: Unbound build option (end)
 
  DEX                    ; Decrement the loop counter
 
@@ -17706,9 +18227,23 @@ ENDIF
                         ; until we have added up all market items from 12
                         ; (minerals) down to 0 (food)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ADC TRIBBLE+1          ; Add one tonne per 256 Trumbles
+ BCS tnprCargoFull      ; Overflow means the hold is definitely full
+ STA CNT                 ; Preserve requested + existing cargo usage
+
+ JSR ShipEquipmentWeight ; Add fitted equipment weight (1t per fitted item,
+ CLC                     ; except missiles and Large Cargo Bay, which are 0t)
+ ADC CNT
+ BCS tnprCargoFull
+ELSE                   ; ELITE: Unbound build option (else)
  ADC TRIBBLE+1          ; Add the high byte of the number of Trumbles in the
                         ; hold, as 256 Trumbles take up one tonne of cargo space
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ STA CNT                 ; Preserve requested + existing cargo + equipment
+ELSE                   ; ELITE: Unbound build option (else)
  CMP CRGO               ; If A < CRGO then the C flag will be clear (we have
                         ; room in the hold)
                         ;
@@ -17727,11 +18262,32 @@ ENDIF
                         ; So this is why the value in CRGO is 2 higher than the
                         ; actual cargo bay size, i.e. it's 22 for the standard
                         ; 20-tonne bay, and 37 for the large 35-tonne bay
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerCargoCapacity ; A = this hull's current capacity, including the
+                         ; Large Cargo Bay 10% extension when fitted
+
+ CMP CNT                ; Capacity >= used means the cargo fits
+ BCC tnprCargoFull
+ELSE                   ; ELITE: Unbound build option (else)
  PLA                    ; Restore A from the stack
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ PLA                    ; Restore A from the stack
+ CLC                    ; Signal that there is room
+ENDIF                  ; ELITE: Unbound build option (end)
  RTS                    ; Return from the subroutine
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.tnprCargoFull
+
+ PLA                    ; Restore requested quantity
+ SEC                    ; Signal "no room"
+ RTS
+
+ENDIF                  ; ELITE: Unbound build option (end)
 .kg
 
                         ; Here we count the number of items of this type that
@@ -18859,12 +19415,32 @@ ENDIF
                         ; exact coordinates as this is the Short-range Chart
 
  LDA QQ14               ; Set K to the fuel level from QQ14, so this can act as
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ STA K                  ; the circle's radius in 0.1-LY fuel units
+ELSE                   ; ELITE: Unbound build option (else)
  STA K                  ; the circle's radius (70 being a full tank)
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA dontclip           ; Preserve the Short-range Chart's no-clipping flag
+ PHA                    ; while the fuel circle is drawn
+
+ LDA #1                 ; Select ChartCircleClip for the circle. It clips large
+ STA dontclip           ; radii to rows 20..198, below the title separator and
+                        ; above the bottom border, without wrapping coordinates.
+
+ JSR TT128              ; Draw the circle with its off-screen segments clipped
+
+ PLA                    ; Restore the chart's no-clipping mode for the systems,
+ STA dontclip           ; labels and other chart drawing that follows
+
+ RTS                    ; Return to the Short-range Chart routine
+ELSE                   ; ELITE: Unbound build option (else)
  JMP TT128              ; Jump to TT128 to draw a circle with the centre at the
                         ; same coordinates as the crosshairs, (QQ19, QQ19+1),
                         ; and radius K that reflects the current fuel levels,
                         ; returning from the subroutine using a tail call
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .TT14
 
@@ -18879,8 +19455,13 @@ ENDIF
                         ; crosshairs and circle for that view instead
 
  LDA QQ14               ; Set K to the fuel level from QQ14 divided by 4, so
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LSR A                  ; this can act as the circle's radius, scaled down by
+ LSR A                  ; four from the current fuel level in 0.1-LY units
+ELSE                   ; ELITE: Unbound build option (else)
  LSR A                  ; this can act as the circle's radius (70 being a full
  LSR A                  ; tank, which divides down to a radius of 17)
+ENDIF                  ; ELITE: Unbound build option (end)
  STA K
 
  LDA QQ0                ; Set QQ19 to the x-coordinate of the current system,
@@ -18903,10 +19484,25 @@ ENDIF
  ADC #24                ; of the crosshairs
  STA QQ19+1
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA dontclip           ; Preserve the normal line-clipping mode
+ PHA
+
+ LDA #2                 ; Select LongChartCircleClip while drawing the range
+ STA dontclip           ; circle, using chart rows 24..151
+
+ JSR TT128              ; Draw the Long-range Chart fuel circle
+
+ PLA                    ; Restore normal clipping for the rest of the chart
+ STA dontclip
+
+ RTS
+ELSE                   ; ELITE: Unbound build option (else)
                         ; Fall through into TT128 to draw a circle with the
                         ; centre at the same coordinates as the crosshairs,
                         ; (QQ19, QQ19+1), and radius K that reflects the
                         ; current fuel levels
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -20654,8 +21250,14 @@ ENDIF
 
  LDA QQ8+1              ; If the high byte of the distance to the selected
  BNE goTT147            ; system in QQ8 is > 0, then it is definitely too far to
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; jump (all V1K player-ship ranges are below 25.6 LY, so
+                        ; any non-zero high byte is beyond every ship's range),
+                        ; so jump to TT147 via goTT147
+ELSE                   ; ELITE: Unbound build option (else)
                         ; jump (as our maximum range is 7.0 light years, or a
                         ; value of 70 in QQ8(1 0)), so jump to TT147 via goTT147
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; to print "RANGE?" and return from the subroutine using
                         ; a tail call
 
@@ -22161,11 +22763,28 @@ ENDIF
 
 .EQSHP
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ CLC                    ; Plain "3": normal Equip Ship mode
+ BCC eqshipEntry        ; Always taken
+
+.EQSHPBuy
+
+ SEC                    ; CTRL+3: Buy Ship mode
+
+.eqshipEntry
+
+ PHP                    ; Preserve mode across common screen/title setup
+
+ENDIF                  ; ELITE: Unbound build option (end)
  LDA #32                ; Clear the screen, draw a border box, and set up a
  JSR TRADEMODE          ; trading screen with a view type in QQ11 of 32 (Equip
                         ; Ship screen)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA #11                ; V3O: move the EQUIP SHIP title one column left
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #12                ; Move the text cursor to column 12
+ENDIF                  ; ELITE: Unbound build option (end)
  JSR DOXC
 
  LDA #207               ; Print recursive token 47 ("EQUIP") followed by a space
@@ -22179,6 +22798,18 @@ ENDIF
 
  JSR INCYC              ; Move the text cursor down one line
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; Both plain 3 and CTRL+3 use the same original Equip Ship screen setup.
+ ; Restore the selected mode:
+ ;   C clear = equipment list
+ ;   C set   = Buy Ship list
+ PLP
+ BCC n_eqship
+ JMP n_buyship
+
+.n_eqship
+
+ENDIF                  ; ELITE: Unbound build option (end)
  LDA tek                ; Fetch the tech level of the current system from tek
  CLC                    ; and add 3 (the tech level is stored as 0-14, so A is
  ADC #3                 ; now set to between 3 and 17)
@@ -22195,9 +22826,15 @@ ENDIF
                         ; Set Q = A + 1 (so Q is in the range 4-15 and contains
                         ; QQ25 + 1, i.e. the highest item number on sale + 1)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerFuelCapacity ; Set A = tank capacity - QQ14, where the tank size
+ SEC                    ; comes from the current ship's Elite-A characteristics
+ SBC QQ14               ; (all values are light years * 10)
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #70                ; Set A = 70 - QQ14, where QQ14 contains the current
  SEC                    ; fuel in light years * 10, so this leaves the amount
  SBC QQ14               ; of fuel we need to fill 'er up (in light years * 10)
+ENDIF                  ; ELITE: Unbound build option (end)
 
  ASL A                  ; The price of fuel is always 2 Cr per light year, so we
  STA PRXS               ; double A and store it in PRXS, as the first price in
@@ -22263,12 +22900,30 @@ ENDIF
                         ; the C flag if the number is bigger than the highest
                         ; item number in QQ25
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BNE bayNumberEntered   ; If a number was entered, continue with range checking
+ELSE                   ; ELITE: Unbound build option (else)
  BEQ bay                ; If no number was entered, jump up to bay to go to the
                         ; docking bay (i.e. show the Status Mode screen)
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JMP bay                ; No number entered: use an absolute jump to the docking
+                        ; bay, as bay is now outside relative-branch range
+
+.bayNumberEntered
+
+ BCC bayChoiceInRange   ; If the number entered is within range, continue below
+
+ JMP bay                ; Otherwise use an absolute jump, as the Elite-A additions
+                        ; move bay just outside the 6502 relative-branch range
+
+.bayChoiceInRange
+ELSE                   ; ELITE: Unbound build option (else)
  BCS bay                ; If the number entered was too big, jump up to bay to
                         ; go to the docking bay (i.e. show the Status Mode
                         ; screen)
+ENDIF                  ; ELITE: Unbound build option (end)
 
  SBC #0                 ; Set A to the number entered - 1 (because the C flag is
                         ; clear), which will be the actual item number we want
@@ -22293,8 +22948,13 @@ ENDIF
  BNE et0                ; If A is not 0 (i.e. the item we've just bought is not
                         ; fuel), skip to et0
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerFuelCapacity ; Fill to this ship's own Elite-A tank capacity
+ STA QQ14
+ELSE                   ; ELITE: Unbound build option (else)
  LDX #70                ; Set the current fuel level * 10 in QQ14 to 70, or 7.0
  STX QQ14               ; light years (a full tank)
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .et0
 
@@ -22304,15 +22964,36 @@ ENDIF
  LDX NOMSL              ; Fetch the current number of missiles from NOMSL into X
 
  INX                    ; Increment X to the new number of missiles
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ STX T1                 ; Keep the proposed missile count in T1
 
+ JSR PlayerMaxMissiles  ; Get this ship's maximum missile count in A
+
+ CMP T1                 ; If maximum >= proposed count, the missile will fit
+ BCS missileFits
+ENDIF                  ; ELITE: Unbound build option (end)
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA #1                 ; Restore the equipment item number for the refund path
+ENDIF                  ; ELITE: Unbound build option (end)
  LDY #124               ; Set Y to recursive token 124 ("ALL")
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JMP pres               ; Show "All Present", refund and return to the bay
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.missileFits
+ELSE                   ; ELITE: Unbound build option (else)
  CPX #5                 ; If buying this missile would give us 5 missiles, this
  BCS pres               ; is more than the maximum of 4 missiles that we can
                         ; fit, so jump to pres to show the error "All Present",
                         ; beep and exit to the docking bay (i.e. show the Status
                         ; Mode screen)
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDX T1
+ENDIF                  ; ELITE: Unbound build option (end)
  STX NOMSL              ; Otherwise update the number of missiles in NOMSL
 
  JSR msblob             ; Reset the dashboard's missile indicators so none of
@@ -22352,6 +23033,9 @@ ENDIF
                         ; System Present", beep and exit to the docking bay
                         ; (i.e. show the Status Mode screen)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipRequireEquipmentSpace ; ECM occupies 1t of hold space
+ENDIF                  ; ELITE: Unbound build option (end)
  DEC ECM                ; Otherwise we just took delivery of a brand new E.C.M.
                         ; system, so set ECM to $FF (as ECM was 0 before the DEC
                         ; instruction)
@@ -22417,8 +23101,31 @@ ENDIF
                         ; instruction above, but we can't fit the item, so need
                         ; our money back
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA K                  ; Print the item's name followed by a space. If the
+ CMP #114               ; fitted unit is the mission-only ENGY=2 variant, name
+ BNE presNormalName     ; it explicitly so the player knows it is the Naval
+ LDA ENGY               ; Energy Unit rather than the normal purchasable unit.
+ CMP #2
+ BNE presEnergyNormal
+ JSR ShipPrintNavalEnergyUnit
+ LDA #' '
+ JSR DASC
+ JMP presNameDone
+
+.presEnergyNormal
+
+ LDA K
+
+.presNormalName
+
+ JSR spc
+
+.presNameDone
+ELSE                   ; ELITE: Unbound build option (else)
  LDA K                  ; Print the recursive token in K (the item's name)
  JSR spc                ; followed by a space
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #31                ; Print recursive token 145 ("PRESENT")
  JSR TT27
@@ -22433,6 +23140,9 @@ ENDIF
 
 .ed9
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipRequireEquipmentSpace ; Fuel Scoops occupy 1t of hold space
+ENDIF                  ; ELITE: Unbound build option (end)
  DEC BST                ; We just bought a shiny new fuel scoop, so set BST to
                         ; $FF (as BST was 0 before the jump to ed9 above)
 
@@ -22448,6 +23158,9 @@ ENDIF
                         ; Present", beep and exit to the docking bay (i.e. show
                         ; the Status Mode screen)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipRequireEquipmentSpace ; Escape Pod occupies 1t of hold space
+ENDIF                  ; ELITE: Unbound build option (end)
  DEC ESCP               ; Otherwise we just bought an escape pod, so set ESCP
                         ; to $FF (as ESCP was 0 before the DEC instruction)
 
@@ -22463,6 +23176,9 @@ ENDIF
                         ; Bomb Present", beep and exit to the docking bay (i.e.
                         ; show the Status Mode screen)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipRequireEquipmentSpace ; Energy Bomb occupies 1t of hold space
+ENDIF                  ; ELITE: Unbound build option (end)
  LDX #$7F               ; Otherwise we just bought an energy bomb, so set BOMB
  STX BOMB               ; to $7F
 
@@ -22478,6 +23194,9 @@ ENDIF
                         ; Present", beep and exit to the docking bay (i.e. show
                         ; the Status Mode screen)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipRequireEquipmentSpace ; Energy Unit / Naval Unit occupies 1t
+ENDIF                  ; ELITE: Unbound build option (end)
  INC ENGY               ; Otherwise we just picked up an energy unit, so set
                         ; ENGY to 1 (as ENGY was 0 before the INC instruction)
 
@@ -22494,6 +23213,9 @@ ENDIF
                         ; "Docking Computer Present", beep and exit to the
                         ; docking bay (i.e. show the Status Mode screen)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipRequireEquipmentSpace ; Docking Computer occupies 1t
+ENDIF                  ; ELITE: Unbound build option (end)
  DEC DKCMP              ; Otherwise we just got hold of a docking computer, so
                         ; set DKCMP to $FF (as DKCMP was 0 before the DEC
                         ; instruction)
@@ -22507,10 +23229,23 @@ ENDIF
  BNE et9                ; a galactic hyperdrive), skip to et9
 
  LDX GHYP               ; If we already have a galactic hyperdrive fitted (i.e.
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BEQ galacticHyperdriveNotPresent
+                        ; GHYP is zero, so continue with the purchase
+ JMP pres               ; Otherwise show "Galactic Hyperspace Present", beep
+                        ; and exit to the docking bay. Use JMP because the
+                        ; original BNE is now just outside 6502 branch range.
+ELSE                   ; ELITE: Unbound build option (else)
  BNE pres               ; GHYP is non-zero), jump to pres to show the error
                         ; "Galactic Hyperspace Present", beep and exit to the
                         ; docking bay (i.e. show the Status Mode screen)
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.galacticHyperdriveNotPresent
+
+ JSR ShipRequireEquipmentSpace ; Galactic Hyperdrive occupies 1t
+ENDIF                  ; ELITE: Unbound build option (end)
  DEC GHYP               ; Otherwise we just splashed out on a galactic
                         ; hyperdrive, so set GHYP to $FF (as GHYP was 0 before
                         ; the DEC instruction)
@@ -22608,7 +23343,11 @@ ENDIF
 ;
 ; Arguments:
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;   A                   The item number of the piece of equipment (0-13) as
+ELSE                   ; ELITE: Unbound build option (else)
 ;   A                   The item number of the piece of equipment (0-11) as
+ENDIF                  ; ELITE: Unbound build option (end)
 ;                       shown in the table at PRXS
 ;
 ; ******************************************************************************
@@ -22671,13 +23410,44 @@ ENDIF
 
 .prx
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ASL A                  ; Set A = item number * 2, as PRXS stores 16-bit prices
+ BEQ prxPriceIndexReady ; Fuel is shared by every hull, so item 0 never uses a
+                        ; ship-category offset
+
+ TAY                    ; Preserve the doubled item number while we select the
+                        ; current hull's ELITE: Unbound equipment price category
+
+ LDX cmdr_type
+ CPX #13
+ BCC prxShipTypeOK
+ LDX #0                 ; Invalid/legacy value falls back to Cobra Mk III
+
+.prxShipTypeOK
+
+ TYA
+ CLC
+ ADC ShipEquipmentPriceOffsets,X
+                        ; Each category contains 13 words = 26 bytes. The table
+                        ; starts with the shared fuel word, so adding 0/26/52/
+                        ; 78/104 selects the matching category for items 1..13.
+
+.prxPriceIndexReady
+
+ TAY                    ; Use the final byte offset as the PRXS index
+ELSE                   ; ELITE: Unbound build option (else)
  ASL A                  ; Set Y = A * 2, so it can act as an index into the
  TAY                    ; PRXS table, which has two bytes per entry
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDX PRXS,Y             ; Fetch the low byte of the price into X
 
  LDA PRXS+1,Y           ; Fetch the high byte of the price into A and transfer
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ TAY                    ; it to Y, so the price is now in (Y X)
+ELSE                   ; ELITE: Unbound build option (else)
  TAY                    ; it to X, so the price is now in (Y X)
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .c
 
@@ -22746,8 +23516,15 @@ ENDIF
 
  LDY YC                 ; Update Y with the incremented counter in YC
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerLaserMounts  ; Elite-A: only list mounts supported by this hull
+ ORA #16                ; Convert mount count 1/2/4 to ending row 17/18/20
+ CMP YC
+ BNE qv1                ; Loop until every supported mount has been printed
+ELSE                   ; ELITE: Unbound build option (else)
  CPY #20                ; If Y < 20 then loop back up to qv1 to print the next
  BCC qv1                ; view in the menu
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR CLYNS              ; Clear the bottom three text rows of the upper screen,
                         ; and move the text cursor to the first cleared row
@@ -22763,8 +23540,17 @@ ENDIF
  SEC                    ; Subtract ASCII "0" from the key pressed, to leave the
  SBC #'0'               ; numeric value of the key in A (if it was a number key)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ TAY                    ; Preserve the selected numeric view in Y
+ JSR PlayerLaserMounts  ; Elite-A: validate it against this hull's mount count
+ STA T
+ TYA
+ CMP T
+ BCC qv3                ; A < mount count means the selected view is supported
+ELSE                   ; ELITE: Unbound build option (else)
  CMP #4                 ; If the number entered in A < 4, then it is a valid
  BCC qv3                ; view number, so jump down to qv3 as we are done
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR CLYNS              ; Otherwise we didn't get a valid view number, so clear
                         ; the bottom three text rows of the upper screen, and
@@ -22855,8 +23641,39 @@ ENDIF
 
  STA T1                 ; Store A in T1 so we can retrieve it later
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA LASER,X            ; If there is already a laser in this view, replacing
+ BNE refundExistingLaser ; it does not change equipment weight, so process the
+                        ; normal old-laser refund below
+
+ ; An empty mount gains 1t when the new laser is fitted. Map the requested laser
+ ; power in T1 back to its PRXS item number so ShipRequireEquipmentSpace can
+ ; refund the exact purchase price if the hold is full.
+ LDY #4                 ; Pulse Laser
+ LDA T1
+ CMP #POW
+ BEQ refundNewLaserSpace
+ LDY #5                 ; Beam Laser
+ CMP #POW+128
+ BEQ refundNewLaserSpace
+ LDY #12                ; Military Laser
+ CMP #Armlas
+ BEQ refundNewLaserSpace
+ LDY #13                ; Mining Laser
+
+.refundNewLaserSpace
+
+ TYA
+ JSR ShipRequireEquipmentSpace
+ JMP ref3               ; Space is available; install without old-laser refund
+
+.refundExistingLaser
+
+ LDA LASER,X            ; Reload old laser power for refund-type detection
+ELSE                   ; ELITE: Unbound build option (else)
  LDA LASER,X            ; If there is no laser in view X (i.e. the laser power
  BEQ ref3               ; is zero), jump to ref3 to skip the refund code
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ;CMP T1                 ; These instructions are commented out in the original
 ;BEQ ref2               ; source, but they would jump to ref2 above if we were
@@ -22908,6 +23725,495 @@ ENDIF
 
  RTS                    ; Return from the subroutine
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+; ------------------------------------------------------------------------------
+; ShipPrintNavalEnergyUnit / ShipPrintNavalEnergyUnitLine
+;
+; Print the unique mission reward using an explicit name. The original C64
+; wording calls ENGY=2 an "Extra Energy Unit"; ELITE: Unbound calls it
+; "Naval Energy Unit" so players can distinguish it from the normal ENGY=1
+; Energy Unit before deciding whether to sell it.
+; ------------------------------------------------------------------------------
+
+.ShipPrintNavalEnergyUnit
+
+ LDX #0
+
+.shipNavalEnergyUnitLoop
+
+ LDA ShipNavalEnergyUnitText,X
+ BEQ shipNavalEnergyUnitDone
+ JSR DASC
+ INX
+ BNE shipNavalEnergyUnitLoop
+
+.shipNavalEnergyUnitDone
+
+ RTS
+
+.ShipPrintNavalEnergyUnitLine
+
+ JSR ShipPrintNavalEnergyUnit
+ JSR TT67               ; Match plf2: newline, then indent the following row
+ LDA #6
+ JMP DOXC
+
+.ShipNavalEnergyUnitText
+ EQUS "Naval Energy Unit"
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; SellEquipment
+;
+; ELITE: Unbound port of Elite-A's CTRL+2 Sell Equipment screen.
+;
+; The screen walks through the equipment currently fitted to the player ship
+; and asks "(Y/N)?" for each item. Accepted sales refund half of the normal
+; purchase price, matching Elite-A. Missiles are included as an Unbound
+; extension: one missile is sold per visit/confirmation, so a commander can
+; reduce a missile load without having to discard the whole rack.
+;
+; The C64 Large Cargo Bay is retained by ELITE: Unbound. It adds 10% of the
+; hull's default cargo capacity (floor, minimum +1t, total capped at 255t).
+; It can only be sold when current used capacity fits back into the base hold;
+; otherwise the sale is refused with "CARGO?".
+; ------------------------------------------------------------------------------
+
+.SellEquipment
+
+ LDA #4                 ; Use the Sell Cargo trading-screen layout/view type
+ JSR TRADEMODE
+
+ LDA #10                ; Match Elite-A's "SELL EQUIP" title placement
+ JSR DOXC
+
+ LDA #205               ; "SELL"
+ JSR TT27
+
+ INC XC                 ; Add the space between SELL and EQUIP
+
+ LDA #207               ; "EQUIP"
+ JSR NLIN3              ; Print it and draw the title underline
+
+ LDA #%10000000         ; Match the normal Equip Ship title setup: switch to
+ STA QQ17               ; Sentence Case without printing a token newline
+ JSR INCYC              ; NLIN3 leaves YC on the title row. Row 2 contains the
+ JSR INCYC              ; underline at pixel 19, so start items on text row 3.
+                        ; This matches the effective spacing of the original
+                        ; Equip/Sell Cargo lists without blank rows between items.
+
+ JSR SellEquipmentMissile
+
+ LDA CRGO               ; Legacy Large Cargo Bay fitted?
+ CMP #26
+ BCC sellEquipmentNoCargoBay
+ LDA #1
+ JSR DOXC
+ LDA #107               ; "LARGE CARGO BAY"
+ LDX #6                 ; LASER+6 = CRGO
+ JSR SellEquipmentFlag
+
+.sellEquipmentNoCargoBay
+
+ LDA ESCP
+ BEQ sellEquipmentNoPod
+ LDA #1
+ JSR DOXC
+ LDA #112               ; "ESCAPE POD"
+ LDX #30                ; LASER+30 = ESCP
+ JSR SellEquipmentFlag
+
+.sellEquipmentNoPod
+
+ LDA BST
+ BEQ sellEquipmentNoScoops
+ LDA #1
+ JSR DOXC
+ LDA #111               ; "FUEL SCOOPS"
+ LDX #25                ; LASER+25 = BST
+ JSR SellEquipmentFlag
+
+.sellEquipmentNoScoops
+
+ LDA ECM
+ BEQ sellEquipmentNoECM
+ LDA #1
+ JSR DOXC
+ LDA #108               ; "E.C.M.SYSTEM"
+ LDX #24                ; LASER+24 = ECM
+ JSR SellEquipmentFlag
+
+.sellEquipmentNoECM
+
+ LDX #26                ; BOMB, ENGY, DKCMP, GHYP are LASER+26..29
+
+.sellEquipmentCoreLoop
+
+ STX CNT
+ LDY LASER,X
+ BEQ sellEquipmentCoreNext
+
+ LDA #1                 ; Move to left edge before printing this item
+ JSR DOXC
+ LDX CNT
+ TXA
+ CLC
+ ADC #87                ; X 26..29 -> tokens 113..116
+ LDX CNT
+ JSR SellEquipmentFlag
+
+.sellEquipmentCoreNext
+
+ LDX CNT
+ INX
+ CPX #30
+ BCC sellEquipmentCoreLoop
+
+ LDX #0                 ; Finally offer each fitted laser, by view
+
+.sellEquipmentLaserLoop
+
+ STX CNT
+ LDY LASER,X
+ BEQ sellEquipmentLaserNext
+
+ LDA #1
+ JSR DOXC
+
+ LDA #%10000000         ; Start each laser row in Sentence Case so the view
+ STA QQ17               ; name begins with a capital instead of lower case
+
+ TXA                     ; Print FRONT/REAR/LEFT/RIGHT and a space
+ CLC
+ ADC #96
+ JSR spc
+
+ LDA #103               ; Default to PULSE LASER
+ LDX CNT
+ LDY LASER,X
+ CPY #POW+128
+ BNE sellEquipmentLaserNotBeam
+ LDA #104               ; BEAM LASER
+
+.sellEquipmentLaserNotBeam
+
+ CPY #Armlas
+ BNE sellEquipmentLaserNotMilitary
+ LDA #117               ; MILITARY LASER
+
+.sellEquipmentLaserNotMilitary
+
+ CPY #Mlas
+ BNE sellEquipmentLaserTypeReady
+ LDA #118               ; MINING LASER
+
+.sellEquipmentLaserTypeReady
+
+ LDX CNT
+ JSR SellEquipmentFlag
+
+.sellEquipmentLaserNext
+
+ LDX CNT
+ INX
+ CPX #4
+ BCC sellEquipmentLaserLoop
+
+ JMP BAY                ; Finished: return to the docked Status screen
+
+; ------------------------------------------------------------------------------
+; SellEquipmentMissile
+;
+; Offer one missile for sale if any are fitted. A successful sale refunds half
+; the normal 30.0 Cr missile price, decrements NOMSL and refreshes missile lamps.
+; ------------------------------------------------------------------------------
+
+.SellEquipmentMissile
+
+ LDA NOMSL
+ BEQ sellEquipmentMissileDone
+
+ LDA #1
+ JSR DOXC
+
+ LDA #%10000000         ; Reset Sentence Case so every list row starts with
+ STA QQ17               ; a capital, just like the Status equipment list
+ LDA #106               ; "MISSILE"
+ JSR TT27
+ LDA #' '
+ JSR DASC
+ LDA #'x'
+ JSR DASC
+ LDA NOMSL
+ JSR ShipPrintByte
+
+ LDA #25                ; Put "(Y/N)?" at columns 25-30 so the answer at
+                        ; column 31 naturally wraps to the next row
+ JSR DOXC
+ LDA #8                 ; Control token 8 prints nothing and selects ALL CAPS
+ JSR TT221              ; -> "(Y/N)?", C set for yes
+ BCC sellEquipmentMissileNewline
+
+ LDA #1                 ; PRXS item 1 = Missile
+ JSR SellEquipmentRefundHalf
+
+ DEC NOMSL              ; Sell one missile, not the entire missile load
+ JSR msblob             ; Refresh/reset dashboard missile indicators
+
+.sellEquipmentMissileNewline
+
+ LDA #1                 ; TT221 prints the Y/N response near the right edge,
+ JSR DOXC               ; naturally wraps to the next row. Just reset X so the
+                        ; next item starts at the left edge; do not add another
+                        ; newline or we would leave a blank row.
+
+.sellEquipmentMissileDone
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; SellEquipmentFlag
+;
+; Print and optionally sell one fitted equipment item.
+;
+; Inputs:
+;   A = recursive token for the equipment name
+;   X = offset from LASER of the equipment flag (0..3 lasers, 6 CRGO,
+;       24..30 normal equipment)
+;
+; The PRXS item number is derived from the text token, following Elite-A's
+; status_equip mapping. The item is refunded at half price. Ordinary flags are
+; cleared. Large Cargo Bay has a dedicated safety path that only restores CRGO
+; to 22 if the current load fits in the hull's base hold.
+; ------------------------------------------------------------------------------
+
+.SellEquipmentFlag
+
+ STX CNT                 ; Preserve equipment flag offset across text/input calls
+ STA XX4                 ; Preserve equipment token for price lookup
+
+ LDA #%10000000         ; Reset Sentence Case for every item. With the compact
+ STA QQ17               ; one-row layout, TT214/row wrapping no longer does it
+
+ LDX CNT                 ; ENGY is LASER+27. If it is the Naval Energy Unit,
+ CPX #27                 ; print its explicit name rather than token 114's
+ BNE sellEquipmentFlagNormalName ; original "Extra Energy Unit" wording.
+ LDA ENGY
+ CMP #2
+ BNE sellEquipmentFlagNormalName
+ JSR ShipPrintNavalEnergyUnit
+ JMP sellEquipmentFlagNameDone
+
+.sellEquipmentFlagNormalName
+
+ LDA XX4
+ JSR TT27                ; Print equipment name
+
+.sellEquipmentFlagNameDone
+
+ ; Always offer the normal (Y/N)? prompt first. For Large Cargo Bay we only test
+ ; the reduced base-hold capacity after the player actually chooses Y. If it
+ ; cannot be removed, overwrite the prompt/answer on that same row with CARGO?.
+ LDA YC                  ; Remember this item's row so Large Cargo Bay can
+ PHA                     ; replace its prompt in-place after a rejected Y
+
+ LDA #25                ; Put "(Y/N)?" at columns 25-30; the answer is
+                        ; printed at column 31 and wraps to the next row
+ JSR DOXC
+
+ LDA #8                 ; Control token 8 prints nothing and selects ALL CAPS
+ JSR TT221              ; Print only "(Y/N)?" and read Y/N
+ BCS sellEquipmentFlagYes
+
+ PLA                     ; No sale: discard the saved item-row number
+ JMP sellEquipmentFlagNewline
+
+.sellEquipmentFlagYes
+
+ LDX CNT
+ CPX #6
+ BEQ sellEquipmentLargeCargoBay
+ JMP sellEquipmentFlagPriceDropRow
+
+.sellEquipmentLargeCargoBay
+
+ ; Large Cargo Bay: after Y, distinguish *why* the reduced base hold cannot
+ ; accept the current load. If actual cargo alone exceeds the base hold, report
+ ; CARGO?. If cargo fits but cargo + equipment mass does not, report EQUIPMENT?.
+ JSR ShipCargoUsed
+ BCS sellEquipmentCargoAfterYes ; Cargo overflow is necessarily a cargo problem
+ STA T
+
+ LDX cmdr_type
+ CPX #13
+ BCC sellEquipmentCargoTypeOK
+ LDX #0
+
+.sellEquipmentCargoTypeOK
+
+ LDA ShipDefaultCargo,X
+ CMP T
+ BCC sellEquipmentCargoAfterYes ; Actual cargo alone will not fit
+
+ ; Cargo itself fits. Now test total used capacity. Any failure here is caused
+ ; by fitted equipment mass, because the cargo-only test above already passed.
+ JSR ShipUsedCapacity
+ BCS sellEquipmentEquipmentAfterYes
+ STA T
+
+ LDX cmdr_type
+ CPX #13
+ BCC sellEquipmentTotalTypeOK
+ LDX #0
+
+.sellEquipmentTotalTypeOK
+
+ LDA ShipDefaultCargo,X
+ CMP T
+ BCC sellEquipmentEquipmentAfterYes
+
+ PLA                     ; It fits: discard saved row and perform the sale
+ LDA #2                 ; PRXS item 2 = Large Cargo Bay
+ JSR SellEquipmentRefundHalf
+ LDA #22                ; Restore the original C64 "standard bay" flag value
+ STA CRGO
+ JMP sellEquipmentFlagNewline
+
+.sellEquipmentCargoAfterYes
+
+ LDA #0                 ; 0 = print CARGO?
+ BEQ sellEquipmentCapacityAfterYes
+
+.sellEquipmentEquipmentAfterYes
+
+ LDA #1                 ; 1 = print EQUIPMENT?
+
+.sellEquipmentCapacityAfterYes
+
+ TAX                     ; Preserve the message selector while restoring the
+ PLA                     ; saved Large Cargo Bay item row from the stack
+ STA YC
+ TXA
+ PHA                     ; Keep selector safe across DETOK, which uses scratch
+
+ ; C64 text is EOR-drawn, so erase the prompt by printing the *same* extended
+ ; token that TT221 used originally. Once (Y/N)? has been erased, print the more
+ ; specific capacity error on that same item row.
+ LDA #25
+ JSR DOXC
+ LDA #206               ; Exact same extended token used by TT221: "(Y/N)?"
+ JSR DETOK              ; EOR it a second time to erase the original prompt
+
+ PLA                     ; Restore message selector: 0=CARGO?, 1=EQUIPMENT?
+ BEQ sellEquipmentPrintCargo
+
+ ; EQUIPMENT? is 10 characters long. Start at column 21 so the final '?' lands
+ ; at column 30, matching the right edge of (Y/N)? without reaching column 31
+ ; (which would wrap the cursor and skip the following equipment row).
+ LDA #21
+ JSR DOXC
+ LDX #0
+
+.sellEquipmentEquipmentTextLoop
+
+ LDA SellEquipmentEquipmentText,X
+ BEQ sellEquipmentCapacityTextDone
+ JSR DASC
+ INX
+ BNE sellEquipmentEquipmentTextLoop
+
+.sellEquipmentPrintCargo
+
+ LDA #25
+ JSR DOXC
+ LDX #0
+
+.sellEquipmentCargoTextLoop
+
+ LDA SellEquipmentCargoText,X
+ BEQ sellEquipmentCapacityTextDone
+ JSR DASC
+ INX
+ BNE sellEquipmentCargoTextLoop
+
+.sellEquipmentCapacityTextDone
+
+ LDY #20                ; Keep the rejection visible briefly (0.40 s PAL /
+ JSR DELAY              ; 0.33 s NTSC), especially when this is the final item
+
+ JSR INCYC              ; We temporarily moved YC back to the Large Cargo Bay
+                        ; row to erase (Y/N)? and print the error. Advance to the
+                        ; next item row again before the list continues.
+ JMP sellEquipmentFlagNewline
+
+.sellEquipmentFlagPriceDropRow
+
+ PLA                     ; Ordinary item: saved row is no longer needed
+
+.sellEquipmentFlagPrice
+
+ LDA XX4                ; Convert token to PRXS equipment index
+ CMP #107
+ BCS sellEquipmentFlagNormalPrice
+
+                        ; Only pulse/beam laser tokens (103/104) reach here
+ SEC
+ SBC #99                ; 103->4 Pulse, 104->5 Beam
+ JMP sellEquipmentFlagHavePrice
+
+.sellEquipmentFlagNormalPrice
+
+ SEC
+ SBC #105               ; 107->2 ... 118->13
+
+.sellEquipmentFlagHavePrice
+
+ JSR SellEquipmentRefundHalf
+
+ LDX CNT
+ LDA #0
+ STA LASER,X             ; Remove the sold equipment / laser
+
+.sellEquipmentFlagNewline
+
+ LDA #1                 ; TT221 already wraps after printing the Y/N response
+ JMP DOXC               ; at column 31, so only reset the next line to column 1
+
+; ------------------------------------------------------------------------------
+; SellEquipment prompt/error literals
+; ------------------------------------------------------------------------------
+
+.SellEquipmentCargoText
+ EQUS "CARGO?"
+ EQUB 0
+
+.SellEquipmentEquipmentText
+ EQUS "EQUIPMENT?"
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; SellEquipmentRefundHalf
+;
+; A = PRXS equipment item number (0..13). Add half of its purchase price to CASH.
+; ------------------------------------------------------------------------------
+
+.SellEquipmentRefundHalf
+
+ JSR prx                 ; (Y X) = full price in tenths of a credit
+
+ TYA                     ; Divide 16-bit price by two, preserving low-bit carry
+ LSR A
+ TAY
+ TXA
+ ROR A
+ TAX
+
+ JSR MCASH               ; Add the half-price refund
+ JSR BEEP                ; Successful sale: same short confirmation beep used
+                        ; by the normal Equip Ship screen, with no added delay
+ RTS
+
+ENDIF                  ; ELITE: Unbound build option (end)
 ; ******************************************************************************
 ;
 ;       Name: PRXS
@@ -22924,13 +24230,33 @@ ENDIF
 
 .PRXS
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; Fuel is common to every ship. Items 1..13 are stored in five 26-byte
+ ; category blocks, following Elite-A's per-hull equipment-price mechanism.
+ ; ELITE: Unbound keeps the C64 item numbering: item 2 is Large Cargo Bay and
+ ; item 8 is the shared Energy Bomb / I.F.F. build-time slot. Non-laser
+ ; equipment follows the selected Elite-A-style hull category. All four laser
+ ; types deliberately keep the vanilla C64 prices in every category because
+ ; ELITE: Unbound uses the same laser types/firepower for every hull. Prices
+ ; are stored as credits * 10.
+
+ EQUW 1                 ; 0  Fuel, calculated dynamically in EQSHP
+
+ ; Category 0: Cobra Mk III
+ EQUW 250               ; 1  Missile                     25.0 Cr
+ELSE                   ; ELITE: Unbound build option (else)
  EQUW 1                 ; 0  Fuel, calculated in EQSHP  140.0 Cr (full tank)
  EQUW 300               ; 1  Missile                     30.0 Cr
+ENDIF                  ; ELITE: Unbound build option (end)
  EQUW 4000              ; 2  Large Cargo Bay            400.0 Cr
  EQUW 6000              ; 3  E.C.M. System              600.0 Cr
  EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 5250              ; 6  Fuel Scoops                525.0 Cr
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ EQUW 3000              ; 7  Escape Pod                 300.0 Cr
+ EQUW 4000              ; 8  Energy Bomb / I.F.F.       400.0 Cr
+ELSE                   ; ELITE: Unbound build option (else)
  EQUW 10000             ; 7  Escape Pod                1000.0 Cr
  
 IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
@@ -22943,12 +24269,1514 @@ ELSE
   
 ENDIF
  
+ENDIF                  ; ELITE: Unbound build option (end)
  EQUW 15000             ; 9  Energy Unit               1500.0 Cr
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ EQUW 15000             ; 10 Docking Computer          1500.0 Cr
+ELSE                   ; ELITE: Unbound build option (else)
  EQUW 10000             ; 10 Docking Computer          1000.0 Cr
+ENDIF                  ; ELITE: Unbound build option (end)
  EQUW 50000             ; 11 Galactic Hyperspace       5000.0 Cr
  EQUW 60000             ; 12 Extra Military Lasers     6000.0 Cr
  EQUW 8000              ; 13 Extra Mining Lasers        800.0 Cr
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; Category 1: Adder, Gecko, Cobra Mk I
+ EQUW 250               ; 1  Missile                     25.0 Cr
+ EQUW 4000              ; 2  Large Cargo Bay            400.0 Cr
+ EQUW 4000              ; 3  E.C.M. System              400.0 Cr
+ EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
+ EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
+ EQUW 3750              ; 6  Fuel Scoops                375.0 Cr
+ EQUW 2000              ; 7  Escape Pod                 200.0 Cr
+ EQUW 2000              ; 8  Energy Bomb / I.F.F.       200.0 Cr
+ EQUW 9000              ; 9  Energy Unit                900.0 Cr
+ EQUW 8000              ; 10 Docking Computer           800.0 Cr
+ EQUW 30000             ; 11 Galactic Hyperspace       3000.0 Cr
+ EQUW 60000             ; 12 Extra Military Lasers     6000.0 Cr
+ EQUW 8000              ; 13 Extra Mining Lasers        800.0 Cr
+
+ ; Category 2: Fer-de-Lance, Asp Mk II
+ EQUW 250               ; 1  Missile                     25.0 Cr
+ EQUW 4000              ; 2  Large Cargo Bay            400.0 Cr
+ EQUW 5000              ; 3  E.C.M. System              500.0 Cr
+ EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
+ EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
+ EQUW 7000              ; 6  Fuel Scoops                700.0 Cr
+ EQUW 6000              ; 7  Escape Pod                 600.0 Cr
+ EQUW 4000              ; 8  Energy Bomb / I.F.F.       400.0 Cr
+ EQUW 25000             ; 9  Energy Unit               2500.0 Cr
+ EQUW 10000             ; 10 Docking Computer          1000.0 Cr
+ EQUW 40000             ; 11 Galactic Hyperspace       4000.0 Cr
+ EQUW 60000             ; 12 Extra Military Lasers     6000.0 Cr
+ EQUW 8000              ; 13 Extra Mining Lasers        800.0 Cr
+
+ ; Category 3: Python, Boa, Anaconda (ELITE: Unbound heavy-ship category)
+ EQUW 250               ; 1  Missile                     25.0 Cr
+ EQUW 40000             ; 2  Large Cargo Bay           4000.0 Cr
+ EQUW 8000              ; 3  E.C.M. System              800.0 Cr
+ EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
+ EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
+ EQUW 6500              ; 6  Fuel Scoops                650.0 Cr
+ EQUW 4500              ; 7  Escape Pod                 450.0 Cr
+ EQUW 3000              ; 8  Energy Bomb / I.F.F.       300.0 Cr
+ EQUW 19000             ; 9  Energy Unit               1900.0 Cr
+ EQUW 20000             ; 10 Docking Computer          2000.0 Cr
+ EQUW 60000             ; 11 Galactic Hyperspace       6000.0 Cr
+ EQUW 60000             ; 12 Extra Military Lasers     6000.0 Cr
+ EQUW 8000              ; 13 Extra Mining Lasers        800.0 Cr
+
+ ; Category 4: Moray
+ EQUW 250               ; 1  Missile                     25.0 Cr
+ EQUW 4000              ; 2  Large Cargo Bay            400.0 Cr
+ EQUW 3000              ; 3  E.C.M. System              300.0 Cr
+ EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
+ EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
+ EQUW 4500              ; 6  Fuel Scoops                450.0 Cr
+ EQUW 2500              ; 7  Escape Pod                 250.0 Cr
+ EQUW 1500              ; 8  Energy Bomb / I.F.F.       150.0 Cr
+ EQUW 7000              ; 9  Energy Unit                700.0 Cr
+ EQUW 7000              ; 10 Docking Computer           700.0 Cr
+ EQUW 30000             ; 11 Galactic Hyperspace       3000.0 Cr
+ EQUW 60000             ; 12 Extra Military Lasers     6000.0 Cr
+ EQUW 8000              ; 13 Extra Mining Lasers        800.0 Cr
+
+; ******************************************************************************
+;
+; Elite-A ship-buying subset for Commodore 64
+;
+; This ports the requested Elite-A player-ship subset: ownership, CTRL+3
+; part-exchange, persistent ship type, missile/cargo limits, maximum speed,
+; pitch/roll handling, hyperspace fuel-tank capacity, Elite-A shield absorption,
+; laser-mount limits and per-ship Energy Unit recharge. Equipment weight has a
+; shared 0t hook ready for a later port; per-ship laser power remains deferred.
+;
+; Player ship type numbers used here:
+;
+;   0 Cobra Mk III    6 Python
+;   1 Adder           7 Boa
+;   2 Gecko           8 Anaconda
+;   3 Moray           9 Asp Mk II
+;   4 Cobra Mk I     10 Sidewinder
+;   5 Fer-de-Lance   11 Krait
+;                    12 Mamba
+;
+; Type 0 is Cobra Mk III for compatibility with legacy C64 commander files.
+; Sidewinder, Krait and Mamba are ELITE: Unbound additions built from the
+; original C64 ship models. They are offered only in Anarchy systems.
+;
+; ******************************************************************************
+
+.n_buyship
+
+ LDX QQ28               ; Start with the normal Elite-A-derived availability
+ LDA ShipAvailByEconomy,X ; for the ten established player-buyable hulls
+
+ LDX gov                ; Sidewinder, Krait and Mamba are black-market
+ BNE shipBuyCountReady  ; Anarchy hulls. Other systems keep the normal list.
+
+ LDX QQ28               ; In Anarchy systems, add only the black-market hulls
+                        ; allowed by the current economy.
+ CLC
+ ADC ShipAnarchyBonusByEconomy,X
+
+.shipBuyCountReady
+
+ STA QQ25
+
+ LDX #0                 ; X = menu index (ships are ordered by Elite-A price)
+
+.shipBuyLoop
+
+ STX XX13
+ JSR TT67               ; New line
+
+ LDX XX13
+ INX
+ CLC
+ JSR pr2                ; Print menu number (1..QQ25)
+ JSR TT162              ; Space
+
+ LDX XX13
+ JSR ShipMenuTypeAtIndex ; Convert visible menu index to cmdr_type. Anarchy
+                         ; systems insert Sidewinder/Krait/Mamba.
+ PHA
+ JSR ShipPrintName      ; Print the full ship name
+ PLA
+ JSR ShipLoadPrice      ; K(0 1 2 3) = Elite-A _BUG_FIX ship price
+
+ LDA #22
+ JSR DOXC               ; Price column
+
+ LDA #9
+ STA U
+ SEC
+ JSR BPRNT              ; Print price with one decimal place
+
+ LDX XX13
+ INX
+ CPX QQ25
+ BCC shipBuyLoop
+
+ JSR CLYNS
+
+ LDA #185               ; "SHIP?"
+ JSR prq
+ JSR gnum
+
+ BEQ shipBuyExit
+ BCS shipBuyExit
+
+ SBC #0                 ; C is clear: convert 1-based choice to 0-based index
+ TAX
+ CPX QQ25
+ BCS shipBuyExit
+
+ JSR ShipMenuTypeAtIndex
+ STA Q                  ; Q = new cmdr_type
+
+ ; ELITE: Unbound ship exchanges require all ordinary fitted equipment to be
+ ; sold first. Missiles and the unique Naval Energy Unit are the only fitted
+ ; items that may transfer to a new hull.
+ JSR ShipTransferEquipmentOK
+ BCS shipBuyEquipmentOK
+
+ JSR ShipEquipmentQuestion
+ JSR dn2
+ JMP BAY
+
+.shipBuyEquipmentOK
+
+ ; Keep cargo on ship exchange, but refuse a smaller ship if current cargo plus
+ ; the allowed Naval Energy Unit weight will not fit. Large Cargo Bay must have
+ ; been sold already, so the new hull is checked at its base cargo capacity.
+ JSR ShipCargoFitsType
+ BCS shipBuyCargoFits
+
+ LDA #206               ; Recursive token 46: " CARGO"
+ JSR prq                ; -> " CARGO?"
+ JSR dn2
+ JMP BAY
+
+.shipBuyCargoFits
+
+ ; Preserve fitted missiles too, but never silently throw away missiles when the
+ ; prospective hull has fewer pylons. Refuse the exchange with "MISSILES?".
+ LDA Q
+ JSR ShipMissilesFitType
+ BCS shipBuyMissilesFit
+
+ JSR ShipMissilesQuestion
+ JSR dn2
+ JMP BAY
+
+.shipBuyMissilesFit
+
+ ; All normal lasers are ordinary equipment and were already rejected by
+ ; ShipTransferEquipmentOK, so no separate LASERS? exchange check is needed.
+ ; ShipValidate keeps its laser-mount clamp as a defensive save-data guard.
+
+ ; XX16 = CASH + 60% trade-in value of current ship. ELITE: Unbound treats
+ ; the missing 40% as hull wear/depreciation instead of Elite-A's 100% credit.
+ LDA cmdr_type
+ JSR ShipLoadTradeInPrice
+
+ CLC
+ LDX #3
+
+.shipAddValue
+
+ LDA CASH,X
+ ADC K,X
+ STA XX16,X
+ DEX
+ BPL shipAddValue
+
+ ; K = XX16 - price of selected ship
+ LDA Q
+ JSR ShipLoadPrice
+
+ SEC
+ LDX #3
+
+.shipSubtractPrice
+
+ LDA XX16,X
+ SBC K,X
+ STA K,X
+ DEX
+ BPL shipSubtractPrice
+
+ LDA Q                  ; Preserve subtraction carry while fetching new type
+ BCS shipBuyCommit
+
+ LDA #197               ; Not enough money: "CASH?"
+ JSR prq
+ JSR dn2
+ JMP BAY
+
+.shipBuyExit
+
+ JSR dn2                ; Match Elite-A's short beep/delay on cancel/bad choice
+ JMP BAY
+
+.shipBuyCommit
+
+ STA cmdr_type           ; The selected ship is now the player's ship
+
+ LDY #3                 ; Commit the remaining cash from K to CASH
+
+.shipCopyCash
+
+ LDA K,Y
+ STA CASH,Y
+ DEY
+ BPL shipCopyCash
+
+ ; V1L keeps cargo/equipment/legal status/missiles, but matches Elite-A by delivering
+ ; the newly purchased ship with a full tank of its own per-ship capacity.
+ JSR PlayerFuelCapacity
+ STA QQ14
+
+ ; Keep all existing equipment/cargo/legal status. ShipValidate clamps any
+ ; ship-dependent state that cannot exceed the new hull's limits.
+ JSR ShipValidate
+ JSR msblob
+ JSR BEEP               ; Successful ship exchange: short confirmation beep,
+                        ; matching Equip Ship but without the one-second delay
+ JMP BAY
+
+; ------------------------------------------------------------------------------
+; ShipMenuTypeAtIndex
+;
+; X = visible Buy Ship menu index.
+; Return A = cmdr_type. Normal systems use the existing Elite-A-derived list.
+; Anarchy systems merge Sidewinder, Krait and Mamba into the price-ordered list.
+; The special hull thresholds are Sidewinder economy 0..6, Krait 0..5 and
+; Mamba 0..4. Poor Agricultural (7) therefore uses the normal list unchanged.
+; ------------------------------------------------------------------------------
+
+.ShipMenuTypeAtIndex
+
+ LDA gov
+ BEQ shipMenuTypeAnarchy
+
+ LDA ShipMenuTypes,X
+ RTS
+
+.shipMenuTypeAnarchy
+
+ LDA QQ28
+ CMP #5
+ BCC shipMenuTypeAnarchyStandard ; Economies 0..4: all three special hulls
+ BEQ shipMenuTypeAnarchyRichAg   ; Rich Agricultural: Sidewinder + Krait
+
+ CMP #6
+ BEQ shipMenuTypeAnarchyAverageAg ; Average Agricultural: Sidewinder only
+
+ LDA ShipMenuTypes,X    ; Poor Agricultural: no black-market hulls
+ RTS
+
+.shipMenuTypeAnarchyRichAg
+
+ LDA ShipMenuTypesAnarchyRichAg,X
+ RTS
+
+.shipMenuTypeAnarchyAverageAg
+
+ LDA ShipMenuTypesAnarchyAverageAg,X
+ RTS
+
+.shipMenuTypeAnarchyStandard
+
+ LDA ShipMenuTypesAnarchy,X
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipValidate
+; Validate cmdr_type and clamp ship-dependent commander state.
+; ------------------------------------------------------------------------------
+
+.ShipValidate
+
+ LDA cmdr_type
+ CMP #13
+ BCC shipTypeValid
+
+ LDA #0                 ; Unknown/legacy garbage type -> Cobra Mk III
+ STA cmdr_type
+
+.shipTypeValid
+
+ JSR PlayerMaxMissiles
+ CMP NOMSL
+ BCS shipValidateLasers
+ STA NOMSL              ; Limit missile load to the current hull's pylons
+
+.shipValidateLasers
+
+ JSR PlayerLaserMounts  ; Strip lasers from views this hull cannot mount. This
+ CMP #4                 ; makes commander=max adapt to the starting ship while
+ BCS shipValidateFuel   ; ship purchases still reject incompatible lasers first.
+ CMP #2
+ BCS shipValidateNoSides
+
+ LDA #0                 ; Front-only hull: remove rear + side lasers
+ STA LASER+1
+
+.shipValidateNoSides
+
+ LDA #0                 ; Front/rear hull (Adder/Boa), or front-only hull:
+ STA LASER+2            ; remove left/right lasers
+ STA LASER+3
+
+.shipValidateFuel
+
+ JSR PlayerFuelCapacity ; Old V1J saves may contain 7.0 LY in an Adder; clamp
+ CMP QQ14               ; loaded fuel to the selected hull's actual tank size
+ BCS shipValidateDone
+ STA QQ14
+
+.shipValidateDone
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; PlayerShipIndex
+; Return a validated current player ship index in X (0..12).
+; ------------------------------------------------------------------------------
+
+.PlayerShipIndex
+
+ LDX cmdr_type
+ CPX #13
+ BCC playerShipIndexOK
+ LDX #0                 ; Invalid type is treated as Cobra Mk III
+
+.playerShipIndexOK
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; PlayerMaxMissiles / PlayerMaxSpeed / PlayerFuelCapacity / PlayerShieldAbsorption
+; / PlayerLaserMounts / PlayerEnergyRecharge
+; Return the current ship's Elite-A characteristic in A.
+; ------------------------------------------------------------------------------
+
+.PlayerMaxMissiles
+
+ JSR PlayerShipIndex
+ LDA ShipMaxMissiles,X
+ RTS
+
+.PlayerMaxSpeed
+
+ JSR PlayerShipIndex
+ LDA ShipMaxSpeed,X
+ RTS
+
+.PlayerFuelCapacity
+
+ JSR PlayerShipIndex
+ LDA ShipFuelCapacity,X
+ RTS
+
+.PlayerShieldAbsorption
+
+ JSR PlayerShipIndex
+ LDA ShipShieldAbsorption,X
+ RTS
+
+.PlayerLaserMounts
+
+ JSR PlayerShipIndex
+ LDA ShipLaserMounts,X
+ RTS
+
+.PlayerEnergyRecharge
+
+ JSR PlayerShipIndex
+ LDA ShipEnergyRecharge,X
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipNormalizeRollDial / ShipNormalizePitchDial
+; Scale the current ALP1/BET1 magnitude to 0..7 using the maximum magnitude
+; reachable by the current hull. This affects only the RL/DC display; the
+; actual pitch/roll rates remain controlled by ShipClampRateX.
+; ------------------------------------------------------------------------------
+
+.ShipNormalizeRollDial
+
+ PHA
+ JSR PlayerShipIndex
+ LDA ShipMaxRollDialMagnitude,X
+ TAX
+ PLA
+ JMP ShipNormalizeDial
+
+.ShipNormalizePitchDial
+
+ PHA
+ JSR PlayerShipIndex
+ LDA ShipMaxPitchDialMagnitude,X
+ TAX
+ PLA
+
+.ShipNormalizeDial
+
+ STA Q                  ; Q = current magnitude
+ ASL A                  ; A = magnitude * 8
+ ASL A
+ ASL A
+ SEC
+ SBC Q                  ; A = magnitude * 7
+ STA Q
+ STX T1                 ; T1 = maximum magnitude for this hull
+ LDX #0                 ; X = normalised indicator offset
+
+.shipNormalizeDialLoop
+
+ LDA Q
+ CMP T1
+ BCC shipNormalizeDialDone
+ SBC T1                 ; Carry is set by CMP, so subtract the maximum
+ STA Q
+ INX
+ BNE shipNormalizeDialLoop
+
+.shipNormalizeDialDone
+
+ TXA                    ; Return floor(current * 7 / maximum) in A
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipClampRateX
+; Clamp joystick/keyboard pitch or roll rate in X to the current ship's
+; Elite-A handling envelope. The neutral point is 128. Elite-A derives the
+; lower bound from max with max EOR $FE (e.g. 239 -> 17, 175 -> 81).
+; ------------------------------------------------------------------------------
+
+.ShipClampRateX
+
+ TXA                    ; A = requested pitch/roll rate
+ LDY cmdr_type          ; Y = current ship index
+ CPY #13
+ BCC shipRateTypeOK
+ LDY #0                 ; Invalid type is treated as Cobra Mk III
+
+.shipRateTypeOK
+
+ CMP ShipMaxAgility,Y   ; Clamp the upper side of the Elite-A handling envelope
+ BCC shipRateBelowMax
+ LDA ShipMaxAgility,Y
+
+.shipRateBelowMax
+
+ CMP ShipMinAgility,Y   ; Then clamp the lower side around neutral (128)
+ BCS shipRateDone
+ LDA ShipMinAgility,Y
+
+.shipRateDone
+
+ TAX                    ; Return the clamped rate in X, as expected by cntr
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipLoadPrice
+; A = cmdr_type (0..12). Returns 32-bit big-endian price in K, matching CASH.
+; Prices are the Elite-A _BUG_FIX / source-disc prices, in tenths of credits.
+; ------------------------------------------------------------------------------
+
+.ShipLoadPrice
+
+ CMP #13
+ BCC shipPriceTypeOK
+ LDA #0
+
+.shipPriceTypeOK
+
+ ASL A
+ ASL A
+ TAX                    ; X = type * 4
+
+ LDA ShipPrices,X
+ STA K
+ LDA ShipPrices+1,X
+ STA K+1
+ LDA ShipPrices+2,X
+ STA K+2
+ LDA ShipPrices+3,X
+ STA K+3
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipLoadTradeInPrice
+; A = cmdr_type (0..12). Returns 60% of the hull's base price in K, stored in
+; the same 32-bit big-endian tenths-of-credits format as CASH. Values are
+; precomputed so part exchange introduces no runtime multiply/divide rounding.
+; ------------------------------------------------------------------------------
+
+.ShipLoadTradeInPrice
+
+ CMP #13
+ BCC shipTradeInTypeOK
+ LDA #0
+
+.shipTradeInTypeOK
+
+ ASL A
+ ASL A
+ TAX                    ; X = type * 4
+
+ LDA ShipTradeInPrices,X
+ STA K
+ LDA ShipTradeInPrices+1,X
+ STA K+1
+ LDA ShipTradeInPrices+2,X
+ STA K+2
+ LDA ShipTradeInPrices+3,X
+ STA K+3
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipPrintStatus
+; Print "SHIP: " followed by the current player's ship name.
+; Deliberately does not print a newline.
+; ------------------------------------------------------------------------------
+
+.ShipPrintStatus
+
+ LDX #0
+
+.shipStatusLabelLoop
+
+ LDA ShipStatusLabel,X
+ BEQ shipStatusName
+ JSR DASC
+ INX
+ BNE shipStatusLabelLoop
+
+.shipStatusName
+
+ LDA cmdr_type
+ JSR ShipPrintName
+
+ ; Print " (".
+ LDX #0
+
+.shipStatusCargoPrefixLoop
+
+ LDA ShipStatusCargoPrefix,X
+ BEQ shipStatusFree
+ JSR DASC
+ INX
+ BNE shipStatusCargoPrefixLoop
+
+.shipStatusFree
+
+ ; Print free hold space according to the current ship's Elite-A capacity.
+ ; V1K routes this through ShipUsedCapacity so equipment weight can be added
+ ; later without changing the ship-exchange/cargo-fit logic again.
+ JSR ShipCargoFree
+ JSR ShipPrintByte
+
+ LDA #'t'
+ JSR DASC
+ LDA #'/'
+ JSR DASC
+
+ ; Print the current cargo capacity of the ship, including a fitted Large
+ ; Cargo Bay extension.
+ JSR PlayerCargoCapacity
+ JSR ShipPrintByte
+
+ LDA #'t'
+ JSR DASC
+ LDA #')'
+ JMP DASC               ; Tail call, deliberately no newline
+
+.ShipStatusLabel
+ EQUS "Ship: "
+ EQUB 0
+
+.ShipStatusCargoPrefix
+ EQUS " ("
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; TitlePrintHeader
+;
+; Print the title-screen header:
+;
+;   ---- ELITE: Beyond ----
+;               v0.1
+;
+; The title is printed at the original title row, with the temporary version
+; string centred underneath it. The caller then moves down one more line before
+; printing the author credits, preserving the familiar title-screen spacing.
+; ------------------------------------------------------------------------------
+
+.TitlePrintHeader
+
+ LDA #4                 ; Centre the 24-character title on the 32-column screen
+ JSR DOXC
+
+ LDX #0
+
+.titleHeaderLoop
+
+ LDA TitleScreenHeader,X
+ BEQ titleHeaderDone
+ JSR DASC
+ INX
+ BNE titleHeaderLoop
+
+.titleHeaderDone
+
+ LDA #10                ; Leave a blank line between the title and version
+ JSR TT26
+ LDA #10
+ JSR TT26
+
+ LDA #13                ; Temporary build tag; keep existing centering unchanged
+ JSR DOXC
+
+ LDX #0
+
+.titleVersionLoop
+
+ LDA TitleScreenVersion,X
+ BEQ titleVersionDone
+ JSR DASC
+ INX
+ BNE titleVersionLoop
+
+.titleVersionDone
+
+ RTS
+
+.TitleScreenHeader
+ EQUS "---- ELITE: Unbound ----"
+ EQUB 0
+
+.TitleScreenVersion
+ EQUS "v0.10"
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; ShipPrintEquipmentHeader
+;
+; Print the Status-screen equipment summary as:
+;
+;   EQUIPMENT (<weight>t):
+;
+; followed by a newline and indent to column 6. The weight comes through the
+; shared ShipEquipmentWeight routine. Missile count is shown on its own line
+; below the header and does not contribute to equipment weight.
+; ------------------------------------------------------------------------------
+
+.ShipPrintEquipmentHeader
+
+ LDX #0
+
+.shipEquipmentHeaderLoop
+
+ LDA ShipEquipmentHeader,X
+ BEQ shipEquipmentHeaderWeight
+ JSR DASC
+ INX
+ BNE shipEquipmentHeaderLoop
+
+.shipEquipmentHeaderWeight
+
+ JSR ShipEquipmentWeight ; Print current fitted-equipment weight in tonnes
+ JSR ShipPrintByte
+
+ LDA #'t'
+ JSR DASC
+ LDA #')'
+ JSR DASC
+ LDA #':'
+ JSR DASC
+
+ JSR TT67               ; Newline, matching plf/plf2 behaviour
+ LDA #6
+ JMP DOXC               ; Indent equipment items to the original column
+
+.ShipEquipmentHeader
+ EQUS "EQUIPMENT ("
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; PlayerCargoCapacity / ShipCargoCapacityType
+;
+; Return the current cargo capacity in tonnes. A fitted Large Cargo Bay adds
+; floor(10% of the hull's default capacity), with a minimum bonus of +1t and a
+; hard maximum total capacity of 255t.
+;
+; PlayerCargoCapacity uses cmdr_type. ShipCargoCapacityType takes A = ship type.
+; CRGO remains the original C64 fitted/not-fitted flag (22 = standard,
+; 37 = Large Cargo Bay); the actual capacity comes from the per-hull tables.
+; ------------------------------------------------------------------------------
+
+.PlayerCargoCapacity
+
+ LDA cmdr_type
+
+.ShipCargoCapacityType
+
+ CMP #13
+ BCC shipCargoCapacityTypeOK
+ LDA #0                 ; Invalid type falls back to Cobra Mk III
+
+.shipCargoCapacityTypeOK
+
+ TAX
+ LDA CRGO
+ CMP #26                ; Original C64 values: 22 base, 37 Large Cargo Bay
+ BCC shipCargoCapacityBase
+
+ LDA ShipExtendedCargo,X
+ RTS
+
+.shipCargoCapacityBase
+
+ LDA ShipDefaultCargo,X
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipCargoFree
+;
+; Return A = free cargo space in tonnes for the Status display.
+;
+; This uses the current per-hull capacity (including Large Cargo Bay when
+; fitted) and subtracts total used capacity (cargo + equipment weight). Equipment weight is
+; currently 0t, but the shared hook is already in place for the later weight
+; implementation. If usage exceeds capacity, return zero.
+; ------------------------------------------------------------------------------
+
+.ShipCargoFree
+
+ JSR ShipUsedCapacity   ; A = cargo + equipment weight in tonnes
+ BCS shipCargoFreeZero  ; Overflow means it is certainly over every ship limit
+ STA CNT
+
+ JSR PlayerCargoCapacity ; Include the Large Cargo Bay extension when fitted
+ SEC
+ SBC CNT
+ BCS shipCargoFreeDone
+
+.shipCargoFreeZero
+
+ LDA #0                 ; Clamp at zero if cargo is above ship capacity
+
+.shipCargoFreeDone
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipCargoUsed
+;
+; Return the actual cargo usage in tonnes in A:
+;   market items 0..12 + one tonne per 256 Trumbles.
+;
+; C is set only if the 8-bit sum overflowed (>255t).
+; ------------------------------------------------------------------------------
+
+.ShipCargoUsed
+
+ LDA #0
+ CLC
+ LDX #12
+
+.shipCargoUsedLoop
+
+ ADC QQ20,X
+ BCS shipCargoUsedOverflow
+ DEX
+ BPL shipCargoUsedLoop
+
+ ADC TRIBBLE+1
+ RTS
+
+.shipCargoUsedOverflow
+
+ SEC
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipEquipmentWeight
+;
+; Return fitted-equipment weight in tonnes in A.
+;
+; ELITE: Unbound follows Elite-A's simple 1t-per-fitted-item rule for the C64
+; equipment we retain: each fitted laser mount, Escape Pod, Fuel Scoops, ECM,
+; Energy Bomb, Energy Unit (including Naval Energy Unit), Docking Computer and
+; Galactic Hyperdrive weighs 1t. Missiles and the Large Cargo Bay weigh 0t.
+; ------------------------------------------------------------------------------
+
+.ShipEquipmentWeight
+
+ LDA #0                 ; Running equipment weight in tonnes
+ STA T
+
+ LDX #0                 ; Four fitted laser positions each weigh 1t
+
+.shipEquipmentWeightLaserLoop
+
+ LDA LASER,X
+ BEQ shipEquipmentWeightLaserNext
+ INC T
+
+.shipEquipmentWeightLaserNext
+
+ INX
+ CPX #4
+ BCC shipEquipmentWeightLaserLoop
+
+ LDA ESCP               ; Escape Pod
+ BEQ shipEquipmentWeightNoPod
+ INC T
+
+.shipEquipmentWeightNoPod
+
+ LDA BST                ; Fuel Scoops
+ BEQ shipEquipmentWeightNoScoops
+ INC T
+
+.shipEquipmentWeightNoScoops
+
+ LDA ECM                ; E.C.M. System
+ BEQ shipEquipmentWeightNoECM
+ INC T
+
+.shipEquipmentWeightNoECM
+
+ LDA BOMB               ; Energy Bomb / fitted BOMB-slot equipment
+ BEQ shipEquipmentWeightNoBomb
+ INC T
+
+.shipEquipmentWeightNoBomb
+
+ LDA ENGY               ; Energy Unit or Naval Energy Unit: one fitted unit = 1t
+ BEQ shipEquipmentWeightNoEnergy
+ INC T
+
+.shipEquipmentWeightNoEnergy
+
+ LDA DKCMP              ; Docking Computer
+ BEQ shipEquipmentWeightNoDocking
+ INC T
+
+.shipEquipmentWeightNoDocking
+
+ LDA GHYP               ; Galactic Hyperdrive
+ BEQ shipEquipmentWeightDone
+ INC T
+
+.shipEquipmentWeightDone
+
+ LDA T
+ CLC
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipCanAddEquipmentTonne / ShipRequireEquipmentSpace
+;
+; ShipCanAddEquipmentTonne returns C set when one additional 1t equipment item
+; fits in the current hold. X and Y are preserved.
+;
+; ShipRequireEquipmentSpace takes A = PRXS equipment item number. If there is
+; no room for another tonne, it refunds the price already charged by EQSHP,
+; prints CARGO?, beeps/delays like the normal Equip Ship error path, and returns
+; to the docked Status screen. On success A is preserved and the caller may fit
+; the item.
+; ------------------------------------------------------------------------------
+
+.ShipCanAddEquipmentTonne
+
+ TXA
+ PHA
+ TYA
+ PHA
+
+ JSR ShipUsedCapacity   ; Current cargo + fitted equipment
+ BCS shipCanAddEquipmentNo
+ CMP #255
+ BEQ shipCanAddEquipmentNo
+
+ CLC
+ ADC #1                 ; Proposed usage after fitting one more 1t item
+ STA T
+
+ JSR PlayerCargoCapacity
+ CMP T                  ; C set when capacity >= proposed usage
+ BCC shipCanAddEquipmentNo
+
+ SEC
+ BCS shipCanAddEquipmentRestore
+
+.shipCanAddEquipmentNo
+
+ CLC
+
+.shipCanAddEquipmentRestore
+
+ PLA
+ TAY
+ PLA
+ TAX
+ RTS
+
+.ShipRequireEquipmentSpace
+
+ PHA                    ; Preserve PRXS item number for success/refund
+ JSR ShipCanAddEquipmentTonne
+ BCS shipRequireEquipmentFits
+
+ PLA                    ; Refund the purchase price already deducted by eq
+ JSR prx
+ JSR MCASH
+
+ LDA #206               ; Recursive token 46 = " CARGO"
+ JSR prq                ; -> " CARGO?"
+ JSR dn2                ; Standard Equip Ship error beep and short delay
+ JMP BAY
+
+.shipRequireEquipmentFits
+
+ PLA                    ; Restore item number to A
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipUsedCapacity
+;
+; Return total hold usage in tonnes: cargo + fitted-equipment weight.
+; C is set on 8-bit overflow.
+; ------------------------------------------------------------------------------
+
+.ShipUsedCapacity
+
+ JSR ShipCargoUsed
+ BCS shipUsedCapacityOverflow
+ STA CNT
+
+ JSR ShipEquipmentWeight
+ CLC
+ ADC CNT
+ BCS shipUsedCapacityOverflow
+ RTS
+
+.shipUsedCapacityOverflow
+
+ SEC
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipCargoFitsType
+;
+; A = prospective cmdr_type.
+;
+; Return C set if total current hold usage (cargo + equipment weight) fits in
+; that ship's current hold, including the carried Large Cargo Bay if fitted.
+; Return C clear if it does not fit.
+; ------------------------------------------------------------------------------
+
+.ShipCargoFitsType
+
+ PHA
+ JSR ShipUsedCapacity
+ BCS shipCargoDoesNotFit
+ STA CNT
+
+ PLA
+ CMP #13
+ BCC shipCargoFitTypeOK
+ LDA #0
+
+.shipCargoFitTypeOK
+
+ JSR ShipCargoCapacityType ; Capacity of prospective hull, including the
+                           ; currently fitted Large Cargo Bay if present
+ CMP CNT                ; C set when capacity >= cargo used
+ RTS
+
+.shipCargoDoesNotFit
+
+ PLA
+ CLC
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipTransferEquipmentOK
+;
+; Return C set if the currently fitted equipment may transfer to a new hull.
+; Only missiles (checked separately) and Naval Energy Unit (ENGY=2) may remain.
+; ------------------------------------------------------------------------------
+
+.ShipTransferEquipmentOK
+
+ LDA LASER
+ ORA LASER+1
+ ORA LASER+2
+ ORA LASER+3
+ BNE shipTransferEquipmentBlocked
+
+ LDA CRGO               ; Large Cargo Bay fitted?
+ CMP #26
+ BCS shipTransferEquipmentBlocked
+
+ LDA ESCP
+ ORA BST
+ ORA ECM
+ ORA BOMB
+ ORA DKCMP
+ ORA GHYP
+ BNE shipTransferEquipmentBlocked
+
+ LDA ENGY
+ BEQ shipTransferEquipmentOK
+ CMP #2                 ; Naval Energy Unit is the one allowed exception
+ BEQ shipTransferEquipmentOK
+
+.shipTransferEquipmentBlocked
+
+ CLC
+ RTS
+
+.shipTransferEquipmentOK
+
+ SEC
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipEquipmentQuestion
+; Print the ship-exchange rejection message " EQUIPMENT?".
+; ------------------------------------------------------------------------------
+
+.ShipEquipmentQuestion
+
+ LDX #0
+
+.shipEquipmentQuestionLoop
+
+ LDA ShipEquipmentQuestionText,X
+ BEQ shipEquipmentQuestionDone
+ JSR DASC
+ INX
+ BNE shipEquipmentQuestionLoop
+
+.shipEquipmentQuestionDone
+
+ RTS
+
+.ShipEquipmentQuestionText
+ EQUS " EQUIPMENT?"
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; ShipMissilesFitType
+;
+; A = prospective cmdr_type.
+; Return C set if the current missile load fits the prospective ship's missile
+; capacity; return C clear if buying that ship would discard missiles.
+; ------------------------------------------------------------------------------
+
+.ShipMissilesFitType
+
+ CMP #13
+ BCC shipMissilesFitTypeOK
+ LDA #0
+
+.shipMissilesFitTypeOK
+
+ TAX
+ LDA ShipMaxMissiles,X
+ CMP NOMSL               ; C set when missile capacity >= missiles fitted
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipMissilesQuestion
+; Print the ship-exchange rejection message "MISSILES?".
+; ------------------------------------------------------------------------------
+
+.ShipMissilesQuestion
+
+ LDX #0
+
+.shipMissilesQuestionLoop
+
+ LDA ShipMissilesQuestionText,X
+ BEQ shipMissilesQuestionDone
+ JSR DASC
+ INX
+ BNE shipMissilesQuestionLoop
+
+.shipMissilesQuestionDone
+
+ RTS
+
+.ShipMissilesQuestionText
+ EQUS " MISSILES?"
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; ShipLasersFitType
+;
+; A = prospective cmdr_type.
+; Return C set if all currently fitted lasers are on mounts supported by the
+; prospective ship. Elite-A mount values are 1 = front only, 2 = front/rear,
+; 4 = all four views.
+; ------------------------------------------------------------------------------
+
+.ShipLasersFitType
+
+ CMP #13
+ BCC shipLasersFitTypeOK
+ LDA #0
+
+.shipLasersFitTypeOK
+
+ TAX
+ LDA ShipLaserMounts,X
+ CMP #4
+ BCS shipLasersFitYes   ; Four mounts accept every existing laser
+ CMP #2
+ BCC shipLasersFrontOnly
+
+ ; Front/rear hull: side lasers must both be absent.
+ LDA LASER+2
+ ORA LASER+3
+ BEQ shipLasersFitYes
+ CLC
+ RTS
+
+.shipLasersFrontOnly
+
+ ; Front-only hull: rear and both side lasers must all be absent.
+ LDA LASER+1
+ ORA LASER+2
+ ORA LASER+3
+ BEQ shipLasersFitYes
+ CLC
+ RTS
+
+.shipLasersFitYes
+
+ SEC
+ RTS
+
+; ------------------------------------------------------------------------------
+; ShipLasersQuestion
+; Print the ship-exchange rejection message "LASERS?".
+; ------------------------------------------------------------------------------
+
+.ShipLasersQuestion
+
+ LDX #0
+
+.shipLasersQuestionLoop
+
+ LDA ShipLasersQuestionText,X
+ BEQ shipLasersQuestionDone
+ JSR DASC
+ INX
+ BNE shipLasersQuestionLoop
+
+.shipLasersQuestionDone
+
+ RTS
+
+.ShipLasersQuestionText
+ EQUS " LASERS?"
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; ShipPrintByte
+;
+; Print unsigned A (0..255) in decimal with no leading spaces or zeroes.
+; Uses CNT as temporary storage.
+; ------------------------------------------------------------------------------
+
+.ShipPrintByte
+
+ STA CNT
+
+ CMP #100
+ BCC shipByteUnder100
+
+ LDX #0
+
+.shipByteHundredsLoop
+
+ LDA CNT
+ CMP #100
+ BCC shipByteHundredsDone
+ SEC
+ SBC #100
+ STA CNT
+ INX
+ BNE shipByteHundredsLoop
+
+.shipByteHundredsDone
+
+ TXA
+ CLC
+ ADC #'0'
+ JSR DASC
+
+ JMP shipByteTensAlways
+
+.shipByteUnder100
+
+ LDA CNT
+ CMP #10
+ BCC shipByteOnes
+
+.shipByteTensAlways
+
+ LDX #0
+
+.shipByteTensLoop
+
+ LDA CNT
+ CMP #10
+ BCC shipByteTensDone
+ SEC
+ SBC #10
+ STA CNT
+ INX
+ BNE shipByteTensLoop
+
+.shipByteTensDone
+
+ TXA
+ CLC
+ ADC #'0'
+ JSR DASC
+
+.shipByteOnes
+
+ LDA CNT
+ CLC
+ ADC #'0'
+ JMP DASC               ; Tail call
+
+; ------------------------------------------------------------------------------
+; ShipPrintName
+; A = cmdr_type (0..12). Print the zero-terminated full ship name.
+; ------------------------------------------------------------------------------
+
+.ShipPrintName
+
+ CMP #13
+ BCC shipNameTypeOK
+ LDA #0
+
+.shipNameTypeOK
+
+ TAX
+ LDA ShipNameOffsets,X
+ TAX
+
+.shipNameLoop
+
+ LDA ShipNames,X
+ BEQ shipNameDone
+ JSR DASC               ; DASC preserves X
+ INX
+ BNE shipNameLoop
+
+.shipNameDone
+
+ RTS
+
+; C64 universe ship type corresponding to each player hull in cmdr_type order:
+; Cobra III, Adder, Gecko, Moray, Cobra I, Fer-de-Lance, Python, Boa, Anaconda,
+; Asp II, Sidewinder, Krait, Mamba. Used by ESCAPE so the abandoned ship model
+; matches the player's actual current hull.
+.PlayerShipUniverseType
+ EQUB CYL, ADA, 21, 28, 22, 27, 12, 13, ANA, ASP, SH3, KRA, MAM
+
+; Normal-system menu order is the Elite-A _BUG_FIX price order, after removing
+; Elite-A-only player hulls. cmdr_type 0 (Cobra Mk III) appears fifth.
+.ShipMenuTypes
+ EQUB 1, 2, 3, 4, 0, 5, 6, 7, 8, 9
+
+; Anarchy systems with economy 0..4 additionally offer all three ELITE: Unbound
+; black-market hulls. This merged list remains price-ordered:
+; Sidewinder 20500, Adder 27000, Krait 30500, Gecko 32500, Moray 36000,
+; Mamba 37500, then the normal list from Cobra Mk I onward.
+.ShipMenuTypesAnarchy
+ EQUB 10, 1, 11, 2, 3, 12, 4, 0, 5, 6, 7, 8, 9
+
+; Rich Agricultural Anarchy (economy 5): merge Sidewinder and Krait into the
+; four normally available hulls, preserving price order.
+.ShipMenuTypesAnarchyRichAg
+ EQUB 10, 1, 11, 2, 3, 4
+
+; Average Agricultural Anarchy (economy 6): merge Sidewinder into the three
+; normally available hulls, preserving price order.
+.ShipMenuTypesAnarchyAverageAg
+ EQUB 10, 1, 2, 3
+
+; Original Elite-A offers 15-2*economy entries. Filtering that ordered list to
+; the ten established C64/Elite-A player hulls gives these normal counts for
+; economy values 0..7.
+.ShipAvailByEconomy
+ EQUB 10, 8, 6, 5, 4, 4, 3, 1
+
+; Extra black-market rows in Anarchy systems by economy 0..7. Sidewinder is
+; available through economy 6, Krait through 5 and Mamba through 4.
+.ShipAnarchyBonusByEconomy
+ EQUB 3, 3, 3, 3, 3, 2, 1, 0
+
+; Maximum missile capacities. Established hulls use Elite-A new_details;
+; Sidewinder/Krait/Mamba use the agreed ELITE: Unbound player-hull values.
+; Order is cmdr_type 0..12 as documented above.
+.ShipMaxMissiles
+ EQUB 4, 1, 2, 2, 3, 3, 4, 6, 16, 1, 1, 0, 2
+
+; Elite-A _BUG_FIX/source-disc maximum speeds for established hulls, plus the
+; agreed player values for Sidewinder, Krait and Mamba.
+; Cobra III, Adder, Gecko, Moray, Cobra I, Fer-de-Lance,
+; Python, Boa, Anaconda, Asp II, Sidewinder, Krait, Mamba
+.ShipMaxSpeed
+ EQUB 42, 36, 45, 38, 39, 45, 30, 36, 21, 60, 56, 45, 48
+
+; Hyperspace ranges / fuel tank capacities, in 0.1 LY units.
+.ShipFuelCapacity
+ EQUB 70, 60, 70, 80, 60, 85, 80, 90, 100, 125, 50, 60, 60
+
+; Per-hit shield absorption. Established hulls use Elite-A new_shields;
+; Sidewinder/Krait/Mamba use the agreed ELITE: Unbound values 2/3/4.
+.ShipShieldAbsorption
+ EQUB 7, 4, 5, 6, 5, 8, 11, 10, 13, 10, 2, 3, 4
+
+; Available laser mounts: 1=front, 2=front/rear, 4=all four.
+; Sidewinder, Krait and Mamba are front-only player hulls.
+.ShipLaserMounts
+ EQUB 4, 2, 4, 4, 4, 4, 4, 2, 4, 1, 1, 1, 1
+
+; ELITE: Unbound base energy recharge rate per hull, derived from Elite-A's
+; per-ship energy characteristic where available. ENGY is then added as an
+; equipment bonus: 0=no unit, 1=Energy Unit (+1), 2=Naval Energy Unit (+2).
+.ShipEnergyRecharge
+ EQUB 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1
+
+; ELITE: Unbound equipment-price category offsets into PRXS. Each category is
+; 13 words = 26 bytes. Non-laser equipment in categories 0/1/2/4 follows the
+; agreed Elite-A values; Python and Boa are deliberately moved into category 3
+; with Anaconda so the three heavy cargo hulls share the same equipment economy.
+; Category 3 also gives Large Cargo Bay the custom 4000 Cr price. Laser prices
+; are intentionally vanilla C64 in every category. Sidewinder, Krait and Mamba
+; use category 4.
+;
+; Cobra III, Adder, Gecko, Moray, Cobra I, Fer-de-Lance,
+; Python, Boa, Anaconda, Asp II, Sidewinder, Krait, Mamba
+.ShipEquipmentPriceOffsets
+ EQUB 0*26, 1*26, 1*26, 4*26, 1*26, 2*26, 3*26, 3*26, 3*26, 2*26, 4*26, 4*26, 4*26
+
+; Maximum pitch/roll rates. Sidewinder is intentionally the most agile current
+; player hull at 245; Krait uses 223 and Mamba uses 241.
+.ShipMaxAgility
+ EQUB 239, 223, 239, 239, 207, 223, 175, 191, 175, 223, 245, 223, 241
+
+; Matching lower pitch/roll bounds, derived as max EOR $FE.
+.ShipMinAgility
+ EQUB 17, 33, 17, 17, 49, 33, 81, 65, 81, 33, 11, 33, 15
+
+; Maximum ALP1/BET1 magnitudes reached after applying each hull's handling
+; envelope and normal damping. Used only to normalise the RL/DC indicators.
+; Cobra III, Adder, Gecko, Moray, Cobra I, Fer-de-Lance,
+; Python, Boa, Anaconda, Asp II, Sidewinder, Krait, Mamba
+.ShipMaxRollDialMagnitude
+ EQUB 27, 23, 27, 27, 19, 23, 11, 15, 11, 23, 28, 23, 27
+
+.ShipMaxPitchDialMagnitude
+ EQUB 7, 6, 7, 7, 5, 6, 3, 4, 3, 6, 7, 6, 7
+
+; Default empty cargo capacities. Sidewinder is intentionally tiny at 3t;
+; Krait and Mamba use 10t.
+;
+; Cobra III, Adder, Gecko, Moray, Cobra I, Fer-de-Lance,
+; Python, Boa, Anaconda, Asp II, Sidewinder, Krait, Mamba
+.ShipDefaultCargo
+ EQUB 42, 8, 9, 11, 14, 9, 106, 132, 215, 6, 3, 10, 10
+
+; ELITE: Unbound Large Cargo Bay capacities. Bonus = floor(base / 10), with a
+; minimum of +1t and hard maximum 255t. Sidewinder 3->4; Krait/Mamba 10->11.
+.ShipExtendedCargo
+ EQUB 46, 9, 10, 12, 15, 10, 116, 145, 236, 7, 4, 11, 11
+
+; Established hull prices use Elite-A _BUG_FIX/source-disc values. Sidewinder,
+; Krait and Mamba are ELITE: Unbound prices agreed for the Anarchy-only hulls.
+; Values are 10 * credits, stored big-endian for CASH.
+.ShipPrices
+ EQUB $00, $0F, $42, $40       ; Cobra Mk III  100000.0 Cr
+ EQUB $00, $04, $1E, $B0       ; Adder          27000.0 Cr
+ EQUB $00, $04, $F5, $88       ; Gecko          32500.0 Cr
+ EQUB $00, $05, $7E, $40       ; Moray          36000.0 Cr
+ EQUB $00, $06, $06, $F8       ; Cobra Mk I     39500.0 Cr
+ EQUB $00, $15, $E5, $78       ; Fer-de-Lance  143500.0 Cr
+ EQUB $00, $1F, $47, $D0       ; Python        205000.0 Cr
+ EQUB $00, $24, $9F, $00       ; Boa           240000.0 Cr
+ EQUB $00, $3D, $09, $00       ; Anaconda      400000.0 Cr
+ EQUB $00, $88, $90, $F0       ; Asp Mk II     895000.0 Cr
+ EQUB $00, $03, $20, $C8       ; Sidewinder     20500.0 Cr
+ EQUB $00, $04, $A7, $68       ; Krait          30500.0 Cr
+ EQUB $00, $05, $B8, $D8       ; Mamba          37500.0 Cr
+
+; ELITE: Unbound part-exchange values = exactly 60% of ShipPrices. Keeping a
+; precomputed table makes the depreciation deterministic and exact in 0.1 Cr.
+.ShipTradeInPrices
+ EQUB $00, $09, $27, $C0       ; Cobra Mk III   60000.0 Cr
+ EQUB $00, $02, $78, $D0       ; Adder          16200.0 Cr
+ EQUB $00, $02, $F9, $B8       ; Gecko          19500.0 Cr
+ EQUB $00, $03, $4B, $C0       ; Moray          21600.0 Cr
+ EQUB $00, $03, $9D, $C8       ; Cobra Mk I     23700.0 Cr
+ EQUB $00, $0D, $23, $48       ; Fer-de-Lance   86100.0 Cr
+ EQUB $00, $12, $C4, $B0       ; Python        123000.0 Cr
+ EQUB $00, $15, $F9, $00       ; Boa           144000.0 Cr
+ EQUB $00, $24, $9F, $00       ; Anaconda      240000.0 Cr
+ EQUB $00, $51, $F0, $90       ; Asp Mk II     537000.0 Cr
+ EQUB $00, $01, $E0, $78       ; Sidewinder     12300.0 Cr
+ EQUB $00, $02, $CA, $D8       ; Krait          18300.0 Cr
+ EQUB $00, $03, $6E, $E8       ; Mamba          22500.0 Cr
+
+.ShipNameOffsets
+ EQUB 0, 13, 19, 25, 31, 42, 55, 62, 66, 75, 85, 96, 102
+
+.ShipNames
+ EQUS "COBRA MK III"
+ EQUB 0
+ EQUS "ADDER"
+ EQUB 0
+ EQUS "GECKO"
+ EQUB 0
+ EQUS "MORAY"
+ EQUB 0
+ EQUS "COBRA MK I"
+ EQUB 0
+ EQUS "FER-DE-LANCE"
+ EQUB 0
+ EQUS "PYTHON"
+ EQUB 0
+ EQUS "BOA"
+ EQUB 0
+ EQUS "ANACONDA"
+ EQUB 0
+ EQUS "ASP MK II"
+ EQUB 0
+ EQUS "SIDEWINDER"
+ EQUB 0
+ EQUS "KRAIT"
+ EQUB 0
+ EQUS "MAMBA"
+ EQUB 0
+
+ENDIF                  ; ELITE: Unbound build option (end)
 ; ******************************************************************************
 ;
 ; Save ELTD.bin
@@ -23213,9 +26041,14 @@ ENDIF
  SEC                    ; We want to print the fuel level with a decimal point,
                         ; so set the C flag for pr2 to take as an argument
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR pr2                ; Call pr2 to print the fuel value with one decimal
+                        ; place. V1K tanks can exceed 9.9 LY (up to 12.5 LY).
+ELSE                   ; ELITE: Unbound build option (else)
  JSR pr2                ; Call pr2, which prints the number in X to a width of
                         ; 3 figures (i.e. in the format x.x, which will always
                         ; be exactly 3 characters as the maximum fuel is 7.0)
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #195               ; Print recursive token 35 ("LIGHT YEARS") followed by
  JSR plf                ; a newline
@@ -25395,6 +28228,32 @@ ENDIF
  JMP DOT                ; Jump to DOT to draw the dot on the compass and return
                         ; from the subroutine using a tail call
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+; ------------------------------------------------------------------------------
+; ShipShieldedDamage
+;
+; Elite-A n_oops equivalent for player-ship combat hits. A contains incoming
+; damage. Subtract the current hull's new_shields value; if the hit is fully
+; absorbed, return. Otherwise tail-call the original C64 OOPS routine with the
+; remaining damage. Collisions continue to call OOPS directly, as in Elite-A.
+; ------------------------------------------------------------------------------
+
+.ShipShieldedDamage
+
+ STA CNT
+ JSR PlayerShieldAbsorption
+ STA T1
+ LDA CNT
+ SEC
+ SBC T1
+ BCC shipShieldedNoDamage
+ JMP OOPS
+
+.shipShieldedNoDamage
+
+ RTS
+
+ENDIF                  ; ELITE: Unbound build option (end)
 ; ******************************************************************************
 ;
 ;       Name: OOPS
@@ -26003,8 +28862,17 @@ ENDIF
 
  STX MSTG               ; Store the target of our missile lock in MSTG
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDX NOMSL              ; Select the leftmost visible missile indicator
+ CPX #5                 ; (there are only four indicators even if the current
+ BCC abortSlotOK        ; ship can carry more than four missiles)
+ LDX #4
+.abortSlotOK
+ JSR MSBAR              ; Update the dashboard missile bar, returning with Y=0
+ELSE                   ; ELITE: Unbound build option (else)
  LDX NOMSL              ; Call MSBAR to update the leftmost indicator in the
  JSR MSBAR              ; dashboard's missile bar, which returns with Y = 0
+ENDIF                  ; ELITE: Unbound build option (end)
 
  STY MSAR               ; Set MSAR = 0 to indicate that the leftmost missile
                         ; is no longer seeking a target lock
@@ -29728,35 +32596,122 @@ ENDIF
 
 .msblob
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDX #4                 ; Draw all four physical dashboard missile indicators
+ELSE                   ; ELITE: Unbound build option (else)
  LDX #4                 ; Set up a loop counter in X to count through all four
                         ; missile indicators
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .ss
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDY #BLACK2            ; Default to an empty (black) indicator
+ELSE                   ; ELITE: Unbound build option (else)
  CPX NOMSL              ; If the counter is equal to the number of missiles,
  BEQ SAL8               ; jump down to SAL8 to draw the remaining missiles, as
                         ; the rest of them are present and should be drawn in
                         ; green
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ CPX NOMSL              ; If X <= NOMSL, this slot represents a missile and is
+ BCC missileGreen       ; therefore drawn green. This also means NOMSL values
+ BEQ missileGreen       ; above four simply show all four indicators as green.
+ELSE                   ; ELITE: Unbound build option (else)
  LDY #BLACK2            ; Draw the missile indicator at position X in black
  JSR MSBAR
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JMP missileDraw
+ELSE                   ; ELITE: Unbound build option (else)
  DEX                    ; Decrement the counter to point to the next missile
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.missileGreen
+ELSE                   ; ELITE: Unbound build option (else)
  BNE ss                 ; Loop back to ss if we still have missiles to draw
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDY #GREEN2
+ELSE                   ; ELITE: Unbound build option (else)
  RTS                    ; Return from the subroutine
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.missileDraw
+ELSE                   ; ELITE: Unbound build option (else)
 .SAL8
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ELSE                   ; ELITE: Unbound build option (else)
  LDY #GREEN2            ; Draw the missile indicator at position X in green
+ENDIF                  ; ELITE: Unbound build option (end)
  JSR MSBAR
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ DEX
+ BNE ss
+ RTS
+ELSE                   ; ELITE: Unbound build option (else)
 
  DEX                    ; Decrement the counter to point to the next missile
 
  BNE SAL8               ; Loop back to SAL8 if we still have missiles to draw
 
  RTS                    ; Return from the subroutine
+ENDIF                  ; ELITE: Unbound build option (end)
+
+IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
+
+; ******************************************************************************
+;
+;       Name: rand_posn
+;       Type: Subroutine
+;   Category: Universe
+;    Summary: Set up INWK for a ship in a random position
+;
+; ------------------------------------------------------------------------------
+;
+; This is the Elite-A ship-position fix. It gives x and y random signs and much
+; wider high-byte ranges, while keeping the ship in front of us.
+;
+; ******************************************************************************
+
+.rand_posn
+
+ JSR ZINF               ; Reset the INWK ship workspace
+
+ JSR DORND              ; Set A and X to random numbers
+
+ STA INWK               ; Set x_lo to random A
+ STX INWK+3             ; Set y_lo to random X
+ STA T1                 ; Store x_lo in T1
+
+ LSR A                  ; Set x_sign randomly from bit 0 of A
+ ROR INWK+2
+
+ LSR A                  ; Set y_sign randomly from bit 1 of A
+ ROR INWK+5
+
+ LSR A                  ; Set y_hi to bits 3-7 of A (0 to 31)
+ STA INWK+4
+
+ TXA                    ; Set x_hi to X reduced to 0 to 31
+ AND #31
+ STA INWK+1
+
+ LDA #80                ; Set z_hi = 80 - x_hi - y_hi - 1, giving 17 to 79
+ SBC INWK+1             ; (C is clear after rotating the zeroed y_sign byte)
+ SBC INWK+4
+ STA INWK+7
+
+ JMP DORND              ; Return with fresh random A, X and flags
+
+ENDIF                   ; Elite-A random spawn positions (end)
 
 ; ******************************************************************************
 ;
@@ -29813,13 +32768,22 @@ ENDIF
 ;
 ; This routine also sets A, X, T1 and the C flag to random values.
 ;
-; Note that because this routine uses the value of X returned by DORND, and X
-; contains the value of A returned by the previous call to DORND, this routine
-; does not necessarily set the new ship to a totally random location.
+; With _RANDOM_SPAWNS disabled, this routine uses the value of X returned by
+; DORND, which contains the A from the previous DORND call, so the new ship's
+; location is correlated with the decision that spawned it. The Elite-A path
+; uses rand_posn to break the visible screen-position pattern.
 ;
 ; ******************************************************************************
 
 .Ze
+
+IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
+
+ JSR rand_posn          ; Put the ship at an independently random position
+
+ CMP #245               ; Set C if A >= 245 (4% chance of E.C.M.)
+
+ELSE                    ; Original correlated spawn positions
 
  JSR ZINF               ; Call ZINF to reset the INWK ship workspace
 
@@ -29841,6 +32805,8 @@ ENDIF
 
  TXA                    ; Set the C flag if X >= 245 (4% chance)
  CMP #245
+
+ENDIF                   ; Elite-A random spawn positions (end)
 
  ROL A                  ; Set bit 0 of A to the C flag (i.e. there's a 4%
                         ; chance of this ship having E.C.M.)
@@ -30092,6 +33058,12 @@ ENDIF
  CMP #3                 ; bubble, jump down to MTT1 to skip the following and
  BCS MTT1               ; potentially spawn something else
 
+IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
+
+ JSR rand_posn          ; Put the trader or junk at a random ship position
+
+ELSE                    ; Original correlated spawn positions
+
  JSR ZINF               ; Call ZINF to reset the INWK ship workspace
 
  LDA #38                ; Set z_hi = 38 (far away)
@@ -30120,6 +33092,8 @@ ENDIF
                         ; is %00000010, then (x_hi x_lo) is 512 + x_lo)
 
  JSR DORND              ; Set A, X and V flag to random numbers
+
+ENDIF                   ; Elite-A random spawn positions (end)
 
  BVS MTT4               ; If V flag is set (50% chance), jump up to MTT4 to
                         ; spawn a trader
@@ -30845,9 +33819,38 @@ ENDIF
  BPL INSP               ; in space), jump to INSP to skip the following checks
                         ; for f1-f3 and "@" (save commander file) key presses
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; ELITE: Unbound: CTRL+2 opens the Elite-A-style Sell Equipment screen.
+ ; Detect the chord from the raw C64 key logger, just like CTRL+3 below. BIT
+ ; leaves A unchanged, so normal key dispatch remains untouched when CTRL+2 is
+ ; not held.
+ BIT KLO+$06            ; CTRL
+ BPL notCtrl2
+ BIT KLO+$05            ; "2"
+ BPL notCtrl2
+ JMP SellEquipment
+
+.notCtrl2
+
+ ; Elite-A ships V1F: detect CTRL+3 from the raw C64 key logger. BIT does
+ ; not alter A, so if the combination is not held the original key dispatch
+ ; below receives exactly the same key value as before.
+ BIT KLO+$06            ; CTRL
+ BPL notCtrl3
+ BIT KLO+$38            ; "3"
+ BPL notCtrl3
+ JMP EQSHPBuy
+
+.notCtrl3
+
+ CMP #f3                ; Plain "3" opens the original Equip Ship screen
+ BNE P%+5
+ JMP EQSHP
+ELSE                   ; ELITE: Unbound build option (else)
  CMP #f3                ; If key "3" was pressed, jump to EQSHP to show the
  BNE P%+5               ; Equip Ship screen, returning from the subroutine using
  JMP EQSHP              ; a tail call
+ENDIF                  ; ELITE: Unbound build option (end)
 
  CMP #f1                ; If key "1" was pressed, jump to TT219 to show the
  BNE P%+5               ; Buy Cargo screen, returning from the subroutine using
@@ -31816,6 +34819,12 @@ ELSE
 
 ENDIF
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipValidate       ; Validate the saved player ship type and clamp
+                        ; missiles/fuel to that hull. Old saves normally have 0
+                        ; in byte #21, which is deliberately Cobra Mk III.
+
+ENDIF                  ; ELITE: Unbound build option (end)
  RTS                    ; Return from the subroutine
 
 ; ******************************************************************************
@@ -31916,11 +34925,15 @@ ENDIF
  LDA TYPE               ; Set up a new ship, using the ship type in TYPE
  JSR NWSHP
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR TitlePrintHeader   ; Print the new title line and centered version
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #6                 ; Move the text cursor to column 6
  JSR DOXC
 
  LDA #30                ; Print recursive token 144 ("---- E L I T E ----")
  JSR plf                ; followed by a newline
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #10                ; Print a line feed to move the text cursor down a line
  JSR TT26
@@ -36556,11 +39569,19 @@ IF _GMA_RELEASE
 
 .startat
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; Elite-A ships V1C: title music is intentionally omitted to free HICODE RAM
+ ; for the ship ownership/buying implementation. Keep the entry point as a
+ ; no-op because BR1 calls it and startbd can branch here when MUDOCK requests
+ ; title music instead of the docking tune.
+ RTS
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #LO(THEME-1)       ; Set (A X) to THEME-1, which is the address before
  LDX #HI(THEME-1)       ; the start of the title music at THEME
 
  BNE startat2           ; Jump to startat2 to play the title music (this BNE is
                         ; effectively a JMP as X is never zero)
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ENDIF
 
@@ -40007,9 +43028,19 @@ ENDIF
 ;
 ;                         * 0   = (x2, y2) on-screen
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;                         * $7F = (x1, y1) on-screen,
+;                                 (x2, y2) off-screen
+ELSE                   ; ELITE: Unbound build option (else)
 ;                         * 95  = (x1, y1) on-screen,  (x2, y2) off-screen
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;                         * $FF = (x1, y1) off-screen,
+;                                 (x2, y2) off-screen
+ELSE                   ; ELITE: Unbound build option (else)
 ;                         * 191 = (x1, y1) off-screen, (x2, y2) off-screen
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ;                       So XX13 is non-zero if the end of the line was clipped,
 ;                       meaning the next line sent to BLINE can't join onto the
@@ -40041,22 +43072,50 @@ ENDIF
 
 .LL147
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ PHA                    ; Preserve x2_hi while calculating the clip height
+
+ LDA Yx2M1              ; Set XX24 to one row beyond the inclusive bottom
+ CLC                    ; clipping coordinate in Yx2M1
+ ADC #1
+ STA XX24
+
+ PLA                    ; Restore x2_hi
+
+ENDIF                  ; ELITE: Unbound build option (end)
  BIT dontclip           ; If bit 7 of dontclip is set then line-clipping is
  BMI LL146              ; disabled (as this is the Short-range Chart), so jump
                         ; to LL146 to return from the subroutine without
                         ; clipping the line
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDX #$FF               ; Set X to the negative both-points-off-screen marker
+ELSE                   ; ELITE: Unbound build option (else)
  LDX #Y*2-1             ; Set X = #Y * 2 - 1. The constant #Y is 96, the
                         ; y-coordinate of the mid-point of the space view, so
                         ; this sets Y2 to 191, the y-coordinate of the bottom
                         ; pixel row of the space view
+ENDIF                  ; ELITE: Unbound build option (end)
 
  ORA XX12+1             ; If one or both of x2_hi and y2_hi are non-zero, jump
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BNE LL107              ; to LL107, leaving X as the off-screen marker
+ELSE                   ; ELITE: Unbound build option (else)
  BNE LL107              ; to LL107 to skip the following, leaving X at 191
+ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA Yx2M1              ; If y2_lo > the inclusive bottom clipping coordinate,
+ CMP XX12
+ELSE                   ; ELITE: Unbound build option (else)
  CPX XX12               ; If y2_lo > the y-coordinate of the bottom of screen
+ENDIF                  ; ELITE: Unbound build option (end)
  BCC LL107              ; then (x2, y2) is off the bottom of the screen, so skip
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; the following instruction, leaving X as the marker
+ELSE                   ; ELITE: Unbound build option (else)
                         ; the following instruction, leaving X at 191
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDX #0                 ; Set X = 0
 
@@ -40066,17 +43125,30 @@ ENDIF
                         ;
                         ;   * XX13 = 0 if x2_hi = y2_hi = 0, y2_lo is on-screen
                         ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ;   * XX13 = $FF if x2_hi or y2_hi are non-zero or y2_lo
+ELSE                   ; ELITE: Unbound build option (else)
                         ;   * XX13 = 191 if x2_hi or y2_hi are non-zero or y2_lo
+ENDIF                  ; ELITE: Unbound build option (end)
                         ;            is off the bottom of the screen
                         ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; In other words, XX13 contains the negative full marker
+                        ; if (x2, y2) is off-screen, otherwise it is 0
+ELSE                   ; ELITE: Unbound build option (else)
                         ; In other words, XX13 is 191 if (x2, y2) is off-screen,
                         ; otherwise it is 0
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA XX15+1             ; If one or both of x1_hi and y1_hi are non-zero, jump
  ORA XX15+3             ; to LL83
  BNE LL83
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA Yx2M1              ; If y1_lo > the y-coordinate of the bottom of screen
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #Y*2-1             ; If y1_lo > the y-coordinate of the bottom of screen
+ENDIF                  ; ELITE: Unbound build option (end)
  CMP XX15+2             ; then (x1, y1) is off the bottom of the screen, so jump
  BCC LL83               ; to LL83
 
@@ -40128,8 +43200,13 @@ ENDIF
 
  RTS                    ; Return from the subroutine
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LSR XX13               ; Halve the negative full marker ($FF) to the positive
+                        ; half marker ($7F) when only (x2, y2) is off-screen
+ELSE                   ; ELITE: Unbound build option (else)
  LSR XX13               ; If we get here then (x2, y2) is off-screen and XX13 is
                         ; 191, so shift XX13 right to halve it to 95
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -40149,13 +43226,25 @@ ENDIF
 ;
 ;   * 0   = (x1, y1) off-screen, (x2, y2) on-screen
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;   * $7F = (x1, y1) on-screen, (x2, y2) off-screen
+ELSE                   ; ELITE: Unbound build option (else)
 ;   * 95  = (x1, y1) on-screen,  (x2, y2) off-screen
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;   * $FF = (x1, y1) off-screen, (x2, y2) off-screen
+ELSE                   ; ELITE: Unbound build option (else)
 ;   * 191 = (x1, y1) off-screen, (x2, y2) off-screen
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ; where "off-screen" is defined as having a non-zero high byte in one of the
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+; coordinates, or in the case of y-coordinates, having a low byte > Yx2M1.
+ELSE                   ; ELITE: Unbound build option (else)
 ; coordinates, or in the case of y-coordinates, having a low byte > 191, the
 ; y-coordinate of the bottom of the space view.
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ; ******************************************************************************
 
@@ -40188,8 +43277,13 @@ ENDIF
  BPL LL109              ; jump to LL109 to return from the subroutine with the C
                         ; flag set, as the line doesn't fit on-screen
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA XX15+2             ; If y1_lo <= Yx2M1, clear the C flag; otherwise set it
+ CMP XX24
+ELSE                   ; ELITE: Unbound build option (else)
  LDA XX15+2             ; If y1_lo < y-coordinate of screen bottom, clear the C
  CMP #Y*2               ; flag, otherwise set it
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA XX15+3             ; Set XX12+2 = y1_hi - (1 - C), so:
  SBC #0                 ;
@@ -40201,8 +43295,13 @@ ENDIF
                         ; might move the point into the space view portion of
                         ; the screen, i.e. if y1_lo is on-screen
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA XX12               ; If y2_lo <= Yx2M1, clear the C flag; otherwise set it
+ CMP XX24
+ELSE                   ; ELITE: Unbound build option (else)
  LDA XX12               ; If y2_lo < y-coordinate of screen bottom, clear the C
  CMP #Y*2               ; flag, otherwise set it
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA XX12+1             ; Set XX12+2 = y2_hi - (1 - C), so:
  SBC #0                 ;
@@ -40377,9 +43476,17 @@ ENDIF
 ;
 ;   * 0   = (x1, y1) off-screen, (x2, y2) on-screen
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;   * $7F = (x1, y1) on-screen, (x2, y2) off-screen
+ELSE                   ; ELITE: Unbound build option (else)
 ;   * 95  = (x1, y1) on-screen,  (x2, y2) off-screen
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+;   * $FF = (x1, y1) off-screen, (x2, y2) off-screen
+ELSE                   ; ELITE: Unbound build option (else)
 ;   * 191 = (x1, y1) off-screen, (x2, y2) off-screen
+ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ; ******************************************************************************
 
@@ -40395,7 +43502,11 @@ ENDIF
  LDA XX13               ; If XX13 = 0, skip the following instruction
  BEQ LL138
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BPL LLX117             ; If XX13 is positive, it is the half marker. This means
+ELSE                   ; ELITE: Unbound build option (else)
  BPL LLX117             ; If XX13 is positive, it must be 95. This means
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; (x1, y1) is on-screen but (x2, y2) isn't, so we jump
                         ; to LLX117 to swap the (x1, y1) and (x2, y2)
                         ; coordinates around before doing the actual clipping,
@@ -40404,8 +43515,13 @@ ENDIF
 
 .LL138
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; If we get here, XX13 = 0 or the full marker, so
+                        ; (x1, y1) is off-screen and needs clipping
+ELSE                   ; ELITE: Unbound build option (else)
                         ; If we get here, XX13 = 0 or 191, so (x1, y1) is
                         ; off-screen and needs clipping
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR LL118              ; Call LL118 to move (x1, y1) along the line onto the
                         ; screen, i.e. clip the line at the (x1, y1) end
@@ -40415,7 +43531,11 @@ ENDIF
 
 .LL117
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; If we get here, XX13 is the full marker (both are
+ELSE                   ; ELITE: Unbound build option (else)
                         ; If we get here, XX13 = 191 (both coordinates are
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; off-screen)
 
  LDA XX15+1             ; If either of x1_hi or y1_hi are non-zero, jump to
@@ -40423,12 +43543,20 @@ ENDIF
  BNE LL137              ; set, as the line doesn't fit on-screen
 
  LDA XX15+2             ; If y1_lo > y-coordinate of the bottom of the screen
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ CMP XX24               ; jump to LL137 to return from the subroutine with the
+ELSE                   ; ELITE: Unbound build option (else)
  CMP #Y*2               ; jump to LL137 to return from the subroutine with the
+ENDIF                  ; ELITE: Unbound build option (end)
  BCS LL137              ; C flag set, as the line doesn't fit on-screen
 
 .LLX117
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+                        ; If we get here, XX13 is a half or full marker, and
+ELSE                   ; ELITE: Unbound build option (else)
                         ; If we get here, XX13 = 95 or 191, and in both cases
+ENDIF                  ; ELITE: Unbound build option (end)
                         ; (x2, y2) is off-screen, so we now need to swap the
                         ; (x1, y1) and (x2, y2) coordinates around before doing
                         ; the actual clipping, because we need to clip (x2, y2)
@@ -40797,7 +43925,11 @@ ENDIF
 
  LDA XX15+2             ; Set (S R) = (y1_hi y1_lo) - screen height
  SEC                    ;
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ SBC XX24               ; starting with the low bytes
+ELSE                   ; ELITE: Unbound build option (else)
  SBC #Y*2               ; starting with the low bytes
+ENDIF                  ; ELITE: Unbound build option (end)
  STA R
 
  LDA XX15+3             ; And then subtracting the high bytes
@@ -40833,10 +43965,17 @@ ENDIF
  ADC XX15+1
  STA XX15+1
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA Yx2M1              ; Set y1 to the inclusive bottom clipping coordinate
+ STA XX15+2
+ LDA #0
+ STA XX15+3
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #Y*2-1             ; Set y1 = 2 * #Y - 1. The constant #Y is 96, the
  STA XX15+2             ; y-coordinate of the mid-point of the space view, so
  LDA #0                 ; this sets Y2 to 191, the y-coordinate of the bottom
  STA XX15+3             ; pixel row of the space view
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .LL136
 
@@ -51333,7 +54472,14 @@ IF _SOURCE_DISK
 
 ELIF _GMA_RELEASE
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; Elite-A ships V1C:
+ ; The 2931-byte title theme is deliberately not included. The title-music
+ ; entry point startat is a no-op, while C.COMUDAT / Blue Danube remains.
+ ; This recovers enough contiguous HICODE space for the Elite-A ship system.
+ELSE                   ; ELITE: Unbound build option (else)
  INCBIN "1-source-files/music/gma/C.THEME.bin"
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ENDIF
 

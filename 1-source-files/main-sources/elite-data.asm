@@ -1320,7 +1320,11 @@ ENDIF
  CHAR ' '               ;                {cr}
  CONT 4                 ;                {cr}
  CONT 12                ;                {sentence case}PRESENT SYSTEM{tab to
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ CONT 13                ;                column 21}:{current system name}{cr}
+ELSE                   ; ELITE: Unbound build option (else)
  CONT 12                ;                column 21}:{current system name}{cr}
+ENDIF                  ; ELITE: Unbound build option (end)
  CONT 12                ;                HYPERSPACE SYSTEM{tab to column 21}:
  CONT 6                 ;                {selected system name}{cr}
  RTOK 145               ;                CONDITION{tab to column 21}:"
@@ -5116,8 +5120,13 @@ ENDMACRO
  ECHR ' '               ;                {single cap}THARGOIDS TO FIND OUT
  ECHR 'D'               ;                ABOUT YOU.{cr}
  ETWO 'O', 'N'          ;                 {single cap}FOR THE MOMENT PLEASE
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ECHR 'E'               ;                ACCEPT THIS {single cap}NAVAL {standard
+ ECHR ' '               ;                tokens, sentence case}ENERGY
+ELSE                   ; ELITE: Unbound build option (else)
  ECHR 'E'               ;                ACCEPT THIS {single cap}NAVY {standard
  ECHR ' '               ;                tokens, sentence case}EXTRA ENERGY
+ENDIF                  ; ELITE: Unbound build option (end)
  ETOK 154               ;                UNIT{extended tokens} AS PAYMENT.{cr}
  ETOK 204               ;                {left align}
  ETOK 179               ;                {tab 6}{all caps}  MESSAGE ENDS
@@ -5130,7 +5139,11 @@ ENDMACRO
  ECHR 'R'               ;                {19}<226><238>GOIDS[201]F<240>D <217>T
  ECHR 'V'               ;                 AB<217>T [179][204]F<253> [147]MOM
  ETOK 196               ;                <246>T P<229>A<218> AC<233>PT [148]{19}
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ECHR 'U'               ;                NAVAL {6}[121][14]{5} AS PAYM<246>T[212]
+ELSE                   ; ELITE: Unbound build option (else)
  ECHR 'U'               ;                NAVY {6}[114]{5} AS PAYM<246>T[212]
+ENDIF                  ; ELITE: Unbound build option (end)
  ECHR 'S'               ;                {24}"
  ECHR ' '
  ECHR 'W'
@@ -5220,10 +5233,20 @@ ENDMACRO
  ECHR 'N'
  ECHR 'A'
  ECHR 'V'
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ECHR 'A'
+ ECHR 'L'
+ELSE                   ; ELITE: Unbound build option (else)
  ECHR 'Y'
+ENDIF                  ; ELITE: Unbound build option (end)
  ECHR ' '
  EJMP 6
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ TOKN 121               ; "ENERGY "
+ TOKN 14                ; "UNIT"
+ELSE                   ; ELITE: Unbound build option (else)
  TOKN 114
+ENDIF                  ; ELITE: Unbound build option (end)
  EJMP 5
  ECHR ' '
  ECHR 'A'
