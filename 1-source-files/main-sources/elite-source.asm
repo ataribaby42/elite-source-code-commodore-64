@@ -3346,13 +3346,13 @@ ENDIF
 
 .NOMVETR
 
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
+IF _FPS_LIMITER        ; Frame limiter build option (begin)
 
  JSR FrameLimit        ; Limit the flight loop to one iteration every four
                         ; video frames, so accelerated systems do not run the
                         ; game logic too quickly
 
-ENDIF                  ; ELITE: Unbound build option (end)
+ENDIF                  ; Frame limiter build option (end)
 
 ; ******************************************************************************
 ;
@@ -35408,12 +35408,12 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR LL9                ; Call LL9 to display the ship
 
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
+IF _FPS_LIMITER        ; Frame limiter build option (begin)
 
  JSR FrameLimit        ; Keep the rotating title ship at the same frame-limited
                         ; speed as the main flight loop
 
-ENDIF                  ; ELITE: Unbound build option (end)
+ENDIF                  ; Frame limiter build option (end)
 
  JSR RDKEY              ; Scan the keyboard for a key press and return the
                         ; internal key number in A and X (or 0 for no key press)
@@ -37925,6 +37925,13 @@ ENDIF
  STX KY3
 
 .noswapxs
+
+IF _INPUT_FIX          ; Parallel keyboard/joystick input build option (begin)
+
+ JMP scanmatrix         ; Elite 128 continues by scanning the keyboard after
+                        ; reading the joystick, so both can be used together
+
+ENDIF                  ; Parallel keyboard/joystick input build option (end)
 
 .nojoyst
 
@@ -47873,7 +47880,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
+IF _FPS_LIMITER        ; Frame limiter build option (begin)
 ;       Name: FrameLimit
 ;       Type: Subroutine
 ;   Category: Main loop
@@ -47886,7 +47893,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; so this limits the game to 12.5 iterations per second on PAL systems and 15
 ; iterations per second on NTSC systems. Slower iterations return immediately.
 ;
-; This is based on the frame limiter in Elite 128 by Stefan Uhlmann.
+; This is based on the frame limiter in Elite 128.
 ;
 ; ******************************************************************************
 
@@ -47918,7 +47925,7 @@ FRAME_LIMIT = 4        ; Number of video frames per game iteration
 
 ; ******************************************************************************
 ;
-ENDIF                  ; ELITE: Unbound build option (end)
+ENDIF                  ; Frame limiter build option (end)
 ;       Name: RASTCT
 ;       Type: Variable
 ;   Category: Drawing the screen
@@ -48373,12 +48380,12 @@ ENDIF                  ; ELITE: Unbound build option (end)
  BNE COMIRQ3            ; If we just flipped RASCT from 0 to 1 then jump to
                         ; COMIRQ3 to return from the interrupt handler
 
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
+IF _FPS_LIMITER        ; Frame limiter build option (begin)
 
  INC FrameCounter      ; This branch runs once per complete video frame, so
                         ; increment the counter used by FrameLimit
 
-ENDIF                  ; ELITE: Unbound build option (end)
+ENDIF                  ; Frame limiter build option (end)
 
                         ; We now play the background music, if configured
                         ;

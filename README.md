@@ -241,6 +241,10 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA and tape variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
 
+* `fpslimiter=yes` - Enable the Elite 128-style frame limiter independently of `unbound`. The game loop and rotating title ship are limited to one update every four video frames, giving a maximum of 12.5 updates per second on PAL and 15 on NTSC. The option is disabled by default.
+
+* `inputfix=yes` - Enable the Elite 128-style parallel input handler independently of `unbound`. When joystick control is selected, the keyboard matrix is scanned after the joystick, so keyboard commands and joystick flight controls can be used at the same time. The option is disabled by default.
+
 * `whitecockpit=yes` - Draw the program-generated cockpit borders and screen-divider lines in white instead of yellow, and replace yellow with white throughout the dashboard frame, compass ring and entire scanner area, including all parts of scanner blips. The dashboard bitmap is not changed. This option is disabled by default.
 
 * `encrypt=no` - Disable encryption and checksum routines
@@ -257,7 +261,7 @@ will build an unencrypted GMA85 PAL variant with a maxed-out commander, no works
 
 For example, the following enables all the added visual and gameplay options in a PAL tape build:
 
-`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes whitecockpit=yes encrypt=no match=no verify=no`
+`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes fpslimiter=yes inputfix=yes whitecockpit=yes encrypt=no match=no verify=no`
 
 The unencrypted version should be more useful for anyone who wants to make modifications to the game code. As this argument produces unencrypted files, the binaries produced will be quite different to the binaries on the original source disk, which are encrypted.
 
