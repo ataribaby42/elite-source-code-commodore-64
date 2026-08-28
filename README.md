@@ -247,6 +247,8 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `whitecockpit=yes` - Draw the program-generated cockpit borders and screen-divider lines in white instead of yellow, and replace yellow with white throughout the dashboard frame, compass ring and entire scanner area, including all parts of scanner blips. The dashboard bitmap is not changed. This option is disabled by default.
 
+* `scannercolorfix=yes` - Fix the original scanner palette in the cell immediately to the left of the compass, preventing a red blip from appearing with a blue square. This option is disabled by default and is active only when `whitecockpit` is disabled; `whitecockpit=yes` already supplies its own corrected red/white palette.
+
 * `encrypt=no` - Disable encryption and checksum routines
 
 * `match=no` - Do not attempt to match the original game binaries (i.e. omit workspace noise)
