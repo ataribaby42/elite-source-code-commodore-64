@@ -7438,8 +7438,10 @@ ENDIF
                         ; to skip the following negation
 
  EOR #%01111111         ; The y-coordinate offset is negative, so flip all the
- ADC #1                 ; bits apart from the sign bit and subtract 1, to negate
-                        ; it to a positive number, i.e. A is now |Y1|
+ ADC #1                 ; bits apart from the sign bit and subtract 1 to convert
+                        ; A from a sign-magnitude number into a traditional
+                        ; signed number, so A is now Y1 in a form that can be
+                        ; used with the SBC instruction
 
 .PX2
 
@@ -24673,6 +24675,13 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  JSR ShipMenuTypeAtIndex
  STA Q                  ; Q = new cmdr_type
 
+ ; An infested ship cannot be exchanged. Check this before equipment, cargo,
+ ; missile and cash validation so any Trumbles always reject the purchase with
+ ; "CARGO?", regardless of which other requirements are not met.
+ LDA TRIBBLE
+ ORA TRIBBLE+1
+ BNE shipBuyCargoRejected
+
  ; ELITE: Unbound ship exchanges require all ordinary fitted equipment to be
  ; sold first. Missiles and the unique Naval Energy Unit are the only fitted
  ; items that may transfer to a new hull.
@@ -24690,6 +24699,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  ; been sold already, so the new hull is checked at its base cargo capacity.
  JSR ShipCargoFitsType
  BCS shipBuyCargoFits
+
+.shipBuyCargoRejected
 
  LDA #206               ; Recursive token 46: " CARGO"
  JSR prq                ; -> " CARGO?"
@@ -25261,7 +25272,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.25"
+ EQUS "v0.30"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
