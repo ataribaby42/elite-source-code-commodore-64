@@ -24277,7 +24277,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
  EQUW 5250              ; 6  Fuel Scoops                525.0 Cr
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 3000              ; 7  Escape Pod                 300.0 Cr
- EQUW 4000              ; 8  Energy Bomb / I.F.F.       400.0 Cr
+ EQUW 25000             ; 8  Energy Bomb / I.F.F.      2500.0 Cr
 ELSE                   ; ELITE: Unbound build option (else)
  EQUW 10000             ; 7  Escape Pod                1000.0 Cr
  
@@ -24311,7 +24311,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 3750              ; 6  Fuel Scoops                375.0 Cr
  EQUW 2000              ; 7  Escape Pod                 200.0 Cr
- EQUW 2000              ; 8  Energy Bomb / I.F.F.       200.0 Cr
+ EQUW 12500             ; 8  Energy Bomb / I.F.F.      1250.0 Cr
  EQUW 9000              ; 9  Energy Unit                900.0 Cr
  EQUW 8000              ; 10 Docking Computer           800.0 Cr
  EQUW 30000             ; 11 Galactic Hyperspace       3000.0 Cr
@@ -24326,7 +24326,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 7000              ; 6  Fuel Scoops                700.0 Cr
  EQUW 6000              ; 7  Escape Pod                 600.0 Cr
- EQUW 4000              ; 8  Energy Bomb / I.F.F.       400.0 Cr
+ EQUW 25000             ; 8  Energy Bomb / I.F.F.      2500.0 Cr
  EQUW 25000             ; 9  Energy Unit               2500.0 Cr
  EQUW 10000             ; 10 Docking Computer          1000.0 Cr
  EQUW 40000             ; 11 Galactic Hyperspace       4000.0 Cr
@@ -24341,7 +24341,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 6500              ; 6  Fuel Scoops                650.0 Cr
  EQUW 4500              ; 7  Escape Pod                 450.0 Cr
- EQUW 3000              ; 8  Energy Bomb / I.F.F.       300.0 Cr
+ EQUW 18750             ; 8  Energy Bomb / I.F.F.      1875.0 Cr
  EQUW 19000             ; 9  Energy Unit               1900.0 Cr
  EQUW 20000             ; 10 Docking Computer          2000.0 Cr
  EQUW 60000             ; 11 Galactic Hyperspace       6000.0 Cr
@@ -24356,7 +24356,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 4500              ; 6  Fuel Scoops                450.0 Cr
  EQUW 2500              ; 7  Escape Pod                 250.0 Cr
- EQUW 1500              ; 8  Energy Bomb / I.F.F.       150.0 Cr
+ EQUW 9380              ; 8  Energy Bomb / I.F.F.       938.0 Cr
  EQUW 7000              ; 9  Energy Unit                700.0 Cr
  EQUW 7000              ; 10 Docking Computer           700.0 Cr
  EQUW 30000             ; 11 Galactic Hyperspace       3000.0 Cr
