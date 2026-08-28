@@ -48,6 +48,16 @@ Použité volby projektu zahrnují:
 - fpslimiter=yes: limiter herní logiky odvozený z Elite 128;
 - inputfix=yes: současné používání klávesnice a joysticku jako v Elite 128.
 
+Volba scannercolorfix=yes opravuje původní paletu jediné buňky skeneru vlevo
+od kompasu z $67 na $27, takže se červený blip nezobrazuje s modrým čtvercem.
+Je aktivní pouze při whitecockpit=no. Při whitecockpit=yes zůstává vždy použita
+stávající opravená červeno-bílá paleta $21 bez ohledu na scannercolorfix.
+Volba mění jediný datový bajt a nezabírá žádnou další LOCODE ani HICODE paměť.
+
+Pokud má hráč alespoň jeden Trumble, nákup nové lodi je vždy odmítnut zprávou
+`CARGO?`. Hráč se musí Trumbles nejprve zbavit; do nové lodi se nepřenášejí.
+Kontrola zabírá 8 bajtů HICODE a žádný LOCODE.
+
 Tape PAL používá PAL herní variantu GMA86, ale výsledkem je TAP a nepoužívá
 diskovou sektorovou tabulku. Tape NTSC analogicky používá NTSC herní variantu
 GMA85.
@@ -86,7 +96,7 @@ Verze zobrazená na titulní obrazovce je v:
 pod návěštím:
 
     .TitleScreenVersion
-     EQUS "v0.20"
+     EQUS "v0.25"
      EQUB 0
 
 Při změně délky textu zkontrolovat centrování. Číslo řádku se mezi větvemi
@@ -279,8 +289,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3FA3 | 93 B | 92 B | $CC7B | 389 B | 388 B |
-| flicker-free | $3FF3 | 13 B | 12 B | $CCDF | 289 B | 288 B |
+| main | $3FA3 | 93 B | 92 B | $CC83 | 381 B | 380 B |
+| flicker-free | $3FF3 | 13 B | 12 B | $CCE7 | 281 B | 280 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 

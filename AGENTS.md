@@ -50,6 +50,9 @@ ověřte stav a poznámky aktualizujte.
   nemají záměrně platit pro původní hru.
 - Frame limiter a paralelní vstup jsou nezávislé volby. Jejich kód uzavírejte
   do IF _FPS_LIMITER a IF _INPUT_FIX, nikoli do IF _UNBOUND.
+- Oprava původní palety skeneru je volba scannercolorfix=yes. Používejte
+  IF _SCANNER_COLOR_FIX pouze ve větvi, kde je _WHITE_COCKPIT vypnutý;
+  whitecockpit=yes má vždy přednost a používá vlastní opravenou paletu.
 - Při unbound=no musí zůstat původní chování. Pokud je to součástí zadání,
   ověřte také shodu původních binárek.
 - Upřednostňujte hodnoty odvozené z aktuálního buildu před pevnými adresami,

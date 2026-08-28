@@ -77,7 +77,9 @@ endef
 #
 #   randomspawns=yes    Enables Elite-A-style random ship spawn positions
 #
-#   whitecockpit=yes    Draws the cockpit borders, compass and scanner yellow channel in white
+#   whitecockpit=yes    Draws the cockpit borders, compass and scanner yellow color in white
+#
+#   scannercolorfix=yes Fixes the red scanner blip cell beside the compass when whitecockpit is disabled
 #
 # So, for example:
 #
@@ -164,6 +166,10 @@ endef
 # _WHITE_COCKPIT
 #   FALSE = Original yellow cockpit border (default)
 #   TRUE  = White cockpit borders, dashboard compass and scanner yellow channel
+#
+# _SCANNER_COLOR_FIX
+#   FALSE = Preserve the original scanner palette beside the compass (default)
+#   TRUE  = Fix the red blip palette when _WHITE_COCKPIT is FALSE
 #
 # The encrypt and verify arguments are passed to the elite-checksum.py and
 # crc32.py scripts, rather than BeebAsm
@@ -304,6 +310,12 @@ else
   whitecockpit-enabled=FALSE
 endif
 
+ifeq ($(scannercolorfix), yes)
+  scannercolorfix-enabled=TRUE
+else
+  scannercolorfix-enabled=FALSE
+endif
+
 .PHONY: all c64-build c64-disk c64-tape
 all: c64-build $(media-target)
 
@@ -324,6 +336,7 @@ c64-build:
 	echo _INPUT_FIX=$(inputfix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _RANDOM_SPAWNS=$(randomspawns-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _WHITE_COCKPIT=$(whitecockpit-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _SCANNER_COLOR_FIX=$(scannercolorfix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
 ifeq ($(variant-number), 1)

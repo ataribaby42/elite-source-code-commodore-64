@@ -1372,7 +1372,11 @@ ELSE                   ; White cockpit dashboard attributes (else)
  WC27 = $27
  WC37 = $37
  WC67 = $67
- WCS67 = $67           ; Preserve the original scanner palette
+IF _SCANNER_COLOR_FIX  ; Standard scanner colour fix (begin)
+ WCS67 = $27           ; Scanner cell left of the compass: red and yellow
+ELSE                   ; Standard scanner colour fix (else)
+ WCS67 = $67           ; Preserve the original blue/yellow scanner palette
+ENDIF                  ; Standard scanner colour fix (end)
  WC74 = $74
  WCC7 = $C7
 ENDIF                  ; White cockpit dashboard attributes (end)
