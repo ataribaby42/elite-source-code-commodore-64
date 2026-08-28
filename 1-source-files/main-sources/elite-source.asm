@@ -24518,11 +24518,11 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ELSE                   ; ELITE: Unbound build option (else)
 IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
   
- EQUW 25000             ; 8  I.F.F. Unit               1500.0 Cr
+ EQUW 25000             ; 8  I.F.F. Unit               2500.0 Cr
  
 ELSE 
  
- EQUW 900               ; 8  Energy Bomb                900.0 Cr
+ EQUW 9000              ; 8  Energy Bomb                900.0 Cr
   
 ENDIF
 ENDIF                  ; ELITE: Unbound build option (end)
