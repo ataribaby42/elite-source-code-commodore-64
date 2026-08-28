@@ -3644,6 +3644,10 @@ IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
 
 ELSE
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipEnergyBombKey ; Process the Energy Bomb key in HICODE, keeping the
+                        ; flicker-free LOCODE below its $4000 limit
+ELSE                   ; ELITE: Unbound build option (else)
  LDA KY12               ; If "C=" is being pressed, keep going, otherwise jump
  BEQ MA76               ; down to MA76 to skip the following
 
@@ -3671,6 +3675,7 @@ ELSE
 
  LDY #sfxbomb           ; Call the NOISE routine with Y = sfxbomb to make the
  JSR NOISE              ; sound of the energy bomb going off
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ENDIF
 
@@ -24490,7 +24495,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
  EQUW 5250              ; 6  Fuel Scoops                525.0 Cr
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 3000              ; 7  Escape Pod                 300.0 Cr
- EQUW 4000              ; 8  Energy Bomb / I.F.F.       400.0 Cr
+ EQUW 25000             ; 8  Energy Bomb / I.F.F.      2500.0 Cr
  EQUW 15000             ; 9  Energy Unit               1500.0 Cr
  EQUW 15000             ; 10 Docking Computer          1500.0 Cr
  EQUW 50000             ; 11 Galactic Hyperspace       5000.0 Cr
@@ -24509,7 +24514,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 3750              ; 6  Fuel Scoops                375.0 Cr
  EQUW 2000              ; 7  Escape Pod                 200.0 Cr
- EQUW 2000              ; 8  Energy Bomb / I.F.F.       200.0 Cr
+ EQUW 12500             ; 8  Energy Bomb / I.F.F.      1250.0 Cr
  EQUW 9000              ; 9  Energy Unit                900.0 Cr
  EQUW 8000              ; 10 Docking Computer           800.0 Cr
  EQUW 30000             ; 11 Galactic Hyperspace       3000.0 Cr
@@ -24536,7 +24541,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 7000              ; 6  Fuel Scoops                700.0 Cr
  EQUW 6000              ; 7  Escape Pod                 600.0 Cr
- EQUW 4000              ; 8  Energy Bomb / I.F.F.       400.0 Cr
+ EQUW 25000             ; 8  Energy Bomb / I.F.F.      2500.0 Cr
  EQUW 25000             ; 9  Energy Unit               2500.0 Cr
 ELSE                   ; ELITE: Unbound build option (else)
  EQUW 15000             ; 9  Energy Unit               1500.0 Cr
@@ -24555,7 +24560,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 6500              ; 6  Fuel Scoops                650.0 Cr
  EQUW 4500              ; 7  Escape Pod                 450.0 Cr
- EQUW 3000              ; 8  Energy Bomb / I.F.F.       300.0 Cr
+ EQUW 18750             ; 8  Energy Bomb / I.F.F.      1875.0 Cr
  EQUW 19000             ; 9  Energy Unit               1900.0 Cr
  EQUW 20000             ; 10 Docking Computer          2000.0 Cr
  EQUW 60000             ; 11 Galactic Hyperspace       6000.0 Cr
@@ -24570,7 +24575,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
  EQUW 4500              ; 6  Fuel Scoops                450.0 Cr
  EQUW 2500              ; 7  Escape Pod                 250.0 Cr
- EQUW 1500              ; 8  Energy Bomb / I.F.F.       150.0 Cr
+ EQUW 9380              ; 8  Energy Bomb / I.F.F.       938.0 Cr
  EQUW 7000              ; 9  Energy Unit                700.0 Cr
  EQUW 7000              ; 10 Docking Computer           700.0 Cr
  EQUW 30000             ; 11 Galactic Hyperspace       3000.0 Cr
@@ -24583,6 +24588,44 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ; ******************************************************************************
 ;
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+IF NOT(_IFF_UNIT)      ; Energy Bomb HICODE relocation (begin)
+; ******************************************************************************
+;
+;       Name: ShipEnergyBombKey
+;       Type: Subroutine
+;   Category: Keyboard
+;    Summary: Process the Energy Bomb key from HICODE
+;
+; ------------------------------------------------------------------------------
+;
+; This is the original Energy Bomb key handler from MA24. It lives in HICODE
+; only for the unbound=yes, iffunit=no combination, saving 17 bytes of the
+; flicker-free LOCODE while preserving the original behaviour.
+;
+; ******************************************************************************
+
+.ShipEnergyBombKey
+
+ LDA KY12               ; If "C=" is being pressed, keep going, otherwise return
+ BEQ shipEnergyBombKeyDone
+
+ ASL BOMB               ; Arm a fitted Energy Bomb, changing $7F to $FE
+ BEQ shipEnergyBombKeyDone
+                        ; If BOMB is zero, no Energy Bomb is fitted
+
+ LDY #%11010000         ; Enable multicolour bitmap mode for the bomb effect
+ STY moonflower
+
+ LDY #sfxbomb           ; Play the Energy Bomb sound
+ JSR NOISE
+
+.shipEnergyBombKeyDone
+
+ RTS
+
+ENDIF                  ; Energy Bomb HICODE relocation (end)
+
 ; Elite-A ship-buying subset for Commodore 64
 ;
 ; This ports the requested Elite-A player-ship subset: ownership, CTRL+3

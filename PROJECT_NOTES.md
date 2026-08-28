@@ -58,6 +58,26 @@ Pokud má hráč alespoň jeden Trumble, nákup nové lodi je vždy odmítnut zp
 `CARGO?`. Hráč se musí Trumbles nejprve zbavit; do nové lodi se nepřenášejí.
 Kontrola zabírá 8 bajtů HICODE a žádný LOCODE.
 
+Při unbound=yes používá společný slot Energy Bomb / I.F.F. Unit ceny
+vynásobené 6,25 a zaokrouhlené na celé kredity: 2500 Cr pro Cobra Mk III,
+1250 Cr pro Adder/Gecko/Cobra Mk I, 2500 Cr pro Fer-de-Lance/Asp Mk II,
+1875 Cr pro Python/Boa/Anaconda a 938 Cr pro
+Moray/Sidewinder/Krait/Mamba. Přepínač iffunit mění název a funkci položky,
+nikoli její cenu. Hodnoty při unbound=no zůstávají nezměněné.
+
+Ve flicker-free kombinaci unbound=yes, iffunit=no je původní 20bajtová
+obsluha klávesy Energy Bomb přesunuta z LOCODE do 21bajtové HICODE rutiny.
+V LOCODE zůstává pouze tříbajtové JSR, což šetří 17 bajtů. Přesun je pod
+oběma podmínkami, takže ostatní tři kombinace unbound/iffunit zůstávají
+binárně shodné. Opravená kombinace končí na R%=$3FF3 a F%=$CCAF, takže lze
+prakticky přidat dalších 12 bajtů LOCODE a 336 bajtů HICODE.
+
+Úplná matice osmi nezávislých yes/no voleb (warpjunk, iffunit, unbound,
+fpslimiter, inputfix, randomspawns, whitecockpit a scannercolorfix) obsahuje
+256 kombinací na větev. Všech 512 sestavení prošlo. Nejvyšší jednotlivě
+naměřené konce byly main R%=$3FB4 a F%=$CD8F, flicker-free R%=$3FF3 a
+F%=$CD77; maxima R% a F% nemusejí pocházet ze stejné kombinace.
+
 Tape PAL používá PAL herní variantu GMA86, ale výsledkem je TAP a nepoužívá
 diskovou sektorovou tabulku. Tape NTSC analogicky používá NTSC herní variantu
 GMA85.
@@ -96,7 +116,7 @@ Verze zobrazená na titulní obrazovce je v:
 pod návěštím:
 
     .TitleScreenVersion
-     EQUS "v0.25"
+     EQUS "v0.30"
      EQUB 0
 
 Při změně délky textu zkontrolovat centrování. Číslo řádku se mezi větvemi
