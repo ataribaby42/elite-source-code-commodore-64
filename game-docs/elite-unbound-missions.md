@@ -79,6 +79,21 @@ The mission starts on docking when all of these conditions are true:
 
 The opening clue depends on the galaxy where the mission starts: in Galaxy 1 the briefing says the ship was last seen at Reesdice; in Galaxy 2 it says the Constrictor is believed to have jumped to that galaxy.
 
+#### Starting the mission in Galaxy 2
+
+If the commander is already in in-game Galaxy 2 when the eligibility conditions are met, the mission is still announced automatically. On the next docking, `DOENTRY` calls `BRIEF`, which sets bit 0 of `TP` before displaying an `INCOMING MESSAGE`, the rotating Constrictor model, and the full Navy briefing.
+
+The briefing's location hint is selected according to `GCNT`:
+
+- in Galaxy 1 it uses extended token 220: `WAS LAST SEEN AT REESDICE`;
+- in Galaxy 2 it uses extended token 221: `IS BELIEVED TO HAVE JUMPED TO THIS GALAXY`.
+
+The Galaxy 2 briefing therefore tells the player that the stolen Constrictor must be found and destroyed somewhere in the current galaxy, but it does not name Errius or another first destination. The intended discovery route is to encounter one of the Galaxy 2 rumour systems described below, whose mission description points to Errius, and then follow the main trail:
+
+`rumour system -> Errius -> Inbibe -> Ausar -> Usleri -> Orarra`
+
+Despite the briefing saying `SHOULD YOU DECIDE TO ACCEPT IT`, there is no yes/no prompt. The mission has already been activated in `TP` and cannot be declined.
+
 ### Clue systems
 
 There is no saved clue index or route position. While mission 1 is active, static `RUPLA`, `RUGAL`, and `RUTOK` tables replace the normal descriptions of specific systems with mission text. The descriptions form a logical trail, but the game does not enforce its order and reading a clue does not modify `TP`.
