@@ -1,11 +1,8 @@
 # ELITE: Unbound — mission state, targets, and triggers
 
-This document describes the mission logic in the Commodore 64 source and how it is represented in the commander save. It applies to the current `main` and `flicker-free` branches:
+This document describes the mission logic in the Commodore 64 source and how it is represented in the commander save.
 
-- `main`: `7261ea18905abe54f7cf7a0056bde551df74fb9a`
-- `flicker-free`: `214b18421d44952364ca032ad0e725992e1e9e06`
-
-The mission behavior described below is the same in both branches. Commander-byte numbers are relative to `DataStart`; add 2 for the physical offset in a C64 PRG file.
+Commander-byte numbers are relative to `DataStart`; add 2 for the physical offset in a C64 PRG file.
 
 ## What the save stores
 
@@ -84,15 +81,51 @@ The opening clue depends on the galaxy where the mission starts: in Galaxy 1 the
 
 ### Clue systems
 
-There is no saved clue index or route position. While mission 1 is active, static `RUPLA`, `RUGAL`, and `RUTOK` tables replace the normal descriptions of specific systems with clue text.
+There is no saved clue index or route position. While mission 1 is active, static `RUPLA`, `RUGAL`, and `RUTOK` tables replace the normal descriptions of specific systems with mission text. The descriptions form a logical trail, but the game does not enforce its order and reading a clue does not modify `TP`.
 
-| In-game galaxy | Systems with mission-1 description overrides |
-|---:|---|
-| 1 | Xeer, Reesdice, Arexe |
-| 2 | Errius, Inbibe, Ausar, Usleri, Bebege, Cearso, Dicela, Eringe, Gexein, Isarin, Letibema, Maisso, Onen, Ramaza, Sosole, Tivere, Veriar, Orarra |
-| 3 | Xeveon |
+`PDESC` shows a mission description only when all of these conditions are true:
 
-These are independent static descriptions, not a saved sequential quest path.
+- the player is docked;
+- the system selected on the Data on System screen is the current system, not a remote system on the chart;
+- bit 0 of `TP` is set, so mission 1 is in progress; and
+- the current system number and `GCNT` match an entry in `RUPLA` and `RUGAL`.
+
+#### Galaxy 1 trail
+
+| System | Mission description |
+|---|---|
+| Xeer | Reports that the Constrictor was last seen at Reesdice. This is an alternative pointer to the same destination given in the Galaxy 1 briefing. |
+| Reesdice | Reports that the ship left for Arexe. |
+| Arexe | Reports that the ship had a galactic hyperdrive fitted and used it, indicating that the trail continues in another galaxy. |
+
+#### Galaxy 2 main trail
+
+| System | Mission description points to |
+|---|---|
+| Errius | Inbibe |
+| Inbibe | Ausar |
+| Ausar | Usleri |
+| Usleri | Orarra |
+| Orarra | The target system; its description warns that a real pirate is out there. |
+
+The main Galaxy 2 route is therefore:
+
+`Errius -> Inbibe -> Ausar -> Usleri -> Orarra`
+
+#### Galaxy 2 rumour systems
+
+The following systems are not additional sequential steps:
+
+- Bebege, Cearso, Dicela, Eringe, Gexein, Isarin, Letibema;
+- Maisso, Onen, Ramaza, Sosole, Tivere, and Veriar.
+
+Their `RUTOK` entries 10-22 all contain `ERND 25`, which randomly selects one of extended tokens 106-110. The wording varies, but every version directs the player to Errius, for example `TRY ERRIUS` or `GET YOUR IRON ASS OVER TO ERRIUS`. These systems act as multiple entry points into the main Galaxy 2 trail for a player searching for information.
+
+#### Galaxy 3 warning
+
+Xeveon's mission description says `BOY ARE YOU IN THE WRONG GALAXY!`, warning a player who has followed the trail too far.
+
+Because no clue progression is saved or checked, the player may ignore the whole trail and fly directly to Orarra. The Constrictor spawn depends only on the mission bits and the current location described below.
 
 ### Target and spawn trigger
 
