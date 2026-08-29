@@ -43,6 +43,41 @@ Aktuální zdrojový kód a výstup skutečného buildu mají přednost před ú
 v chatu nebo v PROJECT_NOTES.md. Pokud se poznámky rozcházejí s kódem,
 ověřte stav a poznámky aktualizujte.
 
+## Herní dokumentace
+
+Doplňující technická dokumentace je uložena ve větvi `main` v adresáři
+`game-docs/`:
+
+- `game-docs/elite-unbound-save-map.src`
+  - kompletní mapa commander save souboru;
+  - význam jednotlivých bajtů;
+  - formát `TP`, `cmdr_type`, checksumů a ostatních uložených hodnot.
+
+- `game-docs/elite-unbound-missions.md`
+  - stavy a přechody všech misí;
+  - přesné podmínky jejich spuštění;
+  - cílové systémy, souřadnice, odměny a spawn podmínky;
+  - vysvětlení, které údaje jsou uložené v save a které jsou pevně
+    zakódované ve hře.
+
+Před analýzou nebo změnou save formátu, commander dat či misí nejdříve
+prostudujte tyto dokumenty. Aktuální zdrojový kód a skutečný build mají při
+případném rozporu přednost.
+
+Při změně následujících oblastí aktualizujte také odpovídající dokument:
+
+- struktura commander save nebo checksumy;
+- význam bajtu `TP`;
+- přidání nebo změna typu hráčovy lodi;
+- mission triggery, stavy, cílové systémy nebo odměny;
+- Constrictor nebo Thargoid mission spawny;
+- Trumble nabídka a její podmínky.
+
+Dokumenty jsou vedeny ve větvi `main`. Při práci ve `flicker-free` je
+používejte jako referenci, ale vždy ověřte, že se příslušná implementace mezi
+větvemi nerozešla. Nekopírujte je do `flicker-free`, pokud to uživatel výslovně
+nepožaduje.
+
 ## Zásady úprav zdrojového kódu
 
 - Zachovávejte styl dokumentovaných BeebAsm zdrojů a srozumitelné komentáře.
