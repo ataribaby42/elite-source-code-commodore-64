@@ -10853,6 +10853,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  JSR ShipNormalizeSpeedBar ; Normalise speed to 0..15 for the current hull
+ CMP #15                ; If this is maximum speed, set the bar length to 16 so
+ ADC #0                 ; the SP indicator reaches its rightmost pixel
  JSR DIL                ; Draw the already-normalised speed indicator and move
                         ; SC to the roll indicator
 ELSE                   ; ELITE: Unbound build option (else)
