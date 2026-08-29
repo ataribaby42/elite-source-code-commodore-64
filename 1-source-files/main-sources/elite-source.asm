@@ -3697,6 +3697,10 @@ ENDIF
  LDA KY20               ; If "P" is being pressed, keep going, otherwise skip
  BEQ MA78               ; the next two instructions
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipDockingComputerOffBeep ; Beep only when auto-docking was switched on
+ENDIF                  ; ELITE: Unbound build option (end)
+
  LDA #0                 ; The "cancel docking computer" key is bring pressed,
  STA auto               ; so turn it off by setting auto to 0
 
@@ -3760,6 +3764,10 @@ ENDIF
                         ;
                         ; There is a comment in the original source of "kill
                         ; phantom Cs" that seems to confirm this
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipDockingComputerOnBeep ; Beep only when auto-docking was switched off
+ENDIF                  ; ELITE: Unbound build option (end)
 
  STA auto               ; Set auto to the non-zero value of A, so the docking
                         ; computer is activated
@@ -24647,6 +24655,42 @@ IF NOT(_IFF_UNIT)      ; Energy Bomb HICODE relocation (begin)
 
 ENDIF                  ; Energy Bomb HICODE relocation (end)
 
+; ShipDockingComputerOnBeep / ShipDockingComputerOffBeep
+;
+; Make the normal short beep when the docking computer changes state. BEEP
+; queues the sound for the interrupt handler and returns immediately, so this
+; does not pause the main loop. Keeping these checks in HICODE costs only the
+; two JSR instructions above in the tightly packed LOCODE.
+;
+; ShipDockingComputerOnBeep preserves A, which contains the non-zero value that
+; the caller stores in auto after returning.
+; ------------------------------------------------------------------------------
+
+.ShipDockingComputerOffBeep
+
+ LDA auto               ; If auto is already zero, there is no state change
+ BEQ shipDockingComputerBeepDone
+
+ JMP BEEP               ; Queue the beep and return directly to the caller
+
+.ShipDockingComputerOnBeep
+
+ PHA                    ; Preserve the value that will be stored in auto
+ LDA auto               ; If auto is already non-zero, do not repeat the beep
+ BNE shipDockingComputerOnBeepDone
+
+ JSR BEEP               ; Queue the short beep without blocking the main loop
+
+.shipDockingComputerOnBeepDone
+
+ PLA                    ; Restore the new non-zero value of auto
+
+.shipDockingComputerBeepDone
+
+ RTS
+
+; ------------------------------------------------------------------------------
+;
 ; Elite-A ship-buying subset for Commodore 64
 ;
 ; This ports the requested Elite-A player-ship subset: ownership, CTRL+3
