@@ -18190,6 +18190,62 @@ ENDIF
  EQUB 120               ; Token 36: a random extended token between 120 and 124
  EQUB 125               ; Token 37: a random extended token between 125 and 129
 
+IF _RENDER_SPEEDUPS    ; Circle rendering speed-up build option (begin)
+
+; ******************************************************************************
+;
+;       Name: BuildCircleSinCache
+;       Type: Subroutine
+;   Category: Drawing circles
+;    Summary: Cache the unique sine products for the current circle
+;
+; ------------------------------------------------------------------------------
+;
+; The SNE table is symmetric, so CIRCLE2 only needs to calculate products for
+; angles from 0 to 16. This routine mirrors those products into a 32-byte cache
+; while preserving the exact point order used by the original circle routine.
+;
+; ******************************************************************************
+
+.CircleSinCache
+
+ SKIP 32               ; K * sin(angle) for angles 0 to 31
+
+.BuildCircleSinCache
+
+ LDX #0                ; Start with angle 0
+
+.BCSCloop
+
+ TXA                    ; Calculate K * sin(X) for this unique angle
+ JSR FMLTU2
+ STA CircleSinCache,X
+
+ TXA                    ; Angle 0 has no mirror inside the 32-byte table
+ BEQ BCSCnext
+
+ EOR #31                ; Set Y = 32 - X, the mirrored angle
+ CLC
+ ADC #1
+ TAY
+
+ LDA CircleSinCache,X   ; Copy the product to the mirrored cache entry
+ STA CircleSinCache,Y
+
+.BCSCnext
+
+ TXA                    ; Advance by the circle's step size
+ CLC
+ ADC STP
+ TAX
+
+ CPX #17                ; Loop through the unique angles from 0 to 16
+ BCC BCSCloop
+
+ RTS                    ; Return from the subroutine
+
+ENDIF                  ; Circle rendering speed-up build option (end)
+
 ; ******************************************************************************
 ;
 ;       Name: R%
@@ -31101,6 +31157,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .CIRCLE2
 
+IF _RENDER_SPEEDUPS    ; Circle rendering speed-up build option (begin)
+ JSR BuildCircleSinCache
+ENDIF                  ; Circle rendering speed-up build option (end)
+
                         \ --- Mod: Code added for flicker-free planets: ------->
 
                         ; We now set things up for flicker-free circle plotting,
@@ -31134,10 +31194,21 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA CNT                ; Set A = CNT
 
+IF _RENDER_SPEEDUPS    ; Circle rendering speed-up build option (begin)
+
+ AND #31                ; Fetch the cached K * sin(CNT) product
+ TAX
+ LDA CircleSinCache,X
+ CMP #1                 ; Restore FMLTU2's carry: clear for 0, set otherwise
+
+ELSE                   ; Circle rendering speed-up build option (else)
+
  JSR FMLTU2             ; Call FMLTU2 to calculate:
                         ;
                         ;   A = K * sin(A)
                         ;     = K * sin(CNT)
+
+ENDIF                  ; Circle rendering speed-up build option (end)
 
  LDX #0                 ; Set T = 0, so we have the following:
  STX T                  ;
@@ -31182,11 +31253,22 @@ ENDIF                  ; ELITE: Unbound build option (end)
  CLC
  ADC #16
 
+IF _RENDER_SPEEDUPS    ; Circle rendering speed-up build option (begin)
+
+ AND #31                ; Fetch the cached K * sin(CNT + 16) product
+ TAX
+ LDA CircleSinCache,X
+ CMP #1                 ; Restore FMLTU2's carry: clear for 0, set otherwise
+
+ELSE                   ; Circle rendering speed-up build option (else)
+
  JSR FMLTU2             ; Call FMLTU2 to calculate:
                         ;
                         ;   A = K * sin(A)
                         ;     = K * sin(CNT + 16)
                         ;     = K * cos(CNT)
+
+ENDIF                  ; Circle rendering speed-up build option (end)
 
  TAX                    ; Set X = A
                         ;       = K * cos(CNT)
