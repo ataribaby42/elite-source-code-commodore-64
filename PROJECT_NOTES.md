@@ -342,14 +342,33 @@ energie, bez regenerace):
 Změna je celá v HICODE. Pro `unbound=no` zůstávají výsledné bloky LOCODE,
 HICODE a COMLOD binárně shodné s verzí před změnou.
 
+## Reálné poškození AI lodí raketami
+
+Volba `realmissiledamage=yes` je nezávislá na `unbound`. Ve výchozím stavu je
+vypnutá a rakety ničí AI lodě okamžitě jako dosud. Po zapnutí každý zásah
+odečte 81 z bajtu #35, tedy z aktuální energie cílové AI lodě.
+
+Pokud měla loď před zásahem alespoň 81 energie, uloží se zbytek a loď přežije;
+to zahrnuje i přesný výsledek nula. Pokud měla méně než 81, použije se původní
+logika označení lodi ke zničení. Cobra Mk III se 150 body proto bez regenerace
+přežije první raketu se 69 body a druhá ji zničí. Regenerace energie AI může v
+reálné hře potřebný počet raket zvýšit.
+
+Stanice zůstávají imunní, zasažená raketa se vždy zničí a původní účinek její
+exploze na blízkého hráče zůstává beze změny. Implementace nepřidává žádný
+stavový bajt ani tabulku. Vlastní 30bajtová rutina `AIRealMissileDamage` je v
+HICODE; v LOCODE nahrazuje původní 13bajtový blok tříbajtový skok, takže LOCODE
+se při zapnuté volbě zmenší o 10 bajtů. Při `realmissiledamage=no` jsou LOCODE,
+HICODE a COMLOD bitově shodné se stavem před změnou.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3FA3 | 93 B | 92 B | $CCDF | 289 B | 288 B |
-| flicker-free | $3FF3 | 13 B | 12 B | $CD43 | 189 B | 188 B |
+| main | $3F99 | 103 B | 102 B | $CCFD | 259 B | 258 B |
+| flicker-free | $3FE9 | 23 B | 22 B | $CD61 | 159 B | 158 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 

@@ -12024,6 +12024,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
  BEQ TA352              ; space station), jump to TA352 to destroy this missile,
                         ; as the space station ain't kidding around
 
+IF _REAL_MISSILE_DAMAGE
+ JMP AIRealMissileDamage
+                        ; Continue in the HICODE routine that applies 81 damage
+                        ; to the target's energy and then jumps back to TA35
+ELSE
  LDY #31                ; Fetch byte #31 (the exploding flag) of the target ship
  LDA (V),Y              ; into A
 
@@ -12036,6 +12041,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  ORA #%10000000         ; Otherwise set bit 7 of the target's byte #31 to mark
  STA (V),Y              ; the ship as having been killed, so it explodes
+ENDIF
 
 .TA35
 
@@ -28331,6 +28337,44 @@ ENDIF
 
  JMP DOT                ; Jump to DOT to draw the dot on the compass and return
                         ; from the subroutine using a tail call
+
+IF _REAL_MISSILE_DAMAGE
+; ------------------------------------------------------------------------------
+; AIRealMissileDamage
+;
+; Apply Elite-A-style missile damage to an AI ship. V points to the target ship
+; data block. A missile subtracts 81 from byte #35, the target's current energy.
+; If the target has less than 81 energy, mark it as killed using the original
+; missile-hit logic. In both cases, jump back to TA35 in LOCODE to destroy the
+; missile and process its explosion.
+; ------------------------------------------------------------------------------
+
+.AIRealMissileDamage
+
+ LDY #35                ; Fetch the target ship's current energy
+ LDA (V),Y
+ SEC
+ SBC #81                ; One missile removes 81 energy
+ BCC aiMissileKillsShip
+
+ STA (V),Y              ; The target survived, so store its remaining energy
+ JMP TA35               ; and return to LOCODE to destroy the missile
+
+.aiMissileKillsShip
+
+ LDY #31                ; Fetch the target's exploding/killed flags
+ LDA (V),Y
+ BIT M32+1              ; If bit 5 is already set, it is already exploding
+ BNE aiMissileDone
+
+ ORA #%10000000         ; Otherwise set bit 7 to mark the target as killed
+ STA (V),Y
+
+.aiMissileDone
+
+ JMP TA35               ; Return to LOCODE to destroy the missile
+
+ENDIF
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; ------------------------------------------------------------------------------

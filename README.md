@@ -241,6 +241,8 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA and tape variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
 
+* `realmissiledamage=yes` - Make missile hits subtract 81 energy from AI ships instead of destroying them instantly. This Elite-A-style option is disabled by default, works independently of `unbound`, and leaves stations immune.
+
 * `fpslimiter=yes` - Enable the Elite 128-style frame limiter independently of `unbound`. The game loop and rotating title ship are limited to one update every four video frames, giving a maximum of 12.5 updates per second on PAL and 15 on NTSC. The option is disabled by default.
 
 * `inputfix=yes` - Enable the Elite 128-style parallel input handler independently of `unbound`. When joystick control is selected, the keyboard matrix is scanned after the joystick, so keyboard commands and joystick flight controls can be used at the same time. The option is disabled by default.
@@ -263,7 +265,7 @@ will build an unencrypted GMA85 PAL variant with a maxed-out commander, no works
 
 For example, the following enables all the added visual and gameplay options in a PAL tape build:
 
-`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes fpslimiter=yes inputfix=yes whitecockpit=yes encrypt=no match=no verify=no`
+`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes whitecockpit=yes encrypt=no match=no verify=no`
 
 The unencrypted version should be more useful for anyone who wants to make modifications to the game code. As this argument produces unencrypted files, the binaries produced will be quite different to the binaries on the original source disk, which are encrypted.
 
@@ -615,7 +617,7 @@ The `flicker-free` branch produces:
 5-compiled-game-tapes/elite-commodore-64-flicker-free-ntsc.tap
 ```
 
-Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns`, `unbound` and `whitecockpit` can be used with the tape variants in the same way as with the GMA disk variants.
+Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns`, `unbound`, `realmissiledamage` and `whitecockpit` can be used with the tape variants in the same way as with the GMA disk variants.
 
 ## Notes on the original source files
 
