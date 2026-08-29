@@ -24,13 +24,7 @@ $RECYCLE.BIN/
 run.bat
 
 # Build artifacts
+/1-source-files/main-sources/elite-build-options.asm
 /3-assembled-output
 /5-compiled-game-disks
 /5-compiled-game-tapes
-
-#tools
-/tools/C64EliteDials/.vs/
-/tools/C64EliteDials/C64EliteDials/bin/
-/tools/C64EliteDials/C64EliteDials/obj/
-/tools/C64EliteDials/C64EliteDials/Properties/
-/tools/C64EliteDials/C64EliteDials/*.user
