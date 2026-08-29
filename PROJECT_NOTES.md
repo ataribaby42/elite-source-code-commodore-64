@@ -14,8 +14,8 @@ GitHub:
 
 | Větev | Windows pracovní kopie | Známý kontrolní bod |
 |---|---|---|
-| main | E:\Development\Elite-C64\elite-source-code-commodore-64 | 1409405 |
-| flicker-free | E:\Development\Elite-C64\elite-source-code-commodore-64-flicker-free | 9ae0348 |
+| main | E:\Development\Elite-C64\elite-source-code-commodore-64 | a94b04a |
+| flicker-free | E:\Development\Elite-C64\elite-source-code-commodore-64-flicker-free | e23a2a7 |
 
 Obě pracovní kopie používají stejný remote. Větev flicker-free navíc obsahuje
 vlastní vykreslovací úpravy, proto se zdrojové soubory mezi větvemi nesmějí
@@ -32,7 +32,7 @@ Hlavní reference:
 
 ## Běžná konfigurace projektu
 
-    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes
+    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes renderspeedups=yes
 
 Použité volby projektu zahrnují:
 
@@ -47,7 +47,8 @@ Použité volby projektu zahrnují:
 - unbound=yes: Elite: Unbound včetně kupovatelných a létatelných lodí;
 - realmissiledamage=yes: rakety ubírají AI lodím skutečnou energii;
 - fpslimiter=yes: limiter herní logiky odvozený z Elite 128;
-- inputfix=yes: současné používání klávesnice a joysticku jako v Elite 128.
+- inputfix=yes: současné používání klávesnice a joysticku jako v Elite 128;
+- renderspeedups=yes: předvýpočet a zrcadlení bodů kružnic.
 
 Volba scannercolorfix=yes opravuje původní paletu jediné buňky skeneru vlevo
 od kompasu z $67 na $27, takže se červený blip nezobrazuje s modrým čtvercem.
@@ -73,11 +74,12 @@ oběma podmínkami, takže ostatní tři kombinace unbound/iffunit zůstávají
 binárně shodné. Opravená kombinace končí na R%=$3FF3 a F%=$CCAF, takže lze
 prakticky přidat dalších 12 bajtů LOCODE a 336 bajtů HICODE.
 
-Úplná matice osmi nezávislých yes/no voleb (warpjunk, iffunit, unbound,
-fpslimiter, inputfix, randomspawns, whitecockpit a scannercolorfix) obsahuje
-256 kombinací na větev. Všech 512 sestavení prošlo. Nejvyšší jednotlivě
+Historická úplná matice osmi nezávislých yes/no voleb (warpjunk, iffunit,
+unbound, fpslimiter, inputfix, randomspawns, whitecockpit a scannercolorfix)
+obsahuje 256 kombinací na větev. Všech 512 sestavení prošlo. Nejvyšší jednotlivě
 naměřené konce byly main R%=$3FB4 a F%=$CD8F, flicker-free R%=$3FF3 a
-F%=$CD77; maxima R% a F% nemusejí pocházet ze stejné kombinace.
+F%=$CD77; maxima R% a F% nemusejí pocházet ze stejné kombinace. Tato dřívější
+matice ještě nezahrnovala novější volbu renderspeedups.
 
 Tape PAL používá PAL herní variantu GMA86, ale výsledkem je TAP a nepoužívá
 diskovou sektorovou tabulku. Tape NTSC analogicky používá NTSC herní variantu
@@ -372,14 +374,44 @@ původní relativní návrat přes `dec27` v LOCODE nahrazuje lokální `RTS`.
 Při `unbound=no` zůstává `DIALS` na původním místě v LOCODE. Kontrolní build
 potvrdil bitovou shodu bloků LOCODE, HICODE i COMLOD se stavem před přesunem.
 
+## Rychlejší vykreslování kružnic
+
+Volba `renderspeedups=yes` je nezávislá na `unbound` a ve výchozím stavu je
+vypnutá. Rutina `BuildCircleSinCache` před každým voláním `CIRCLE2` vypočítá
+jen jedinečné součiny `K * sin(angle)` pro úhly 0 až 16 a díky přesné symetrii
+tabulky `SNE` je zrcadlí do vlastní 32bajtové cache. Smyčka `CIRCLE2` dál
+prochází původní hodnoty `CNT` ve stejném pořadí a volá původní `BLINE`, takže
+se nemění pořadí bodů, clipping ani ball-line heap. Lookup obnovuje i carry
+vracené rutinou `FMLTU2`, které původní kód používá při změně znaménka.
+
+Počet volání `FMLTU2` na jednu kružnici se mění takto:
+
+| Krok STP | Původně | S cache |
+|---:|---:|---:|
+| 8 | 18 | 3 |
+| 4 | 34 | 5 |
+| 2 | 66 | 9 |
+
+Optimalizace se uplatní na planetě a také na dalších uživatelích společné
+rutiny `CIRCLE2`, tedy na mapových kružnicích a tunelu při startu či
+hyperspace. Zabírá 66 bajtů LOCODE pro cache a její naplnění a 13 bajtů
+HICODE pro lookupy. Při `renderspeedups=no` zůstaly LOCODE, HICODE i COMLOD
+bitově shodné s předchozím stavem.
+
+Kontrolní PAL tape build s `renderspeedups=yes unbound=no` prošel v obou
+větvích. Naměřené konce byly main R%=$3EE0, F%=$CDAD a flicker-free R%=$3FAB,
+F%=$CD95. Optimalizace se tedy vejde i s původní hudbou a DIALS v LOCODE.
+Stejná konfigurace prošla i jako šifrovaný `variant=gma86-pal`; dvouprůchodová
+tvorba D64 v obou větvích úspěšně ověřila fast-loader sektorovou tabulku.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3ED6 | 298 B | 297 B | $C35F | 2721 B | 2720 B |
-| flicker-free | $3F26 | 218 B | 217 B | $C3C3 | 2621 B | 2620 B |
+| main | $3F18 | 232 B | 231 B | $C36C | 2708 B | 2707 B |
+| flicker-free | $3F68 | 152 B | 151 B | $C3D0 | 2608 B | 2607 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
