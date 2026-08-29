@@ -239,25 +239,35 @@ ENDIF                  ; ELITE: Unbound build option (end)
  MAG = YELLOW           ; Ships that are set to a scanner colour of MAG in the
                         ; scacol table will actually be shown in yellow
 
- RED2 = $27             ; A multicolour bitmap mode palette byte for screen RAM
-                        ; that sets red (2) for %01 in the bitmap and yellow (7)
-                        ; for %10 in the bitmap, for displaying a red missile
-                        ; indicator
+IF _WHITE_COCKPIT      ; White cockpit missile-bar frame colour (begin)
+ MISSILE_FRAME = $1    ; Map %10 pixels in missile cells to white
+ELSE                   ; White cockpit missile-bar frame colour (else)
+ MISSILE_FRAME = $7    ; Map %10 pixels in missile cells to yellow
+ENDIF                  ; White cockpit missile-bar frame colour (end)
 
- GREEN2 = $57           ; A multicolour bitmap mode palette byte for screen RAM
-                        ; that sets green (5) for %01 in the bitmap and yellow
-                        ; (7) for %10 in the bitmap, for displaying a green
-                        ; missile indicator
+ RED2 = $20 + MISSILE_FRAME
+                        ; A multicolour bitmap mode palette byte for screen RAM
+                        ; that sets red (2) for %01 in the bitmap and the
+                        ; selected cockpit frame colour for %10, for displaying
+                        ; a red missile indicator
 
- YELLOW2 = $87          ; A multicolour bitmap mode palette byte for screen RAM
-                        ; that sets orange (8) for %01 in the bitmap and yellow
-                        ; (7) for %10 in the bitmap, for displaying an orange
-                        ; missile indicator
+ GREEN2 = $50 + MISSILE_FRAME
+                        ; A multicolour bitmap mode palette byte for screen RAM
+                        ; that sets green (5) for %01 in the bitmap and the
+                        ; selected cockpit frame colour for %10, for displaying
+                        ; a green missile indicator
 
- BLACK2 = $B7           ; A multicolour bitmap mode palette byte for screen RAM
-                        ; that sets dark grey ($B) for %01 in the bitmap and
-                        ; yellow (7) for %10 in the bitmap, for displaying an
-                        ; empty missile indicator
+ YELLOW2 = $80 + MISSILE_FRAME
+                        ; A multicolour bitmap mode palette byte for screen RAM
+                        ; that sets orange (8) for %01 in the bitmap and the
+                        ; selected cockpit frame colour for %10, for displaying
+                        ; an orange missile indicator
+
+ BLACK2 = $B0 + MISSILE_FRAME
+                        ; A multicolour bitmap mode palette byte for screen RAM
+                        ; that sets dark grey ($B) for %01 in the bitmap and the
+                        ; selected cockpit frame colour for %10, for displaying
+                        ; an empty missile indicator
 
  MAG2 = $40             ; A multicolour text mode palette byte for screen RAM
                         ; that displays purple (4) foreground text on a black
