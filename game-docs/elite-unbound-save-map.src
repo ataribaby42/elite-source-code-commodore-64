@@ -1,0 +1,176 @@
+;
+; ELITE: UNBOUND commander save map for Commodore 64
+;
+; Valid for both repository branches:
+;   main         7261ea18905abe54f7cf7a0056bde551df74fb9a
+;   flicker-free 214b18421d44952364ca032ad0e725992e1e9e06
+;
+; The commander name is the Commodore filename. It is not stored in this data.
+;
+; The two-byte PRG load address is outside the commander block. Commander byte
+; numbers #0-#76 and hexadecimal offsets $00-$4C below are relative to
+; DataStart. Add 2 to obtain the physical offset in an extracted PRG file.
+;
+; Commander block size: 77 bytes ($4D)
+; PRG file size:        79 bytes ($4F), including the two-byte load address
+;
+; The values below form a loadable example for a new Adder commander. If any
+; byte in #0-#73 is changed, CHK, CHK2 and CHK3 must be recalculated unless the
+; game was built with encrypt=no, which disables checksum validation.
+;
+
+.org        $0000
+.localchar  '@'
+.case       +
+.listmacro  +
+.lfcond     +
+.p02                            ; Assemble for the 6502 CPU
+
+
+; Laser values stored in LASER (#16-#19)
+
+L_None      = $00
+L_Pulse     = $0F
+L_Beam      = $8F
+L_Mining    = $32
+L_Military  = $97
+
+
+; ELITE: Unbound cmdr_type values stored in byte #21
+
+Ship_Cobra_Mk_III = 0
+Ship_Adder        = 1
+Ship_Gecko        = 2
+Ship_Moray        = 3
+Ship_Cobra_Mk_I   = 4
+Ship_Fer_De_Lance = 5
+Ship_Python       = 6
+Ship_Boa          = 7
+Ship_Anaconda     = 8
+Ship_Asp_Mk_II    = 9
+Ship_Sidewinder   = 10
+Ship_Krait        = 11
+Ship_Mamba        = 12
+
+
+FileStart:
+    .word   $0000           ; C64 PRG load address; ignored when loaded by Elite
+
+DataStart:
+    .byte   $00             ; #00 $00 TP: mission status (bitmapped flags)
+                            ;
+                            ;   Bits 0-1 - Constrictor mission:
+                            ;     %00 = Not started
+                            ;     %01 = In progress, hunting the Constrictor
+                            ;     %11 = Constrictor destroyed, not debriefed
+                            ;     %10 = Mission and debrief complete
+                            ;
+                            ;   Bits 2-3 - Thargoid Plans mission:
+                            ;     %00 = Not started
+                            ;     %01 = In progress, plans not collected
+                            ;     %10 = In progress, plans collected
+                            ;     %11 = Mission complete
+                            ;
+                            ;   Bit 4 - Trumble mission:
+                            ;     0 = Trumbles not yet offered
+                            ;     1 = Trumbles accepted or declined
+                            ;
+                            ;   Bits 5-7 are unused
+
+    .byte   20              ; #01 $01 QQ0: current-system X coordinate (Lave)
+    .byte   173             ; #02 $02 QQ1: current-system Y coordinate (Lave)
+
+    .word   $5A4A           ; #03 $03 QQ21: galaxy seed s0 (bytes $4A,$5A)
+    .word   $0248           ; #05 $05 QQ21+2: galaxy seed s1 (bytes $48,$02)
+    .word   $B753           ; #07 $07 QQ21+4: galaxy seed s2 (bytes $53,$B7)
+
+    .byte   $00,$00,$03,$E8 ; #09 $09 CASH: big-endian, tenths of a credit
+                            ;   $000003E8 = 1000 = 100.0 Cr
+
+    .byte   60              ; #13 $0D QQ14: fuel in 0.1 LY units (Adder = 6.0 LY)
+    .byte   $00             ; #14 $0E COK: competition/version flags
+    .byte   $00             ; #15 $0F GCNT: galaxy number, stored as 0-7
+
+    .byte   L_Pulse         ; #16 $10 LASER+0: front laser
+    .byte   L_None          ; #17 $11 LASER+1: rear laser
+    .byte   L_None          ; #18 $12 LASER+2: left laser
+    .byte   L_None          ; #19 $13 LASER+3: right laser
+
+    .byte   $00             ; #20 $14 unused former up/down-laser byte
+    .byte   Ship_Adder      ; #21 $15 cmdr_type: current player ship type
+
+    .byte   22              ; #22 $16 CRGO: cargo-bay flag
+                            ;   22 = standard, 37 = large cargo bay
+                            ;   Actual capacity comes from the ship-type tables.
+
+    .byte   $00             ; #23 $17 QQ20+0: Food in cargo hold
+    .byte   $00             ; #24 $18 QQ20+1: Textiles
+    .byte   $00             ; #25 $19 QQ20+2: Radioactives
+    .byte   $00             ; #26 $1A QQ20+3: Slaves
+    .byte   $00             ; #27 $1B QQ20+4: Liquor/Wines
+    .byte   $00             ; #28 $1C QQ20+5: Luxuries
+    .byte   $00             ; #29 $1D QQ20+6: Narcotics
+    .byte   $00             ; #30 $1E QQ20+7: Computers
+    .byte   $00             ; #31 $1F QQ20+8: Machinery
+    .byte   $00             ; #32 $20 QQ20+9: Alloys
+    .byte   $00             ; #33 $21 QQ20+10: Firearms
+    .byte   $00             ; #34 $22 QQ20+11: Furs
+    .byte   $00             ; #35 $23 QQ20+12: Minerals
+    .byte   $00             ; #36 $24 QQ20+13: Gold
+    .byte   $00             ; #37 $25 QQ20+14: Platinum
+    .byte   $00             ; #38 $26 QQ20+15: Gem-stones
+    .byte   $00             ; #39 $27 QQ20+16: Alien Items
+
+    .byte   $00             ; #40 $28 ECM: 0 = absent, $FF = fitted
+    .byte   $00             ; #41 $29 BST: fuel scoops, 0/$FF
+    .byte   $00             ; #42 $2A BOMB: I.F.F. unit with iffunit=yes,
+                            ;   otherwise Energy Bomb; 0 = absent, $7F = fitted
+    .byte   $00             ; #43 $2B ENGY: 0 = none, 1 = Energy Unit,
+                            ;   2 = Naval Energy Unit in ELITE: Unbound
+    .byte   $00             ; #44 $2C DKCMP: docking computer, 0/$FF
+    .byte   $00             ; #45 $2D GHYP: galactic hyperdrive, 0/$FF
+    .byte   $00             ; #46 $2E ESCP: escape capsule, 0/$FF
+
+    .byte   $00             ; #47 $2F unused
+    .word   $0000           ; #48 $30 TRIBBLE: Trumble count, low byte first
+    .byte   $00             ; #50 $32 TALLYL: fractional kill count, n/256
+
+    .byte   1               ; #51 $33 NOMSL: missile count (ship-dependent 0-16)
+    .byte   $00             ; #52 $34 FIST: legal status
+                            ;   0 = Clean, 1-49 = Offender, 50+ = Fugitive
+
+    .byte   16              ; #53 $35 AVL+0: Food available
+    .byte   15              ; #54 $36 AVL+1: Textiles available
+    .byte   17              ; #55 $37 AVL+2: Radioactives available
+    .byte   0               ; #56 $38 AVL+3: Slaves available
+    .byte   3               ; #57 $39 AVL+4: Liquor/Wines available
+    .byte   28              ; #58 $3A AVL+5: Luxuries available
+    .byte   14              ; #59 $3B AVL+6: Narcotics available
+    .byte   0               ; #60 $3C AVL+7: Computers available
+    .byte   0               ; #61 $3D AVL+8: Machinery available
+    .byte   10              ; #62 $3E AVL+9: Alloys available
+    .byte   0               ; #63 $3F AVL+10: Firearms available
+    .byte   17              ; #64 $40 AVL+11: Furs available
+    .byte   58              ; #65 $41 AVL+12: Minerals available
+    .byte   7               ; #66 $42 AVL+13: Gold available
+    .byte   9               ; #67 $43 AVL+14: Platinum available
+    .byte   8               ; #68 $44 AVL+15: Gem-stones available
+    .byte   0               ; #69 $45 AVL+16: Alien Items available
+
+    .byte   $00             ; #70 $46 QQ26: market price randomisation byte
+    .word   $0000           ; #71 $47 TALLY: integer kill count, low byte first
+    .byte   128             ; #73 $49 SVC: save count
+
+    .byte   $BC             ; #74 $4A CHK2: CHK EOR $A9
+    .byte   $27             ; #75 $4B CHK3: C64 tertiary checksum (CHECK2)
+    .byte   $15             ; #76 $4C CHK: primary checksum (CHECK)
+
+DataEnd:
+
+.if (* - DataStart) <> 77
+.out Commander structure size mismatch
+.endif
+
+.if (* - FileStart) <> 79
+.out PRG file size mismatch
+.endif
