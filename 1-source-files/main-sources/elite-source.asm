@@ -2420,6 +2420,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; and during the next hyperspace, hold down CTRL to
                         ; force a mis-jump. See routine ee5 for the "AND PATG"
                         ; instruction that implements this logic
+                        ;
+                        ; Elite: Unbound keeps the manual mis-jump behaviour but
+                        ; does not show the author names on the start-up screen
 
 .FLH
 
@@ -10973,6 +10976,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  JSR ShipNormalizeSpeedBar ; Normalise speed to 0..15 for the current hull
+ CMP #15                ; If this is maximum speed, set the bar length to 16 so
+ ADC #0                 ; the SP indicator reaches its rightmost pixel
  JSR DIL                ; Draw the already-normalised speed indicator and move
                         ; SC to the roll indicator
 ELSE                   ; ELITE: Unbound build option (else)
@@ -25284,7 +25289,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
 ;
 ; The title is printed at the original title row, with the temporary version
 ; string centred underneath it. The caller then moves down one more line before
-; printing the author credits, preserving the familiar title-screen spacing.
+; optionally printing the author credits in a standard build.
 ; ------------------------------------------------------------------------------
 
 .TitlePrintHeader
@@ -35484,6 +35489,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
  LDA #10                ; Print a line feed to move the text cursor down a line
  JSR TT26
 
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
+
  LDA #6                 ; Move the text cursor to column 6 again
  JSR DOXC
 
@@ -35493,6 +35500,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #13                ; Print extended token 13 ("BY D.BRABEN & I.BELL")
  JSR DETOK
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .awe
 
@@ -38703,6 +38712,9 @@ ENDIF
 ;   * E swaps the docking and title music (11)
 ;   * B toggles whether sounds are played during music (12)
 ;
+; The hidden C, E and B options are not processed in Elite: Unbound, where both
+; tunes are omitted.
+;
 ; The numbers in brackets are the configuration options that we pass in Y. We
 ; pass the ASCII code of the key that has been pressed in X, and the option to
 ; check it against in Y, so this routine is typically called in a loop that
@@ -39179,6 +39191,8 @@ ENDIF
 
  BNE DKL4               ; If not, loop back to check for the next toggle key
 
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
+
  BIT PATG               ; If bit 7 of PATG is clear then the "X" configuration
  BPL nosillytog         ; option has not been enabled, so jump to nosillytog to
                         ; skip the following
@@ -39202,6 +39216,8 @@ ENDIF
                         ; MUFOR to MUSILLY)
 
  BNE DKL42              ; If not, loop back to check for the next toggle key
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .nosillytog
 
@@ -40131,8 +40147,7 @@ IF _GMA_RELEASE
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  ; Elite-A ships V1C: title music is intentionally omitted to free HICODE RAM
  ; for the ship ownership/buying implementation. Keep the entry point as a
- ; no-op because BR1 calls it and startbd can branch here when MUDOCK requests
- ; title music instead of the docking tune.
+ ; no-op because BR1 still calls it.
  RTS
 ELSE                   ; ELITE: Unbound build option (else)
  LDA #LO(THEME-1)       ; Set (A X) to THEME-1, which is the address before
@@ -40164,6 +40179,14 @@ ENDIF
 ; ******************************************************************************
 
 .startbd
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+.april16
+
+ RTS                    ; Docking music is omitted in Elite: Unbound
+
+ELSE                   ; ELITE: Unbound build option (else)
 
 IF _GMA_RELEASE
 
@@ -40225,6 +40248,8 @@ ENDIF
  BNE coffeeex           ; Jump to coffeeex to restore the memory configuration
                         ; and return from the subroutine (this BNE is
                         ; effectively a JMP as A is never zero)
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -55573,6 +55598,13 @@ ENDIF
 ;
 ; ******************************************************************************
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ ; Elite: Unbound omits the 2615-byte docking tune to free HICODE RAM. The
+ ; startbd and april16 entry points are retained as no-ops.
+
+ELSE                   ; ELITE: Unbound build option (else)
+
 IF _GMA_RELEASE
 
  INCBIN "1-source-files/music/gma/C.COMUDAT.bin"
@@ -55587,6 +55619,8 @@ ELIF _SOURCE_DISK_FILES
 
 ENDIF
 
+ENDIF                  ; ELITE: Unbound build option (end)
+
 .THEME
 
 IF _SOURCE_DISK
@@ -55599,8 +55633,8 @@ ELIF _GMA_RELEASE
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  ; Elite-A ships V1C:
  ; The 2931-byte title theme is deliberately not included. The title-music
- ; entry point startat is a no-op, while C.COMUDAT / Blue Danube remains.
- ; This recovers enough contiguous HICODE space for the Elite-A ship system.
+ ; entry point startat is a no-op. The docking tune above is omitted as well,
+ ; leaving Elite: Unbound without background music and freeing HICODE RAM.
 ELSE                   ; ELITE: Unbound build option (else)
  INCBIN "1-source-files/music/gma/C.THEME.bin"
 ENDIF                  ; ELITE: Unbound build option (end)
