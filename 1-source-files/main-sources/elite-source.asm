@@ -12044,8 +12044,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #80                ; Otherwise the missile just got destroyed near us, so
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
- JSR ShipShieldedDamage ; apply Elite-A per-ship shield absorption first
-                        ; (then normal OOPS damage if anything gets through)
+ JSR ShipShieldedDamage ; scale the hit for this hull's shield strength, then
+                        ; apply it through the normal OOPS damage routine
 ELSE                   ; ELITE: Unbound build option (else)
  JSR OOPS               ; call OOPS to damage the ship by 80, which is nowhere
                         ; near as bad as the 250 damage from a missile slamming
@@ -12080,8 +12080,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JSR EXNO3              ; Make the sound of the missile exploding
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
- LDA #250               ; Apply the Elite-A per-ship shield absorption to the
- JMP ShipShieldedDamage ; direct missile hit, then take any remaining damage
+ LDA #250               ; Scale the direct missile hit for this hull's shield
+ JMP ShipShieldedDamage ; strength, then apply it through the normal OOPS path
 ELSE                   ; ELITE: Unbound build option (else)
  LDA #250               ; Call OOPS to damage the ship by 250, which is a pretty
  JMP OOPS               ; big hit, and return from the subroutine using a tail
@@ -12168,8 +12168,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #80                ; Otherwise the missile just got destroyed near us, so
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
- JSR ShipShieldedDamage ; apply Elite-A per-ship shield absorption first
-                        ; (then normal OOPS damage if anything gets through)
+ JSR ShipShieldedDamage ; scale the hit for this hull's shield strength, then
+                        ; apply it through the normal OOPS damage routine
 ELSE                   ; ELITE: Unbound build option (else)
  JSR OOPS               ; call OOPS to damage the ship by 80, which is nowhere
                         ; near as bad as the 250 damage from a missile slamming
@@ -12832,8 +12832,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; amount of damage we should take
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
- JSR ShipShieldedDamage ; Elite-A n_oops: absorb this hull's shield value first,
-                        ; then pass any remaining laser damage to normal OOPS
+ JSR ShipShieldedDamage ; scale the laser hit for this hull's shield strength,
+                        ; then apply it through the normal OOPS damage routine
 ELSE                   ; ELITE: Unbound build option (else)
  JSR OOPS               ; Call OOPS to take some damage, which could do anything
                         ; from reducing the shields and energy, all the way to
@@ -24960,7 +24960,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  RTS
 
 ; ------------------------------------------------------------------------------
-; PlayerMaxMissiles / PlayerMaxSpeed / PlayerFuelCapacity / PlayerShieldAbsorption
+; PlayerMaxMissiles / PlayerMaxSpeed / PlayerFuelCapacity / PlayerShieldStrength
 ; / PlayerLaserMounts / PlayerEnergyRecharge
 ; Return the current ship's Elite-A characteristic in A.
 ; ------------------------------------------------------------------------------
@@ -24983,10 +24983,10 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  LDA ShipFuelCapacity,X
  RTS
 
-.PlayerShieldAbsorption
+.PlayerShieldStrength
 
  JSR PlayerShipIndex
- LDA ShipShieldAbsorption,X
+ LDA ShipShieldStrength,X
  RTS
 
 .PlayerLaserMounts
@@ -26013,9 +26013,10 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
 .ShipFuelCapacity
  EQUB 70, 60, 70, 80, 60, 85, 80, 90, 100, 125, 50, 60, 60
 
-; Per-hit shield absorption. Established hulls use Elite-A new_shields;
-; Sidewinder/Krait/Mamba use the agreed ELITE: Unbound values 2/3/4.
-.ShipShieldAbsorption
+; Relative shield strengths. Cobra Mk III value 7 is the 100% reference;
+; established hulls use Elite-A new_shields and Sidewinder/Krait/Mamba use the
+; agreed ELITE: Unbound values 2/3/4.
+.ShipShieldStrength
  EQUB 7, 4, 5, 6, 5, 8, 11, 10, 13, 10, 2, 3, 4
 
 ; Available laser mounts: 1=front, 2=front/rear, 4=all four.
@@ -28596,24 +28597,105 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; ------------------------------------------------------------------------------
 ; ShipShieldedDamage
 ;
-; Elite-A n_oops equivalent for player-ship combat hits. A contains incoming
-; damage. Subtract the current hull's new_shields value; if the hit is fully
-; absorbed, return. Otherwise tail-call the original C64 OOPS routine with the
-; remaining damage. Collisions continue to call OOPS directly, as in Elite-A.
+; Scale player-ship combat damage by the current hull's relative shield strength:
+;
+;   scaled damage = (incoming damage * 7 + shield strength / 2)
+;                   / shield strength
+;
+; Cobra Mk III strength 7 therefore preserves the original C64 damage exactly.
+; Integer division rounds to nearest without retaining a remainder between hits.
+; Results above 255 are passed to OOPS in chunks; two 255-point chunks are enough
+; to kill a player starting with full shields and energy, so larger results do
+; not need any additional state. A contains the incoming damage.
 ; ------------------------------------------------------------------------------
 
 .ShipShieldedDamage
 
  STA CNT
- JSR PlayerShieldAbsorption
+ JSR PlayerShieldStrength
  STA T1
- LDA CNT
+
+ LSR A                  ; Start the numerator with strength / 2, which rounds
+ STA SC                 ; the final integer division to the nearest value
+ LDA #0
+ STA SCH
+
+ LDY #7                 ; Add incoming damage seven times to form damage * 7
+
+.shipShieldScaleLoop
+
+ LDA SC
+ CLC
+ ADC CNT
+ STA SC
+ BCC shipShieldScaleNoCarry
+ INC SCH
+
+.shipShieldScaleNoCarry
+
+ DEY
+ BNE shipShieldScaleLoop
+
+ LDX #0                 ; Set X:CNT = 0 for the 16-bit scaled-damage quotient
+ STX CNT
+
+.shipShieldDivideLoop
+
+ LDA SCH                ; Stop when the 16-bit numerator is smaller than the
+ BNE shipShieldSubtract ; one-byte shield strength divisor
+ LDA SC
+ CMP T1
+ BCC shipShieldDivideDone
+
+.shipShieldSubtract
+
+ LDA SC                 ; Subtract the divisor and increment the quotient
  SEC
  SBC T1
- BCC shipShieldedNoDamage
+ STA SC
+ LDA SCH
+ SBC #0
+ STA SCH
+
+ INC CNT
+ BNE shipShieldDivideLoop
+ INX
+ BNE shipShieldDivideLoop
+
+.shipShieldDivideDone
+
+ TXA
+ BEQ shipShieldOneChunk
+ CMP #1
+ BNE shipShieldFatalDamage
+
+ LDA CNT                ; A quotient of 256..509 becomes 255 plus 1..254
+ CMP #254
+ BCS shipShieldFatalDamage
+ ADC #1                 ; Carry is clear because the CMP branch was not taken
+ SEC                     ; Apply the smaller chunk first, so one large hit can
+ JSR OOPS
+ LDA #255               ; trigger at most one non-fatal damage side effect
+ SEC
  JMP OOPS
 
-.shipShieldedNoDamage
+.shipShieldOneChunk
+
+ LDA CNT
+ BEQ shipShieldNoDamage
+ SEC
+ JMP OOPS
+
+.shipShieldFatalDamage
+
+ LDA #255               ; 510 or more damage always exhausts full shields and
+ SEC                     ; energy, so two maximum-sized OOPS chunks suffice
+ JSR OOPS
+ LDA #255
+ SEC
+ JMP OOPS
+
+.shipShieldNoDamage
 
  RTS
 

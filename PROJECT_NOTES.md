@@ -303,14 +303,53 @@ Kontrolní commity s dynamickými adresami:
 | main | 5627fd0 checksum update |
 | flicker-free | d038ece checksum update |
 
+## Vyvážení štítů hráčských lodí
+
+Pouze při `unbound=yes` se hodnoty Elite-A `new_shields` nově chápou jako
+relativní síla štítu, nikoli jako pevná absorpce odečtená od každého zásahu.
+Cobra Mk III s hodnotou 7 je reference 100 % a proto dostává přesně stejné
+poškození jako původní C64 Elite:
+
+    scaledDamage = (incomingDamage * 7 + shieldStrength / 2) / shieldStrength
+
+Výpočet používá celočíselné dělení se zaokrouhlením na nejbližší hodnotu.
+Zbytek se mezi zásahy neukládá, takže není potřeba žádný nový trvalý bajt.
+Hodnoty nad 255 se ve stejném zásahu posílají do `OOPS` po částech; menší část
+se zpracuje první a poškození alespoň 510 se zpracuje jako dvě části po 255.
+
+Tabulka `ShipShieldAbsorption` byla přejmenována na `ShipShieldStrength` a
+helper `PlayerShieldAbsorption` na `PlayerShieldStrength`.
+
+Kontrolní výsledky proti policejnímu Viperu (vstupní poškození 8, plný štít a
+energie, bez regenerace):
+
+| Loď | Síla | Poškození | Smrt při zásahu |
+|---|---:|---:|---:|
+| Cobra Mk III | 7 | 8 | 64 |
+| Adder | 4 | 14 | 37 |
+| Gecko | 5 | 11 | 47 |
+| Moray | 6 | 9 | 57 |
+| Cobra Mk I | 5 | 11 | 47 |
+| Fer-de-Lance | 8 | 7 | 73 |
+| Python | 11 | 5 | 102 |
+| Boa | 10 | 6 | 85 |
+| Anaconda | 13 | 4 | 128 |
+| Asp Mk II | 10 | 6 | 85 |
+| Sidewinder | 2 | 28 | 19 |
+| Krait | 3 | 19 | 27 |
+| Mamba | 4 | 14 | 37 |
+
+Změna je celá v HICODE. Pro `unbound=no` zůstávají výsledné bloky LOCODE,
+HICODE a COMLOD binárně shodné s verzí před změnou.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3FA3 | 93 B | 92 B | $CC83 | 381 B | 380 B |
-| flicker-free | $3FF3 | 13 B | 12 B | $CCE7 | 281 B | 280 B |
+| main | $3FA3 | 93 B | 92 B | $CCDF | 289 B | 288 B |
+| flicker-free | $3FF3 | 13 B | 12 B | $CD43 | 189 B | 188 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
