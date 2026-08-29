@@ -10956,7 +10956,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ; ******************************************************************************
 
-.DIALS
+MACRO ASSEMBLE_DIALS
 
  LDA #LO(DLOC%+8*30)    ; Set SC(1 0) to the screen bitmap address for the
  STA SC                 ; character block containing the left end of the top
@@ -11095,11 +11095,19 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ; ******************************************************************************
 
- LDA MCNT               ; Fetch the main loop counter and calculate MCNT mod 4,
- AND #3                 ; jumping to dec27 if it is non-zero. dec27 contains an
- BNE dec27              ; RTS, so the following code only runs every 4
-                        ; iterations of the main loop, otherwise we return from
-                        ; the subroutine
+ LDA MCNT               ; Fetch the main loop counter and calculate MCNT mod 4
+ AND #3
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BEQ DIALS4             ; If this is not the fourth iteration, return from the
+ RTS                    ; HICODE routine; dec27 is out of branch range
+
+.DIALS4
+
+ELSE                   ; ELITE: Unbound build option (else)
+ BNE dec27              ; If this is not the fourth iteration, return via the
+                        ; RTS at dec27 as in the original game
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDY #0                 ; Set Y = 0, for use in various places below
 
@@ -11288,6 +11296,13 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JMP COMPAS             ; We have now drawn all the indicators, so jump to
                         ; COMPAS to draw the compass, returning from the
                         ; subroutine using a tail call
+
+ENDMACRO
+
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
+.DIALS
+ ASSEMBLE_DIALS         ; Keep the original DIALS routine in LOCODE
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -55684,6 +55699,11 @@ ELSE                   ; ELITE: Unbound build option (else)
 ENDIF                  ; ELITE: Unbound build option (end)
 
 ENDIF
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.DIALS
+ ASSEMBLE_DIALS         ; Move DIALS to HICODE to free LOCODE
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;

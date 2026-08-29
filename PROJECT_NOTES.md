@@ -1,6 +1,6 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 25. srpna 2026.
+Stav poznámek: 29. srpna 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
@@ -14,8 +14,8 @@ GitHub:
 
 | Větev | Windows pracovní kopie | Známý kontrolní bod |
 |---|---|---|
-| main | E:\Development\Elite-C64\elite-source-code-commodore-64 | 88c6e66 |
-| flicker-free | E:\Development\Elite-C64\elite-source-code-commodore-64-flicker-free | b02bbe9 |
+| main | E:\Development\Elite-C64\elite-source-code-commodore-64 | 1409405 |
+| flicker-free | E:\Development\Elite-C64\elite-source-code-commodore-64-flicker-free | 9ae0348 |
 
 Obě pracovní kopie používají stejný remote. Větev flicker-free navíc obsahuje
 vlastní vykreslovací úpravy, proto se zdrojové soubory mezi větvemi nesmějí
@@ -32,7 +32,7 @@ Hlavní reference:
 
 ## Běžná konfigurace projektu
 
-    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes fpslimiter=yes inputfix=yes
+    make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes
 
 Použité volby projektu zahrnují:
 
@@ -45,6 +45,7 @@ Použité volby projektu zahrnují:
 - randomspawns=yes: opravené náhodné pozice lodí ve stylu Elite-A;
 - whitecockpit=yes: bílé okraje kokpitu, kompas a žlutý kanál scanneru;
 - unbound=yes: Elite: Unbound včetně kupovatelných a létatelných lodí;
+- realmissiledamage=yes: rakety ubírají AI lodím skutečnou energii;
 - fpslimiter=yes: limiter herní logiky odvozený z Elite 128;
 - inputfix=yes: současné používání klávesnice a joysticku jako v Elite 128.
 
@@ -361,14 +362,24 @@ HICODE; v LOCODE nahrazuje původní 13bajtový blok tříbajtový skok, takže 
 se při zapnuté volbě zmenší o 10 bajtů. Při `realmissiledamage=no` jsou LOCODE,
 HICODE a COMLOD bitově shodné se stavem před změnou.
 
+## Přesun rutiny DIALS do HICODE
+
+Při `unbound=yes` se 205bajtová rutina `DIALS` již nesestavuje v LOCODE, ale
+na konci HICODE. Společné tělo rutiny je definováno makrem `ASSEMBLE_DIALS`,
+takže obě umístění používají jediný zdroj. V HICODE má rutina 206 bajtů:
+původní relativní návrat přes `dec27` v LOCODE nahrazuje lokální `RTS`.
+
+Při `unbound=no` zůstává `DIALS` na původním místě v LOCODE. Kontrolní build
+potvrdil bitovou shodu bloků LOCODE, HICODE i COMLOD se stavem před přesunem.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F99 | 103 B | 102 B | $CCFD | 259 B | 258 B |
-| flicker-free | $3FE9 | 23 B | 22 B | $CD61 | 159 B | 158 B |
+| main | $3ED6 | 298 B | 297 B | $C35F | 2721 B | 2720 B |
+| flicker-free | $3F26 | 218 B | 217 B | $C3C3 | 2621 B | 2620 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
