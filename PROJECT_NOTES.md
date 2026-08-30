@@ -492,6 +492,14 @@ jehož vláda není Anarchy, Feudal ani Dictatorship, zvýší se `FIST` nejmén
 `SSPR`, takže se stav změní hned při vstupu do zóny. Vyšší hodnota se nesnižuje
 a uvedené tři vlády příznak ignorují.
 
+V okamžiku, kdy tato kontrola nastaví `FIST=100`, zobrazí se dynamická zpráva
+s registrací aktuální stanice a registrací hráčovy lodě. Protože je scramble
+aktivní, hráčova běžná registrační rutina vypíše `??-???`. Koncovka se pro
+každou zprávu rovnoměrně náhodně vybere z `, SCRAM PIRATE!`, `, RUN PIRATE!`
+a `, DIE PIRATE!`. Zpráva používá stejný privátní token jako
+`DOCK OR LEAVE`, včetně `DLY=100`, a zvolený text zůstává stabilní pro EOR
+překreslení. Implementace přidává 99 bajtů HICODE a žádný LOCODE.
+
 Při aktivním scramble a `FIST >= 50` mohou lidské pirátské lodě vzniknout bez
 hostile bitu. Testovací hodnota `NEUTRAL_PIRATE_CHANCE = 128` znamená šanci
 128/256, tedy 50 %. Pirát si ponechá pirate bit, AI i původní agresivitu, dostane
@@ -546,8 +554,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F55 | 171 B | 170 B | $CC63 | 413 B | 412 B |
-| flicker-free | $3FA5 | 91 B | 90 B | $CCC7 | 313 B | 312 B |
+| main | $3F55 | 171 B | 170 B | $CCC6 | 314 B | 313 B |
+| flicker-free | $3FA5 | 91 B | 90 B | $CD2A | 214 B | 213 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
