@@ -54839,9 +54839,8 @@ ENDIF
 
  TAX                    ; Copy the stick height into X
 
- BEQ RTS                ; If the stick height is zero, then there is no stick to
-                        ; draw, so return from the subroutine (as RTS contains
-                        ; an RTS)
+ BEQ SC49               ; If the stick height is zero, then there is no stick to
+                        ; draw, so jump to SC49 to finish drawing the blip
 
  BCC VL3                ; If the C flag is clear then the stick height in A is
                         ; negative, so jump down to VL3
@@ -54894,16 +54893,18 @@ ENDIF
  BNE VLL1               ; If we still have more stick to draw, jump up to VLL1
                         ; to draw the next pixel
 						
+.SC49
+
 IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
 
- JMP IFFTAIL            ; The stick is finished, so draw the I.F.F. hostile tail
-                        ; if required, returning from SCAN via IFFTAIL
+ JMP IFFTAIL            ; The stick (if any) is finished, so draw the I.F.F.
+                        ; hostile tail if required, returning via IFFTAIL
 
-ENDIF						
-
-.RTS
+ELSE
 
  RTS                    ; Return from the subroutine
+
+ENDIF
 
                         ; If we get here then the stick length is negative (so
                         ; the dot is above the ellipse and the stick is below
