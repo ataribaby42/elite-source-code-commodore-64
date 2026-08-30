@@ -346,6 +346,7 @@ endif
 all: c64-build $(media-target)
 
 c64-build:
+	$(PYTHON) 2-build-files/elite-packbits.py --check
 	echo _VERSION=8 > 1-source-files/main-sources/elite-build-options.asm
 	echo _VARIANT=$(variant-number) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _REMOVE_CHECKSUMS=$(remove-checksums) >> 1-source-files/main-sources/elite-build-options.asm

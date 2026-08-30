@@ -374,6 +374,21 @@ původní relativní návrat přes `dec27` v LOCODE nahrazuje lokální `RTS`.
 Při `unbound=no` zůstává `DIALS` na původním místě v LOCODE. Kontrolní build
 potvrdil bitovou shodu bloků LOCODE, HICODE i COMLOD se stavem před přesunem.
 
+## PackBits komprese dashboardu
+
+Při `unbound=yes` loader podle volby `dials` načte soubor
+`C.CODIALS.RLE.bin` nebo `C.CODIALSNEW.RLE.bin` a ponechá jej komprimovaný na
+adrese `DSTORE%`. HICODE rutina `UnpackDials` jej rozbalí přímo do obrazovkové
+paměti až při skutečném zobrazení dashboardu; nevytváří trvalou rozbalenou
+kopii v `DSTORE%`.
+
+Použitý formát je standardní PackBits. Původní soubory mají po 2248 bajtech,
+komprimovaný starý dashboard 1228 bajtů a nový dashboard 1199 bajtů.
+Konzervativně je tedy možné počítat s uvolněním nejméně 1020 bajtů paměti
+(2248 - 1228). Skript `2-build-files/elite-packbits.py` vytváří oba soubory a
+build v režimu `--check` ověřuje jejich přesný obsah i zpětné rozbalení. Při
+`unbound=no` zůstává původní nekomprimovaná cesta beze změny.
+
 ## Rychlejší vykreslování kružnic
 
 Volba `renderspeedups=yes` je nezávislá na `unbound` a ve výchozím stavu je
@@ -410,8 +425,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F18 | 232 B | 231 B | $C36C | 2708 B | 2707 B |
-| flicker-free | $3F68 | 152 B | 151 B | $C3D0 | 2608 B | 2607 B |
+| main | $3F18 | 232 B | 231 B | $C3C1 | 2623 B | 2622 B |
+| flicker-free | $3F68 | 152 B | 151 B | $C425 | 2523 B | 2522 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 

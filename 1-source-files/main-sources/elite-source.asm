@@ -52441,6 +52441,157 @@ ENDIF                  ; White cockpit border build option (end)
 
  RTS                    ; Return from the subroutine
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+; ******************************************************************************
+;
+;       Name: UnpackDials
+;       Type: Subroutine
+;   Category: Drawing the screen
+;    Summary: Unpack the PackBits dashboard directly into screen memory
+;
+; ------------------------------------------------------------------------------
+;
+; The loader keeps the selected C.CODIALS RLE stream packed at DSTORE%. This
+; routine recreates the 24-byte left indent and unpacks only the $8A8 source
+; bytes used by the original $8C0-byte dashboard copy. The final 32 bytes in
+; C.CODIALS are not displayed by the original game and remain packed.
+;
+; ******************************************************************************
+
+.UnpackDials
+
+ LDA #0                 ; Clear the 24-byte indent at the left of the dashboard
+ LDY #23
+
+.UnpackDialsClear
+
+ STA DLOC%,Y
+
+ DEY
+ BPL UnpackDialsClear
+
+ LDA #LO(DSTORE%)       ; Set V(1 0) to the PackBits source at DSTORE%
+ STA V
+ LDA #HI(DSTORE%)
+ STA V+1
+
+ LDA #LO(DLOC%+24)      ; Set SC(1 0) to the first dashboard byte after the
+ STA SC                 ; 24-byte indent
+ LDA #HI(DLOC%+24)
+ STA SC+1
+
+.UnpackDialsPacket
+
+ JSR PackBitsGetByte    ; Fetch the next PackBits control byte
+
+ CMP #128               ; Control byte 128 is a no-op
+ BEQ UnpackDialsPacket
+
+ BCS UnpackDialsRepeat  ; Controls 129 to 255 encode repeated bytes
+
+ TAX                    ; Controls 0 to 127 encode X + 1 literal bytes
+ INX
+
+.UnpackDialsLiteral
+
+ JSR PackBitsGetByte    ; Copy one literal byte to the dashboard
+ JSR PackBitsPutByte
+ BCS UnpackDialsDone
+
+ DEX
+ BNE UnpackDialsLiteral
+ BEQ UnpackDialsPacket
+
+.UnpackDialsRepeat
+
+ EOR #$FF               ; Set X = 257 - control, the repeated byte count
+ TAX
+ INX
+ INX
+
+ JSR PackBitsGetByte    ; Fetch and save the byte to repeat
+ STA R
+
+.UnpackDialsRepeatLoop
+
+ LDA R                  ; Write the repeated byte to the dashboard
+ JSR PackBitsPutByte
+ BCS UnpackDialsDone
+
+ DEX
+ BNE UnpackDialsRepeatLoop
+ BEQ UnpackDialsPacket
+
+.UnpackDialsDone
+
+ RTS                    ; Return once the original $8C0-byte copy is complete
+
+; ******************************************************************************
+;
+;       Name: PackBitsGetByte
+;       Type: Subroutine
+;   Category: Drawing the screen
+;    Summary: Fetch one byte from the PackBits source and advance V(1 0)
+;
+; ******************************************************************************
+
+.PackBitsGetByte
+
+ LDY #0
+ LDA (V),Y
+
+ INC V
+ BNE PackBitsGetByteDone
+ INC V+1
+
+.PackBitsGetByteDone
+
+ RTS
+
+; ******************************************************************************
+;
+;       Name: PackBitsPutByte
+;       Type: Subroutine
+;   Category: Drawing the screen
+;    Summary: Write one dashboard byte and report when the image is complete
+;
+; ------------------------------------------------------------------------------
+;
+; Returns:
+;
+;   C flag              Set when SC(1 0) has reached DLOC% + $8C0
+;
+; ******************************************************************************
+
+.PackBitsPutByte
+
+ LDY #0
+ STA (SC),Y
+
+ INC SC
+ BNE PackBitsPutByteCheck
+ INC SC+1
+
+.PackBitsPutByteCheck
+
+ LDA SC                 ; Set the C flag if the complete $8C0-byte dashboard,
+ CMP #LO(DLOC%+$8C0)    ; including its 24-byte indent, has been written
+ BNE PackBitsPutByteMore
+ LDA SC+1
+ CMP #HI(DLOC%+$8C0)
+ BNE PackBitsPutByteMore
+
+ SEC
+ RTS
+
+.PackBitsPutByteMore
+
+ CLC
+ RTS
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
 ; ******************************************************************************
 ;
 ;       Name: wantdials
@@ -52467,6 +52618,12 @@ ENDIF                  ; White cockpit border build option (end)
  LDA DFLAG              ; If DFLAG is non-zero then the dashboard is already
  BNE nearlyxmas         ; being shown on-screen, so jump to nearlyxmas to skip
                         ; displaying the dashboard on-screen
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR UnpackDials        ; Unpack the selected dashboard directly into screen RAM
+
+ELSE                   ; ELITE: Unbound build option (else)
 
                         ; We now copy the dashboard bitmap from the copy at
                         ; DSTORE% into the screen bitmap, so the dashboard
@@ -52504,6 +52661,8 @@ ENDIF                  ; White cockpit border build option (end)
 
  JSR mvbllop            ; Copy Y bytes from V(1 0) to SC(1 0), so this copies
                         ; the rest of the dashboard bitmap to the screen
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR zonkscanners       ; Hide all ships on the scanner
 

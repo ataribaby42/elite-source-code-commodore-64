@@ -241,6 +241,8 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA and tape variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
 
+  When this option is enabled, the bitmap selected by `dials` is kept in memory as PackBits data and unpacked directly into screen memory only when the dashboard is displayed. Builds with `unbound=no` retain the original uncompressed dashboard path.
+
 * `realmissiledamage=yes` - Make missile hits subtract 81 energy from AI ships instead of destroying them instantly. This Elite-A-style option is disabled by default, works independently of `unbound`, and leaves stations immune.
 
 * `fpslimiter=yes` - Enable the Elite 128-style frame limiter independently of `unbound`. The game loop and rotating title ship are limited to one update every four video frames, giving a maximum of 12.5 updates per second on PAL and 15 on NTSC. The option is disabled by default.
