@@ -2142,6 +2142,12 @@ ENDMACRO
  ECHR 'E'
  EQUB VE
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ EQUB VE                ; Token 4 is unused in Elite: Unbound
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  ECHR 'C'               ; Token 4:      "COMPETITION NUMBER:"
  ECHR 'O'               ;
  ECHR 'M'               ; Encoded as:   "COMPE<251><251><223> <225>MB<244>:"
@@ -2157,6 +2163,8 @@ ENDMACRO
  ETWO 'E', 'R'
  ECHR ':'
  EQUB VE
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  ETOK 176               ; Token 5:      "{lower case}
  ERND 18                ;                {justify}
