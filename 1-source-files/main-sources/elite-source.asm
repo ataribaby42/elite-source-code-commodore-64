@@ -23924,6 +23924,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  BCS scrambleRegistrationSafeZoneDone
  LDA #100
  STA FIST
+ JMP ScrambleRegistrationPirateMessage ; Show the station and player warning
 
 .scrambleRegistrationSafeZoneDone
 
@@ -56606,8 +56607,8 @@ ENDIF                  ; Registration display requires the I.F.F. build option
 ; FlightMessageToken
 ;
 ; Print a normal in-flight token, except for private token 1, which prints the
-; most recently awarded bounty, and private token 2, which prints the blocked
-; station-launch warning. With I.F.F. enabled, private token 3 prints the last
+; most recently awarded bounty, and private token 2, which prints a station
+; warning. With I.F.F. enabled, private token 3 prints the last
 ; targeted AI ship registration.
 ; BountyMessageValue must remain intact while the EOR message is on-screen so
 ; the same text can be drawn again to erase it.
@@ -56721,6 +56722,33 @@ ENDIF
 .BountyMessageValue
  EQUW 0
 
+; ------------------------------------------------------------------------------
+; ScrambleRegistrationPirateMessage
+;
+; Queue the long station warning shown when a scrambled registration raises the
+; player's legal status to Fugitive. The station-message fields are prepared
+; only after MESS has erased any previous EOR message.
+; ------------------------------------------------------------------------------
+
+.ScrambleRegistrationPirateMessage
+
+ LDA #$FF               ; The second registration belongs to the player
+ STA StationLaunchBlocker
+
+.scrambleRegistrationPirateRandom
+
+ JSR DORND              ; Uniformly select one of the three pirate warnings
+ AND #3
+ CMP #3
+ BEQ scrambleRegistrationPirateRandom
+ CLC
+ ADC #1                 ; Message kinds 1 to 3 are the pirate warnings
+ STA StationLaunchMessageRequestedKind
+ LDA #0
+ STA StationLaunchMessagePrepared
+ LDA #2                 ; Private token 2 uses DLY = 100
+ JMP MESS
+
 .StationLaunchMessagePrint
 
  LDA DLY                ; DLY = 0 while MESS erases the previous EOR message,
@@ -56770,7 +56798,9 @@ ENDIF
 
 .stationLaunchMessagePrintTail
 
- LDX #0
+ LDX StationLaunchMessageKind
+ LDA StationLaunchMessageOffsets,X
+ TAX
 
 .stationLaunchMessageLoop
 
@@ -56788,6 +56818,24 @@ ENDIF
  EQUS ", DOCK OR LEAVE"
  EQUB 0
 
+.ScrambleRegistrationPirateText
+ EQUS ", SCRAM PIRATE!"
+ EQUB 0
+
+.RunRegistrationPirateText
+ EQUS ", RUN PIRATE!"
+ EQUB 0
+
+.DieRegistrationPirateText
+ EQUS ", DIE PIRATE!"
+ EQUB 0
+
+.StationLaunchMessageOffsets
+ EQUB 0
+ EQUB ScrambleRegistrationPirateText - StationLaunchMessageText
+ EQUB RunRegistrationPirateText - StationLaunchMessageText
+ EQUB DieRegistrationPirateText - StationLaunchMessageText
+
 ; Build the dynamic station warning using the exact player or AI slot found by
 ; UnboundStationLaunchClear. Dedicated fields keep the message stable for its
 ; EOR redraw and do not disturb an I.F.F. registration message.
@@ -56796,6 +56844,9 @@ ENDIF
 
  TXA
  PHA                    ; Preserve the type the station wanted to launch
+
+ LDA StationLaunchMessageRequestedKind
+ STA StationLaunchMessageKind ; Keep the selected tail stable for EOR redraw
 
  LDA tek                ; NWSPS uses tech level 10 as the Dodecahedron threshold
  CMP #10
@@ -56917,6 +56968,12 @@ ENDIF
 .StationLaunchMessagePrepared
  EQUB 0
 
+.StationLaunchMessageKind
+ EQUB 0
+
+.StationLaunchMessageRequestedKind
+ EQUB 0
+
 ; ------------------------------------------------------------------------------
 ; UnboundStationLaunchClear
 ;
@@ -57023,6 +57080,8 @@ ENDIF
 
 .unboundLaunchBlocked
 
+ LDA #0                 ; A blocked launch always uses ", DOCK OR LEAVE"
+ STA StationLaunchMessageRequestedKind
  CLC                    ; A ship blocks the launch corridor
 
 .unboundLaunchRestore
