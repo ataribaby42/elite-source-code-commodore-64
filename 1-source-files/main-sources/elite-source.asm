@@ -12283,6 +12283,19 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .TN6
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ CPX #COPS              ; Police Vipers may always launch, even when another
+ BEQ tn6Launch          ; ship is in the station's launch corridor
+
+ JSR UnboundStationLaunchClear
+ BCS tn6Launch          ; If the corridor is clear, launch the ship
+
+ LDA #2                 ; Otherwise show the private station warning message
+ JMP MESS               ; and cancel this launch attempt
+
+.tn6Launch
+
+ENDIF                  ; ELITE: Unbound build option (end)
  LDA #%11110001         ; Set the AI flag to give the ship E.C.M., enable AI and
                         ; make it very aggressive (56 out of 63)
 
@@ -55553,8 +55566,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; FlightMessageToken
 ;
 ; Print a normal in-flight token, except for private token 1, which prints the
-; most recently awarded bounty (the added amount, not CASH) using the standard
-; C64 credit format.
+; most recently awarded bounty, and private token 2, which prints the blocked
+; station-launch warning.
 ; BountyMessageValue must remain intact while the EOR message is on-screen so
 ; the same text can be drawn again to erase it.
 ; ------------------------------------------------------------------------------
@@ -55563,6 +55576,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  CMP #1
  BEQ BountyMessagePrint
+ CMP #2
+ BEQ StationLaunchMessagePrint
  JMP TT27
 
 .BountyMessagePrint
@@ -55579,6 +55594,376 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
 .BountyMessageValue
  EQUW 0
+
+.StationLaunchMessagePrint
+
+ LDX #0
+
+.stationLaunchMessageLoop
+
+ LDA StationLaunchMessage,X
+ BEQ stationLaunchMessageDone
+ JSR DASC               ; DASC also supports MESS's justified-buffer pass
+ INX
+ BNE stationLaunchMessageLoop
+
+.stationLaunchMessageDone
+
+ RTS
+
+.StationLaunchMessage
+ EQUS "STATION: DOCK OR LEAVE AREA"
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; UnboundStationLaunchClear
+;
+; Check whether the cylindrical launch corridor in front of the station is
+; clear. The corridor starts at the Coriolis docking face, has radius 200, and
+; extends for seven station diameters towards the planet. The player is checked
+; separately, followed by all NPC ship slots.
+;
+; The station is 320 units wide, so the cylinder extends from 160 to 2400 units
+; along the station's nose vector:
+;
+;   160 + 7 * 320 = 2400
+;
+; Returns C set when the corridor is clear and C clear when a ship blocks it.
+; X, INF and the station coordinates in INWK are preserved.
+; ------------------------------------------------------------------------------
+
+.UnboundStationLaunchClear
+
+ STX XX3+11             ; Preserve the type of ship the station wants to launch
+
+ LDA INF                ; Preserve the station data pointer
+ STA XX3+9
+ LDA INF+1
+ STA XX3+10
+
+ LDY #8                 ; Preserve the station coordinates in INWK
+
+.unboundLaunchSaveStation
+
+ LDA INWK,Y
+ STA XX3,Y
+ DEY
+ BPL unboundLaunchSaveStation
+
+ LDY #8                 ; Put the player at the origin in INWK, as the player
+ LDA #0                 ; does not have an entry in the FRIN ship-slot table
+
+.unboundLaunchSetPlayer
+
+ STA INWK,Y
+ DEY
+ BPL unboundLaunchSetPlayer
+
+ JSR VCSU1              ; Set K3 to the vector from the station to the player
+ JSR UnboundStationLaunchInside
+ BCS unboundLaunchBlocked
+
+ LDA #2                 ; Slots 0 and 1 contain the planet and station
+ STA XX3+12
+
+.unboundLaunchShipLoop
+
+ LDX XX3+12
+ LDA FRIN,X             ; Fetch the type in this ship slot
+ BEQ unboundLaunchClear ; FRIN is compacted and zero-terminated
+
+ CMP #SHU               ; Ignore missiles, cargo, rocks and other non-ships
+ BCC unboundLaunchNextShip
+
+ CMP #HER               ; A rock hermit uses a ship type in the ship range but
+ BEQ unboundLaunchNextShip ; is an asteroid, so it does not block launches
+
+ JSR GINF               ; Point INF at this NPC ship's data block
+
+ LDY #8                 ; Copy only its coordinates into INWK
+
+.unboundLaunchCopyShip
+
+ LDA (INF),Y
+ STA INWK,Y
+ DEY
+ BPL unboundLaunchCopyShip
+
+ JSR VCSU1              ; Set K3 to the vector from the station to this ship
+ JSR UnboundStationLaunchInside
+ BCS unboundLaunchBlocked
+
+.unboundLaunchNextShip
+
+ INC XX3+12
+ LDA XX3+12
+ CMP #NOSH
+ BCC unboundLaunchShipLoop
+
+.unboundLaunchClear
+
+ SEC                    ; No player or NPC ship is inside the cylinder
+ BCS unboundLaunchRestore ; This BCS is effectively a JMP
+
+.unboundLaunchBlocked
+
+ CLC                    ; A ship blocks the launch corridor
+
+.unboundLaunchRestore
+
+ PHP                    ; Preserve the result while restoring the caller state
+
+ LDY #8
+
+.unboundLaunchRestoreStation
+
+ LDA XX3,Y
+ STA INWK,Y
+ DEY
+ BPL unboundLaunchRestoreStation
+
+ LDA XX3+9
+ STA INF
+ LDA XX3+10
+ STA INF+1
+
+ LDX XX3+11
+ PLP
+ RTS
+
+; ------------------------------------------------------------------------------
+; UnboundStationLaunchInside
+;
+; Return C set if the station-to-object vector in K3 lies inside the launch
+; cylinder. Dot products are returned at 96 / 256 = 3 / 8 scale, so the
+; cylinder limits become:
+;
+;   radius 200 -> 75
+;   start  160 -> 60
+;   end   2400 -> 900 ($0384)
+;
+; The side and roof projections rotate with the station, but their squared sum
+; describes a circular cross-section and is therefore independent of roll.
+; ------------------------------------------------------------------------------
+
+.UnboundStationLaunchInside
+
+ LDA K3+2              ; A valid point in the cylinder cannot need magnitude
+ ASL A                 ; bits in any of the three sign bytes
+ BNE unboundLaunchAxialOutside
+ LDA K3+5
+ ASL A
+ BNE unboundLaunchAxialOutside
+ LDA K3+8
+ ASL A
+ BNE unboundLaunchAxialOutside
+
+ LDA K3+1              ; Nor can any component be 2560 units or more
+ CMP #10
+ BCS unboundLaunchAxialOutside
+ LDA K3+4
+ CMP #10
+ BCS unboundLaunchAxialOutside
+ LDA K3+7
+ CMP #10
+ BCS unboundLaunchAxialOutside
+
+ LDY #10               ; K(1 0) = projection along the station's nose vector
+ JSR UnboundStationLaunchDot
+
+ LDA K+1               ; Negative projections are behind the station
+ BMI unboundLaunchAxialOutside
+ BNE unboundLaunchPastSlot
+
+ LDA K                 ; The cylinder starts at the docking face (scaled 60)
+ CMP #60
+ BCC unboundLaunchAxialOutside
+
+.unboundLaunchPastSlot
+
+ LDA K+1               ; The cylinder ends at scaled distance $0384
+ CMP #3
+ BCC unboundLaunchAxialOK
+ BNE unboundLaunchAxialOutside
+ LDA K
+ CMP #$84
+ BCC unboundLaunchAxialOK
+
+.unboundLaunchAxialOutside
+
+ CLC
+ RTS
+
+.unboundLaunchAxialOK
+
+ LDY #22               ; Calculate the side projection
+ JSR UnboundStationLaunchDot
+ JSR UnboundStationLaunchMagnitude
+
+ LDA K+1               ; |side| must be no larger than the scaled radius 75
+ BNE unboundLaunchOutside
+ LDA K
+ CMP #76
+ BCS unboundLaunchOutside
+ STA XX12
+
+ LDY #16               ; Calculate the roof projection
+ JSR UnboundStationLaunchDot
+ JSR UnboundStationLaunchMagnitude
+
+ LDA K+1               ; |roof| must be no larger than the scaled radius 75
+ BNE unboundLaunchOutside
+ LDA K
+ CMP #76
+ BCS unboundLaunchOutside
+ STA XX12+1
+
+ LDA XX12              ; Set K(3 2) = side^2
+ JSR SQUA2
+ STA K+3
+ LDA P
+ STA K+2
+
+ LDA XX12+1            ; Add roof^2 to get the squared radial distance
+ JSR SQUA2
+ STA S
+ LDA P
+ CLC
+ ADC K+2
+ STA K+2
+ LDA S
+ ADC K+3
+ STA K+3
+
+ CMP #$15              ; Radius^2 = 75^2 = 5625 = $15F9
+ BCC unboundLaunchInside
+ BNE unboundLaunchOutside
+ LDA K+2
+ CMP #$FA
+ BCS unboundLaunchOutside
+
+.unboundLaunchInside
+
+ SEC
+ RTS
+
+.unboundLaunchOutside
+
+ CLC
+ RTS
+
+; ------------------------------------------------------------------------------
+; UnboundStationLaunchDot
+;
+; Project the 16-bit vector in K3 onto one of the station orientation vectors.
+; Y selects nosev (10), roofv (16) or sidev (22). The signed 16-bit result is
+; returned in K(1 0), scaled by 96 / 256.
+; ------------------------------------------------------------------------------
+
+.UnboundStationLaunchDot
+
+ STY U                  ; U steps through the three orientation components
+
+ LDA #0
+ STA K                  ; Start with a signed 16-bit accumulator of zero
+ STA K+1
+
+ LDX #0                 ; X steps through the x, y and z values in K3
+
+.unboundLaunchDotLoop
+
+ LDY U
+ LDA K%+NI%,Y           ; Fetch the signed station orientation component
+ STA K+2
+ AND #%01111111
+ STA Q                  ; Q = orientation magnitude
+ BEQ unboundLaunchDotNext
+
+ LDA K3,X               ; R = high byte of coordinate_lo * orientation
+ STA P
+ TXA
+ PHA
+ JSR MULTU
+ STA R
+ PLA
+ TAX
+
+ LDA K3+1,X             ; (S P) = coordinate_hi * orientation
+ STA P
+ TXA
+ PHA
+ JSR MULTU
+ STA S
+ PLA
+ TAX
+
+ LDA P                  ; Add the fractional high byte from the low-coordinate
+ CLC                    ; product, giving coordinate * orientation / 256
+ ADC R
+ STA P
+ LDA S
+ ADC #0
+ STA S
+
+ LDA K3+2,X             ; The product is negative if the coordinate and
+ EOR K+2                ; orientation component have different signs
+ BMI unboundLaunchDotSubtract
+
+ LDA K                  ; Add a positive product to the accumulator
+ CLC
+ ADC P
+ STA K
+ LDA K+1
+ ADC S
+ STA K+1
+ JMP unboundLaunchDotNext
+
+.unboundLaunchDotSubtract
+
+ LDA K                  ; Subtract a negative product from the accumulator
+ SEC
+ SBC P
+ STA K
+ LDA K+1
+ SBC S
+ STA K+1
+
+.unboundLaunchDotNext
+
+ INX
+ INX
+ INX
+ INC U
+ INC U
+ CPX #9
+ BCC unboundLaunchDotLoop
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; UnboundStationLaunchMagnitude
+;
+; Convert the signed two's-complement projection in K(1 0) to its magnitude.
+; ------------------------------------------------------------------------------
+
+.UnboundStationLaunchMagnitude
+
+ LDA K+1
+ BPL unboundLaunchMagnitudeDone
+
+ LDA K
+ EOR #$FF
+ CLC
+ ADC #1
+ STA K
+ LDA K+1
+ EOR #$FF
+ ADC #0
+ STA K+1
+
+.unboundLaunchMagnitudeDone
+
+ RTS
 
 ; ------------------------------------------------------------------------------
 ; UnboundStationTunnel

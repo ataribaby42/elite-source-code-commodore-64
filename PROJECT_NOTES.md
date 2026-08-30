@@ -419,14 +419,42 @@ F%=$CD95. Optimalizace se tedy vejde i s původní hudbou a DIALS v LOCODE.
 Stejná konfigurace prošla i jako šifrovaný `variant=gma86-pal`; dvouprůchodová
 tvorba D64 v obou větvích úspěšně ověřila fast-loader sektorovou tabulku.
 
+## Bezpečný koridor pro vypouštění lodí ze stanice
+
+Při `unbound=yes` stanice před vypuštěním Shuttle nebo Transporteru kontroluje
+prostor před dokovacím otvorem. Policejní Viper (`COPS`) má výjimku a může být
+vypuštěn vždy.
+
+Kontrolovaný prostor je válec vedený od stanice směrem k planetě. Používá
+poloměr 200 jednotek a délku 2240 jednotek, tedy sedm průměrů Coriolisu.
+Válec začíná na dokovací stěně 160 jednotek od středu stanice a končí ve
+vzdálenosti 2400 jednotek od jejího středu.
+
+Hráč se kontroluje samostatně, protože nemá vlastní slot v tabulce `FRIN`.
+Potom se projdou mobilní sloty 2 až 9. Start blokují skutečné lodě od Shuttle
+výše, zatímco rakety, kontejnery, únikové moduly, kameny, asteroidy, splintery
+a rock hermit se ignorují. Testuje se poloha středu lodě. Zablokovaný náhodný
+pokus o start se zahodí; stanice nemá frontu a další pokus proběhne standardní
+náhodnou cestou.
+
+Každý zablokovaný pokus o start zobrazí ve stavovém řádku letového pohledu
+zprávu `STATION: DOCK OR LEAVE AREA`. Používá standardní mechanismus `MESS`,
+stejné centrování, časování a EOR mazání jako zpráva o získané bounty.
+
+V LOCODE je pouze krátká kontrola před voláním `SFS1`; výpočet válce je v
+HICODE. Předchozí varianta s poloměrem 160 prošla běžným PAL tape buildem v
+obou větvích. Po zvětšení poloměru na 200 a přidání stavové zprávy nebyl podle
+výslovného požadavku proveden nový build ani test; paměťové hodnoty níže jsou
+poslední naměřené hodnoty před touto změnou.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F18 | 232 B | 231 B | $C3C1 | 2623 B | 2622 B |
-| flicker-free | $3F68 | 152 B | 151 B | $C425 | 2523 B | 2522 B |
+| main | $3EE0 | 288 B | 287 B | $C7B7 | 1609 B | 1608 B |
+| flicker-free | $3F30 | 208 B | 207 B | $C81B | 1509 B | 1508 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
