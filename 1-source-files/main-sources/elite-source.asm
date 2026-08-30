@@ -2888,8 +2888,12 @@ ENDIF
 
  STA ENERGY             ; Recharge the energy banks
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR HALL               ; Show the BBC-style ship hangar after docking
+ELSE                   ; ELITE: Unbound build option (else)
 ;JSR HALL               ; This instruction is commented out in the original
                         ; source
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDY #44                ; Wait for 44/50 of a second (0.88 seconds) on PAL
  JSR DELAY              ; systems, or 44/60 of a second (0.73 seconds) on NTSC
@@ -52446,6 +52450,8 @@ ENDIF
                         ; which is the shape we want for the left end of the
                         ; line
 
+.HANGAR_HLLEFT
+
  EOR (SC),Y             ; Store this into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen,
                         ; so we have now drawn the line's left cap
@@ -52503,6 +52509,8 @@ ENDIF
                         ; the left edge and go up to point X), which is the
                         ; shape we want for the right end of the line
 
+.HANGAR_HLRIGHT
+
  EOR (SC),Y             ; Store this into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen,
                         ; so we have now drawn the line's right cap
@@ -52549,6 +52557,8 @@ ENDIF
                         ; So we can stick T2 AND A in screen memory to get the
                         ; line we want, which is what we do here by setting
                         ; A = A AND T2
+
+.HANGAR_HLSINGLE
 
  EOR (SC),Y             ; Store our horizontal line byte into screen memory at
  STA (SC),Y             ; SC(1 0), using EOR logic so it merges with whatever is
@@ -58327,3 +58337,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
  PRINT "B% = ", ~CODE%
  PRINT "G% = ", ~G%
  PRINT "NA2% = ", ~NA2%
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ INCLUDE "1-source-files/main-sources/elite-hangar.asm"
+ENDIF                  ; ELITE: Unbound build option (end)
