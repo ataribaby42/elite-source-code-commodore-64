@@ -437,15 +437,46 @@ a rock hermit se ignorují. Testuje se poloha středu lodě. Zablokovaný náhod
 pokus o start se zahodí; stanice nemá frontu a další pokus proběhne standardní
 náhodnou cestou.
 
-Každý zablokovaný pokus o start zobrazí ve stavovém řádku letového pohledu
-zprávu `STATION: DOCK OR LEAVE AREA`. Používá standardní mechanismus `MESS`,
-stejné centrování, časování a EOR mazání jako zpráva o získané bounty.
+Každý zablokovaný pokus o start zobrazí ve stavovém řádku dynamickou zprávu ve
+formátu `C1-007:AB-123, DOCK OR LEAVE`. První registrace patří aktuální
+stanici a druhá přesně tomu hráči nebo AI slotu, který test koridoru našel.
+Pirátská AI loď a AI loď se stejným registračním číslem jako hráč se zobrazí
+jako `??-???`. Zpráva používá standardní mechanismus `MESS`, stejné centrování,
+časování a EOR mazání jako zpráva o získané bounty.
 
 V LOCODE je pouze krátká kontrola před voláním `SFS1`; výpočet válce je v
 HICODE. Předchozí varianta s poloměrem 160 prošla běžným PAL tape buildem v
 obou větvích. Po zvětšení poloměru na 200 a přidání stavové zprávy nebyl podle
 výslovného požadavku proveden nový build ani test; paměťové hodnoty níže jsou
 poslední naměřené hodnoty před touto změnou.
+
+## Registrace hráčovy lodě
+
+Při `unbound=yes` jsou bývalé checksumové bajty commander save `#74-#76`
+přejmenované na `regplate_1`, `regplate_2` a `regplate_3`. Ukládají dvě ASCII
+písmena `A-Z` a číslo `1-255`; velikost 77bajtového commander bloku se nemění.
+Výchozí commander Jameson má registraci `JS-042`.
+
+Výchozí blok posledního commandera obsahuje stejnou registraci a rutina
+`DFAULT` při `unbound=yes` kopíruje všech 77 bajtů včetně čísla v bajtu #76.
+Tím zůstává `JS-042` zachováno při prvním spuštění i po volbě Default JAMESON.
+
+Po načtení se obě písmena a nenulové číslo validují. Původní save, jehož
+checksumové hodnoty validaci nesplní, dostane novou náhodnou registraci. Nová
+registrace se generuje také po každém úspěšném nákupu jiné lodi. Status Mode ji
+zobrazuje přímo za jménem commandera. Checksumový postprocesor při
+`unbound=yes` poslední tři bajty nepřepisuje; při `unbound=no` zachovává původní
+checksumové chování.
+
+Titulek Status Mode se při `unbound=yes` centruje podle aktuální délky jména a
+registrace. Pokud vychází střed mezi dvěma sloupci, použije levější sloupec.
+
+Registrace zaměřené AI lodě se maskuje jako `??-???` nejen u pirátů, ale také
+tehdy, když se její číselná část shoduje s registračním číslem hráčovy lodě.
+
+Po této změně nebyl proveden skutečný BeebAsm build, protože v pracovním
+prostředí není dostupná linuxová verze assembleru. Paměťové hodnoty níže proto
+neobsahují registrační kód.
 
 ## Volná paměť
 

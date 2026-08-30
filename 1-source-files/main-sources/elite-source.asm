@@ -1344,7 +1344,24 @@ ENDIF
                         ; table at KYTB, it can be stored here (as seen in
                         ; routine DK4, for example)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+.REGSEED
+
+ SKIP NOSH + 1          ; Registration seed for each ship slot, including the
+                        ; unused FRIN terminator slot copied by KILLSHP
+
+.REGSTATE
+
+ SKIP 1                 ; Private 255-state LFSR used only for registrations
+
+ SKIP 16 - (NOSH + 2)   ; Preserve the original address of FRIN
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  SKIP 16                ; These bytes appear to be unused
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .FRIN
 
@@ -1934,6 +1951,22 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; competition, possibly another flag to catch out
                         ; entries with manually altered commander files
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+.regplate_1
+
+ SKIP 1                 ; First player registration letter, ASCII A to Z, #74
+
+.regplate_2
+
+ SKIP 1                 ; Second player registration letter, ASCII A to Z, #75
+
+.regplate_3
+
+ SKIP 1                 ; Player registration number, 1 to 255, #76
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  SKIP 2                 ; The commander file checksum
                         ;
                         ; These two bytes are reserved for the commander file
@@ -1946,9 +1979,12 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; This byte is reserved for the second commander file
                         ; checksum in CHK3
 
+ENDIF                  ; ELITE: Unbound build option (end)
+
  NT% = SVC + 3 - TP     ; This sets the variable NT% to the size of the current
                         ; commander data block, which starts at TP and ends at
-                        ; SVC+3 (inclusive), i.e. with the last checksum byte
+                        ; SVC+3 (inclusive), i.e. with registration byte #76 in
+                        ; Unbound or the last checksum byte in the original game
 
 .MCH
 
@@ -4462,6 +4498,14 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; loop at MAL1), and set the colour of the missile
                         ; indicator to the colour in Y (red = $0E)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+IF _IFF_UNIT           ; Registration display requires the I.F.F. build option
+ JSR ShipRegistrationTarget ; Show this AI ship's registration if I.F.F. is fitted
+ENDIF
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
 .MA47
 
                         ; If we get here then the ship is in our sights, but
@@ -6486,6 +6530,22 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  EQUB 128               ; SVC = Save count, #73
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+.saved_regplate_1
+
+ EQUB 'J'               ; Saved first registration letter, #74
+
+.saved_regplate_2
+
+ EQUB 'S'               ; Saved second registration letter, #75
+
+.saved_regplate_3
+
+ EQUB 42                ; Saved registration number, #76 (JS-042)
+
+ELSE                   ; ELITE: Unbound build option (else)
+
 ; ******************************************************************************
 ;
 ;       Name: CHK2
@@ -6556,6 +6616,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  EQUB 0                 ; Placeholder for the checksum in byte #76
 
+ENDIF                  ; ELITE: Unbound build option (end)
+
+.CommanderSaveEnd
+
  SKIP 20                ; These bytes appear to be unused
 
 ; ******************************************************************************
@@ -6593,7 +6657,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ; NA%+8 onwards. The size of the data block is given in NT% (which also includes
 ; the two checksum bytes that follow this block). This block is initially set up
 ; with the default commander, which can be maxed out for testing purposes by
-; setting Q% to TRUE.
+; setting Q% to TRUE. In Unbound the last three bytes contain the registration.
 ;
 ; The commander's name is stored at NA%, and can be up to 7 characters long
 ; (the DFS filename limit). It is terminated with a carriage return character,
@@ -6760,6 +6824,16 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  EQUB 128               ; SVC = Save count, #73
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ EQUB 'J'               ; regplate_1 = First registration letter, #74
+
+ EQUB 'S'               ; regplate_2 = Second registration letter, #75
+
+ EQUB 42                ; regplate_3 = Registration number, #76 (JS-042)
+
+ELSE                   ; ELITE: Unbound build option (else)
+
 ;.CHK2                  ; This label is commented out in the original source
 
  EQUB $AA               ; The CHK2 checksum value for the default commander
@@ -6771,6 +6845,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;.CHK                   ; This label is commented out in the original source
 
  EQUB $03               ; The CHK checksum value for the default commander
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  SKIP 12                ; These bytes appear to be unused
 
@@ -9216,7 +9292,32 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JSR TT111              ; Select the system closest to galactic coordinates
                         ; (QQ9, QQ10)
 
+IF _UNBOUND            ; Centre COMMANDER, name and registration dynamically
+
+ LDY #0                 ; Count the current commander name characters
+
+.statusTitleNameLength
+
+ LDA NAME,Y
+ CMP #13
+ BEQ statusTitleNameLengthDone
+ INY
+ BNE statusTitleNameLength
+
+.statusTitleNameLengthDone
+
+ TYA                    ; The complete title has 17 fixed characters, so its
+ LSR A                  ; left column is floor((32 - (17 + length)) / 2), or
+ EOR #$FF               ; 7 - floor(length / 2). Flooring puts odd titles one
+ CLC                    ; character to the left of exact centre.
+ ADC #8
+
+ELSE                   ; Preserve the original fixed title position
+
  LDA #7                 ; Move the text cursor to column 7
+
+ENDIF
+
  JSR DOXC
 
  LDA #126               ; Print recursive token 126, which prints the top
@@ -24989,6 +25090,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
 .shipBuyCommit
 
  STA cmdr_type           ; The selected ship is now the player's ship
+ JSR PlayerRegistrationGenerate ; Every purchased hull gets a new registration
 
  LDY #3                 ; Commit the remaining cash from K to CASH
 
@@ -26446,7 +26548,23 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; Y-th character from NAME
 
  CMP #13                ; If we have reached the end of the name, return from
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ BNE commanderNameCharacter
+
+ LDA QQ11               ; Append the player's registration only to the Status
+ CMP #8                 ; Mode title, where QQ11 contains view type 8
+ BNE commanderNameDone
+ JMP PlayerRegistrationPrint
+
+.commanderNameDone
+
+ RTS
+
+.commanderNameCharacter
+
+ELSE                   ; ELITE: Unbound build option (else)
  BEQ ypl-1              ; the subroutine (ypl-1 points to the RTS below)
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR TT26               ; Print the character we just loaded
 
@@ -26744,8 +26862,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; and return from the subroutine using a tail call
 
  DEX                    ; If token = 4, this is control code 4 (commander
- BEQ cmn                ; name), so jump to cmn to print the commander name
+ BNE TT27NotCommanderName
+ JMP cmn                ; name), so jump to cmn to print the commander name
                         ; and return from the subroutine using a tail call
+
+.TT27NotCommanderName
 
  DEX                    ; If token = 5, this is control code 5 (fuel, newline,
  BEQ fwl                ; cash, newline), so jump to fwl to print the fuel level
@@ -29353,6 +29474,13 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .NW2
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ PHA                    ; Preserve the ship type while assigning this instance
+ JSR RegistrationNextSeed ; a private non-zero registration seed
+ STA REGSEED,X          ; X is still the new ship's slot number here
+ PLA                    ; Restore the ship type for FRIN and MANY
+
+ENDIF                  ; ELITE: Unbound build option (end)
  STA FRIN,X             ; Store the ship type in the X-th byte of FRIN, so the
                         ; slot is now shown as occupied in the index table
 
@@ -32897,6 +33025,13 @@ ENDIF
  LDA FRIN,X             ; Copy the contents of the source slot into the
  STA FRIN-1,X           ; destination slot
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ PHA                    ; Move the registration seed with the ship so its
+ LDA REGSEED,X          ; identity survives slot compaction. REGSEED+NOSH is
+ STA REGSEED-1,X        ; the permanently zero terminator entry.
+ PLA                    ; Restore the source ship type for the test below
+
+ENDIF                  ; ELITE: Unbound build option (end)
  BNE P%+5               ; If the slot we just shuffled down is not empty, then
                         ; skip the following instruction
 
@@ -35480,6 +35615,9 @@ ENDIF
 
 .DFAULT
 
+IF _UNBOUND            ; Copy all 77 commander bytes, including regplate_3
+ LDX #NT%+9             ; Eight name bytes plus data bytes #0 to #76
+ELSE                   ; Preserve the original copy length
  LDX #NT%+8             ; The size of the last saved commander data block is NT%
                         ; bytes, and it is preceded by the 8 bytes of the
                         ; commander name (seven characters plus a carriage
@@ -35489,6 +35627,7 @@ ENDIF
                         ; the current commander workspace at NAME. So we set up
                         ; a counter in X for the NT% + 8 bytes that we want to
                         ; copy
+ENDIF
 
 .QUL1
 
@@ -35582,6 +35721,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  JSR ShipValidate       ; Validate the saved player ship type and clamp
                         ; missiles/fuel to that hull. Old saves normally have 0
                         ; in byte #21, which is deliberately Cobra Mk III.
+ JMP PlayerRegistrationValidate ; Replace invalid/legacy registration bytes
 
 ENDIF                  ; ELITE: Unbound build option (end)
  RTS                    ; Return from the subroutine
@@ -36307,19 +36447,30 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;   * UP workspace variables from FRIN to de, which include the ship slots for
 ;     the local bubble of universe, and various flight and ship status variables
 ;
+;   * In Elite: Unbound this starts at REGSEED instead, also clearing the ship
+;     registration table and its private generator state
+;
 ; ******************************************************************************
 
 .ZERO
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDX #(de-REGSEED)      ; Include the registration table and generator state
+ELSE                   ; ELITE: Unbound build option (else)
  LDX #(de-FRIN)         ; We're going to zero the UP workspace variables from
                         ; FRIN to de, so set a counter in X for the correct
                         ; number of bytes
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #0                 ; Set A = 0 so we can zero the variables
 
 .ZEL2
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ STA REGSEED,X          ; Zero REGSEED through de
+ELSE                   ; ELITE: Unbound build option (else)
  STA FRIN,X             ; Zero the X-th byte of FRIN to de
+ENDIF                  ; ELITE: Unbound build option (end)
 
  DEX                    ; Decrement the loop counter
 
@@ -36617,15 +36768,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; data that we want to save
 
  LDA #$FD               ; Call the Kernal's SAVE function to save the commander
- LDX #LO(CHK+1)         ; file as follows:
- LDY #HI(CHK+1)         ;
+ LDX #LO(CommanderSaveEnd) ; file as follows:
+ LDY #HI(CommanderSaveEnd) ;
  JSR KERNALSVE          ;   * A = address in zero page of the start address of
                         ;         the memory block to save, so this makes SAVE
                         ;         save the data from NA%+8 onwards
                         ;
                         ;   * (Y X) = address of the end of the block of memory
                         ;             to save + 1, so this makes SAVE save the
-                        ;             data from NA%+8 to CHK (inclusive)
+                        ;             data from NA%+8 to CommanderSaveEnd-1
 
  PHP                    ; If something goes wrong with the save then the C flag
                         ; will be set, so save this on the stack so we can check
@@ -56407,11 +56558,316 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 ; ------------------------------------------------------------------------------
+; RegistrationNextSeed
+;
+; Advance an independent maximal 8-bit Galois LFSR and return its next non-zero
+; state in A. The first state in each local bubble is derived from the current
+; system, galaxy and market randomiser. This does not consume the game's RAND
+; sequence, so registrations cannot alter normal spawning or gameplay events.
+; X and Y are preserved.
+; ------------------------------------------------------------------------------
+
+.RegistrationNextSeed
+
+ LDA REGSTATE
+ BNE registrationSeedAdvance
+
+ LDA QQ0
+ EOR QQ1
+ EOR QQ26
+ EOR GCNT
+ BNE registrationSeedAdvance
+
+ LDA #$A5               ; The all-zero state is invalid for an LFSR
+
+.registrationSeedAdvance
+
+ LSR A
+ BCC registrationSeedStore
+ EOR #$B8               ; Maximal-period x^8+x^6+x^5+x^4+1 feedback mask
+
+.registrationSeedStore
+
+ STA REGSTATE
+ RTS
+
+IF _IFF_UNIT           ; Registration display requires the I.F.F. build option
+
+; ------------------------------------------------------------------------------
+; ShipRegistrationTarget
+;
+; Show the newly locked AI ship's registration when the player has an I.F.F.
+; unit fitted. Static message fields are filled before calling MESS so its EOR
+; redraw prints exactly the same six characters when the message is erased.
+; ------------------------------------------------------------------------------
+
+.ShipRegistrationTarget
+
+ LDA BOMB               ; The I.F.F. unit reuses the old Energy Bomb flag
+ BEQ shipRegistrationDone
+
+ LDX MSTG               ; MSTG contains the newly locked ship slot
+ BMI shipRegistrationDone
+
+ LDA FRIN,X
+ CMP #SST               ; Stations use the current galaxy and system number
+ BEQ shipRegistrationStation
+ CMP #DOD
+ BNE shipRegistrationNotStation
+
+.shipRegistrationStation
+
+ JMP stationRegistrationVisible
+
+.shipRegistrationNotStation
+
+ CMP #SHU               ; Missiles, stations and inert debris have no registration
+ BCC shipRegistrationDone
+ CMP #HER               ; A rock hermit is an asteroid, not a registered ship
+ BEQ shipRegistrationDone
+
+ LDA REGSEED,X
+ BNE shipRegistrationSeedReady
+
+.shipRegistrationDone
+
+ RTS
+
+.shipRegistrationSeedReady
+
+ STA RegistrationMessageNumber
+
+ LDY NEWB               ; Pirates and ships sharing the player's number hide
+ JSR AIRegistrationHidden
+ BCC shipRegistrationVisible
+
+ LDA #$FF
+ STA RegistrationMessageHidden
+ LDA #'?'
+ STA RegistrationMessageLetter1
+ STA RegistrationMessageLetter2
+ BNE shipRegistrationShow ; This BNE is effectively a JMP
+
+.shipRegistrationVisible
+
+ LDA #0
+ STA RegistrationMessageHidden
+
+ LDA RegistrationMessageNumber
+ JSR AIRegistrationLetters
+ STX RegistrationMessageLetter1
+ STA RegistrationMessageLetter2
+
+.shipRegistrationShow
+
+ LDA #3                 ; Private flight-message token 3 prints AA-001..ZZ-255
+ JMP MESS
+
+.stationRegistrationVisible
+
+ LDA #0
+ STA RegistrationMessageHidden
+
+ LDA tek                ; NWSPS uses tech level 10 as the Dodecahedron threshold
+ CMP #10
+ LDA #'C'
+ BCC stationRegistrationLetterReady
+ LDA #'D'
+
+.stationRegistrationLetterReady
+
+ STA RegistrationMessageLetter1
+
+ LDA GCNT               ; Print the in-game galaxy number, 1..8
+ AND #7
+ CLC
+ ADC #'1'
+ STA RegistrationMessageLetter2
+
+ JSR StationRegistrationSystemNumber
+ STA RegistrationMessageNumber
+ JMP shipRegistrationShow
+
+ENDIF                  ; Registration display requires the I.F.F. build option
+
+; Find the current system's internal number (0..255) by walking the current
+; galaxy's seed sequence. QQ15 is restored so the selected hyperspace system
+; is not changed. The system number is returned in A.
+
+.StationRegistrationSystemNumber
+
+ LDX #5
+
+.stationRegistrationSaveSelected
+
+ LDA QQ15,X
+ PHA
+ LDA QQ21,X
+ STA QQ15,X
+ DEX
+ BPL stationRegistrationSaveSelected
+
+ LDA #0
+ STA StationRegistrationSystemValue
+
+.stationRegistrationFind
+
+ LDX #5
+
+.stationRegistrationCompare
+
+ LDA QQ15,X
+ CMP QQ2,X
+ BNE stationRegistrationNext
+ DEX
+ BPL stationRegistrationCompare
+ BMI stationRegistrationRestore
+
+.stationRegistrationNext
+
+ JSR TT20
+ INC StationRegistrationSystemValue
+ BNE stationRegistrationFind
+
+.stationRegistrationRestore
+
+ LDX #0
+
+.stationRegistrationRestoreSelected
+
+ PLA
+ STA QQ15,X
+ INX
+ CPX #6
+ BCC stationRegistrationRestoreSelected
+ LDA StationRegistrationSystemValue
+ RTS
+
+.StationRegistrationSystemValue
+ EQUB 0
+
+; Return C set when an AI registration must be hidden. A contains its non-zero
+; registration number and Y contains its NEWB flags. Pirates and ships whose
+; number matches the player's registration both return ??-???.
+
+.AIRegistrationHidden
+
+ CMP regplate_3
+ BEQ aiRegistrationHidden
+ TYA
+ AND #%00001000
+ BNE aiRegistrationHidden
+ CLC
+ RTS
+
+.aiRegistrationHidden
+
+ SEC
+ RTS
+
+; Derive both registration letters from the AI number and current system.
+; Return the first ASCII letter in X and the second in A.
+
+.AIRegistrationLetters
+
+ PHA
+ EOR QQ0
+ EOR QQ26
+ EOR GCNT
+ JSR RegistrationLetter
+ TAX
+ PLA
+ EOR QQ1
+ EOR GCNT
+ CLC
+ ADC QQ26
+ JSR RegistrationLetter
+ RTS
+
+; Convert A to an ASCII letter A..Z without touching the main random generator.
+
+.RegistrationLetter
+
+.shipRegistrationLetterReduce
+
+ CMP #26
+ BCC shipRegistrationLetterReady
+ SBC #26                ; CMP left C set because A is at least 26
+ BCS shipRegistrationLetterReduce
+
+.shipRegistrationLetterReady
+
+ CLC
+ ADC #'A'
+ RTS
+
+; Generate a new random player registration in the form AA-001..AA-255.
+
+.PlayerRegistrationGenerate
+
+ JSR DORND
+ JSR RegistrationLetter
+ STA regplate_1
+
+ TXA                    ; DORND also returns a random byte in X
+ JSR RegistrationLetter
+ STA regplate_2
+
+.playerRegistrationNumber
+
+ JSR DORND
+ BEQ playerRegistrationNumber ; Registration number 000 is not valid
+ STA regplate_3
+ RTS
+
+; Validate a registration loaded from a commander file. Original C64 saves
+; contain checksums in these bytes, so replace them if either letter is outside
+; A..Z or the registration number is zero.
+
+.PlayerRegistrationValidate
+
+ LDA regplate_1
+ CMP #'A'
+ BCC playerRegistrationInvalid
+ CMP #'Z'+1
+ BCS playerRegistrationInvalid
+
+ LDA regplate_2
+ CMP #'A'
+ BCC playerRegistrationInvalid
+ CMP #'Z'+1
+ BCS playerRegistrationInvalid
+
+ LDA regplate_3
+ BEQ playerRegistrationInvalid
+ RTS
+
+.playerRegistrationInvalid
+
+ JMP PlayerRegistrationGenerate
+
+; Print the current player registration after the commander name on Status.
+
+.PlayerRegistrationPrint
+
+ LDA #' '
+ JSR DASC
+ LDA regplate_1
+ JSR DASC
+ LDA regplate_2
+ JSR DASC
+ LDA #'-'
+ JSR DASC
+ LDX regplate_3
+ JMP RegistrationNumberPrint
+
+; ------------------------------------------------------------------------------
 ; FlightMessageToken
 ;
 ; Print a normal in-flight token, except for private token 1, which prints the
 ; most recently awarded bounty, and private token 2, which prints the blocked
-; station-launch warning.
+; station-launch warning. With I.F.F. enabled, private token 3 prints the last
+; targeted AI ship registration.
 ; BountyMessageValue must remain intact while the EOR message is on-screen so
 ; the same text can be drawn again to erase it.
 ; ------------------------------------------------------------------------------
@@ -56419,10 +56875,95 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 .FlightMessageToken
 
  CMP #1
- BEQ BountyMessagePrint
+ BNE flightMessageToken2
+ JMP BountyMessagePrint
+
+.flightMessageToken2
+
  CMP #2
- BEQ StationLaunchMessagePrint
+ BNE flightMessageToken3
+ JMP StationLaunchMessagePrint
+
+.flightMessageToken3
+
+IF _IFF_UNIT
+ CMP #3
+ BEQ RegistrationMessagePrint
+ENDIF
  JMP TT27
+
+IF _IFF_UNIT
+
+.RegistrationMessagePrint
+
+ LDA RegistrationMessageLetter1
+ JSR DASC
+ LDA RegistrationMessageLetter2
+ JSR DASC
+ LDA #'-'
+ JSR DASC
+
+ LDA RegistrationMessageHidden
+ BEQ registrationPrintNumber
+
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JMP DASC               ; Print the third '?' and return
+
+.registrationPrintNumber
+
+ LDX RegistrationMessageNumber
+ JMP RegistrationNumberPrint
+
+.RegistrationMessageLetter1
+ EQUB 'A'
+
+.RegistrationMessageLetter2
+ EQUB 'A'
+
+.RegistrationMessageNumber
+ EQUB 1
+
+.RegistrationMessageHidden
+ EQUB 0
+
+ENDIF
+
+; Print the number in X as 001..255. DASC preserves X while adding leading
+; zeroes, so the value can be passed directly to TT11 at the end.
+
+.RegistrationNumberPrint
+
+ CPX #100
+ BCS registrationPrintThreeDigits
+
+ LDA #'0'
+ JSR DASC
+ CPX #10
+ BCS registrationPrintTwoDigits
+
+ LDA #'0'
+ JSR DASC
+ LDA #1
+ BNE registrationPrintDigits
+
+.registrationPrintTwoDigits
+
+ LDA #2
+ BNE registrationPrintDigits
+
+.registrationPrintThreeDigits
+
+ LDA #3
+
+.registrationPrintDigits
+
+ LDY #0
+ CLC                    ; TT11 prints an integer without a decimal point
+ JMP TT11
 
 .BountyMessagePrint
 
@@ -56441,11 +56982,58 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
 .StationLaunchMessagePrint
 
+ LDA DLY                ; DLY = 0 while MESS erases the previous EOR message,
+ BEQ stationLaunchMessageReady ; so retain the fields used to draw that text
+ LDA StationLaunchMessagePrepared
+ BNE stationLaunchMessageReady
+ JSR StationLaunchPrepareMessage ; Build new fields after the old text is gone
+ LDA #$FF
+ STA StationLaunchMessagePrepared
+
+.stationLaunchMessageReady
+
+ LDA StationLaunchStationLetter1
+ JSR DASC
+ LDA StationLaunchStationLetter2
+ JSR DASC
+ LDA #'-'
+ JSR DASC
+ LDX StationLaunchStationNumber
+ JSR RegistrationNumberPrint
+
+ LDA #':'
+ JSR DASC
+
+ LDA StationLaunchBlockerLetter1
+ JSR DASC
+ LDA StationLaunchBlockerLetter2
+ JSR DASC
+ LDA #'-'
+ JSR DASC
+
+ LDA StationLaunchBlockerHidden
+ BEQ stationLaunchMessageNumber
+
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ JMP stationLaunchMessagePrintTail
+
+.stationLaunchMessageNumber
+
+ LDX StationLaunchBlockerNumber
+ JSR RegistrationNumberPrint
+
+.stationLaunchMessagePrintTail
+
  LDX #0
 
 .stationLaunchMessageLoop
 
- LDA StationLaunchMessage,X
+ LDA StationLaunchMessageText,X
  BEQ stationLaunchMessageDone
  JSR DASC               ; DASC also supports MESS's justified-buffer pass
  INX
@@ -56455,8 +57043,125 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  RTS
 
-.StationLaunchMessage
- EQUS "STATION: DOCK OR LEAVE AREA"
+.StationLaunchMessageText
+ EQUS ", DOCK OR LEAVE"
+ EQUB 0
+
+; Build the dynamic station warning using the exact player or AI slot found by
+; UnboundStationLaunchClear. Dedicated fields keep the message stable for its
+; EOR redraw and do not disturb an I.F.F. registration message.
+
+.StationLaunchPrepareMessage
+
+ TXA
+ PHA                    ; Preserve the type the station wanted to launch
+
+ LDA tek                ; NWSPS uses tech level 10 as the Dodecahedron threshold
+ CMP #10
+ BCS stationLaunchPrepareDodec
+ LDA #'C'
+ BNE stationLaunchPrepareStationLetter
+
+.stationLaunchPrepareDodec
+
+ LDA #'D'
+
+.stationLaunchPrepareStationLetter
+
+ STA StationLaunchStationLetter1
+
+ LDA GCNT
+ AND #7
+ CLC
+ ADC #'1'
+ STA StationLaunchStationLetter2
+
+ JSR StationRegistrationSystemNumber
+ STA StationLaunchStationNumber
+
+ LDX StationLaunchBlocker
+ BMI stationLaunchPreparePlayer
+
+ LDA INF                ; Preserve the station data pointer while GINF points
+ PHA                    ; at the AI ship that blocked the corridor
+ LDA INF+1
+ PHA
+
+ JSR GINF
+ LDY #36
+ LDA (INF),Y            ; Fetch this AI instance's pirate flag
+ TAY
+
+ PLA
+ STA INF+1
+ PLA
+ STA INF
+
+ LDX StationLaunchBlocker
+ LDA REGSEED,X
+ STA StationLaunchBlockerNumber
+ JSR AIRegistrationHidden
+ BCS stationLaunchPrepareHidden
+
+ LDA StationLaunchBlockerNumber
+ JSR AIRegistrationLetters
+ STX StationLaunchBlockerLetter1
+ STA StationLaunchBlockerLetter2
+ LDA #0
+ STA StationLaunchBlockerHidden
+ BEQ stationLaunchPrepareDone ; This BEQ is effectively a JMP
+
+.stationLaunchPrepareHidden
+
+ LDA #'?'
+ STA StationLaunchBlockerLetter1
+ STA StationLaunchBlockerLetter2
+ LDA #$FF
+ STA StationLaunchBlockerHidden
+ BNE stationLaunchPrepareDone ; This BNE is effectively a JMP
+
+.stationLaunchPreparePlayer
+
+ LDA regplate_1
+ STA StationLaunchBlockerLetter1
+ LDA regplate_2
+ STA StationLaunchBlockerLetter2
+ LDA regplate_3
+ STA StationLaunchBlockerNumber
+ LDA #0
+ STA StationLaunchBlockerHidden
+
+.stationLaunchPrepareDone
+
+ PLA
+ TAX
+ RTS
+
+.StationLaunchBlocker
+ EQUB $FF
+
+.StationLaunchStationLetter1
+ EQUB 'C'
+
+.StationLaunchStationLetter2
+ EQUB '1'
+
+.StationLaunchStationNumber
+ EQUB 0
+
+.StationLaunchBlockerLetter1
+ EQUB 'A'
+
+.StationLaunchBlockerLetter2
+ EQUB 'A'
+
+.StationLaunchBlockerNumber
+ EQUB 1
+
+.StationLaunchBlockerHidden
+ EQUB 0
+
+.StationLaunchMessagePrepared
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -56505,7 +57210,15 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  JSR VCSU1              ; Set K3 to the vector from the station to the player
  JSR UnboundStationLaunchInside
- BCS unboundLaunchBlocked
+ BCC unboundLaunchPlayerClear
+
+ LDA #$FF               ; $FF identifies the player as the blocker
+ STA StationLaunchBlocker
+ LDA #0
+ STA StationLaunchMessagePrepared
+ BCS unboundLaunchBlocked ; This BCS is effectively a JMP
+
+.unboundLaunchPlayerClear
 
  LDA #2                 ; Slots 0 and 1 contain the planet and station
  STA XX3+12
@@ -56535,7 +57248,13 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  JSR VCSU1              ; Set K3 to the vector from the station to this ship
  JSR UnboundStationLaunchInside
- BCS unboundLaunchBlocked
+ BCC unboundLaunchNextShip
+
+ LDA XX3+12             ; Remember the exact AI slot that blocked the launch
+ STA StationLaunchBlocker
+ LDA #0
+ STA StationLaunchMessagePrepared
+ BCS unboundLaunchBlocked ; This BCS is effectively a JMP
 
 .unboundLaunchNextShip
 
