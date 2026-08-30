@@ -14,9 +14,9 @@
 ; Commander block size: 77 bytes ($4D)
 ; PRG file size:        79 bytes ($4F), including the two-byte load address
 ;
-; The values below form a loadable example for a new Adder commander. If any
-; byte in #0-#73 is changed, CHK, CHK2 and CHK3 must be recalculated unless the
-; game was built with encrypt=no, which disables checksum validation.
+; The values below form a loadable example for a new Adder commander. Elite:
+; Unbound does not use commander checksums; bytes #74-#76 store the player's
+; registration plate as two ASCII letters and a non-zero 8-bit number.
 ;
 
 .org        $0000
@@ -161,9 +161,9 @@ DataStart:
     .word   $0000           ; #71 $47 TALLY: integer kill count, low byte first
     .byte   128             ; #73 $49 SVC: save count
 
-    .byte   $BC             ; #74 $4A CHK2: CHK EOR $A9
-    .byte   $27             ; #75 $4B CHK3: C64 tertiary checksum (CHECK2)
-    .byte   $15             ; #76 $4C CHK: primary checksum (CHECK)
+    .byte   'J'             ; #74 $4A regplate_1: first letter, ASCII A-Z
+    .byte   'S'             ; #75 $4B regplate_2: second letter, ASCII A-Z
+    .byte   42              ; #76 $4C regplate_3: number 1-255 (JS-042)
 
 DataEnd:
 

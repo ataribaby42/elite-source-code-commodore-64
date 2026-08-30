@@ -35,6 +35,17 @@ for arg in argv[1:]:
 print("Commodore 64 Elite Checksum")
 print("Encryption = ", encrypt)
 
+# Elite: Unbound repurposes commander bytes #74-#76 for the player's
+# registration plate, so the post-assembly checksum pass must leave them intact.
+unbound = False
+with open("1-source-files/main-sources/elite-build-options.asm", "r") as options_file:
+    for line in options_file:
+        if line.strip() == "_UNBOUND=TRUE":
+            unbound = True
+            break
+
+print("Unbound = ", unbound)
+
 # Configuration values for scrambling code and calculating checksums. The
 # addresses are emitted by BeebAsm into compile.txt, so read them from there
 # instead of hard-coding values that become stale whenever optional code moves
@@ -113,8 +124,9 @@ for i in range(CH, 0, -1):
 
 print("Commander checksum = ", hex(CH))
 
-data_block[commander_start + commander_offset] = CH ^ 0xA9
-data_block[commander_start + commander_offset + 2] = CH
+if not unbound:
+    data_block[commander_start + commander_offset] = CH ^ 0xA9
+    data_block[commander_start + commander_offset + 2] = CH
 
 CH3 = 0x4C - 3
 CY = 0
@@ -130,7 +142,8 @@ for i in range(CH3, 0, -1):
 
 print("Commander checksum 3 = ", hex(CH3))
 
-data_block[commander_start + commander_offset + 1] = CH3
+if not unbound:
+    data_block[commander_start + commander_offset + 1] = CH3
 
 # Write output file for LOCODE.unprot.bin
 
