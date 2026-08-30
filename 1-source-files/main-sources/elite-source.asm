@@ -4621,10 +4621,20 @@ ENDIF                  ; ELITE: Unbound build option (end)
  LDA (XX0),Y            ; high byte of the bounty awarded (in Cr * 10), and put
  TAY                    ; it into Y
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ STX BountyMessageValue+1
+ STY BountyMessageValue ; Keep the awarded bounty for the dynamic flight message
+ENDIF                  ; ELITE: Unbound build option (end)
+
  JSR MCASH              ; Call MCASH to add (Y X) to the cash pot
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA #1                 ; Show only the bounty just awarded
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #0                 ; Print control code 0 (current cash, right-aligned to
- JSR MESS               ; width 9, then " CR", newline) as an in-flight message
+                        ; width 9, then " CR" and a newline)
+ENDIF                  ; ELITE: Unbound build option (end)
+ JSR MESS               ; Display the amount as an in-flight message
 
 .KS1S
 
@@ -26586,6 +26596,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  BPL pc1                ; Loop back for the next byte to copy
 
+.csh1
+
  LDA #9                 ; We want to print the cash amount using up to 9 digits
  STA U                  ; (including the decimal point), so store this in U
                         ; for BRPNT to take as an argument
@@ -39613,10 +39625,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; destruction flag is not set, or 10 if it is (10 being
                         ; the number of characters in the " DESTROYED" token)
 
- LDA MCH                ; Call TT27 to print the token in MCH into the buffer
- JSR TT27               ; (this doesn't print it on-screen, it just puts it into
-                        ; the buffer and moves the DTW5 pointer along, so DTW5
-                        ; now contains the size of the message we want to print,
+ LDA MCH                ; Print the token in MCH into the buffer (this doesn't
+                        ; print it on-screen; it just moves the DTW5 pointer)
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR FlightMessageToken ; Token 1 prints the awarded bounty
+ELSE                   ; ELITE: Unbound build option (else)
+ JSR TT27               ; Print the standard text token
+ENDIF                  ; ELITE: Unbound build option (end)
+                        ; DTW5 now contains the size of the message we want to
+                        ; print,
                         ; including the " DESTROYED" part if that's going to be
                         ; included)
 
@@ -39656,7 +39673,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .mes9
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR FlightMessageToken ; Print a normal token or the awarded-bounty message
+ELSE                   ; ELITE: Unbound build option (else)
  JSR TT27               ; Call TT27 to print the text token in A
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LSR de                 ; If bit 0 of variable de is clear, return from the
  BCC out                ; subroutine (as out contains an RTS)
@@ -56345,6 +56366,37 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
 .JettisonCargoKeyValue
  EQUB 0
+
+; ------------------------------------------------------------------------------
+; FlightMessageToken
+;
+; Print a normal in-flight token, except for private token 1, which prints the
+; most recently awarded bounty (the added amount, not CASH) using the standard
+; C64 credit format.
+; BountyMessageValue must remain intact while the EOR message is on-screen so
+; the same text can be drawn again to erase it.
+; ------------------------------------------------------------------------------
+
+.FlightMessageToken
+
+ CMP #1
+ BEQ BountyMessagePrint
+ JMP TT27
+
+.BountyMessagePrint
+
+ LDA #0
+ STA K
+ STA K+1
+ LDA BountyMessageValue
+ STA K+2
+ LDA BountyMessageValue+1
+ STA K+3
+
+ JMP csh1               ; Print K in the standard C64 cash format
+
+.BountyMessageValue
+ EQUW 0
 
 .DIALS
  ASSEMBLE_DIALS         ; Move DIALS to HICODE to free LOCODE
