@@ -159,6 +159,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; pack-hunters are the Sidewinder, Mamba, Krait, Adder,
                         ; Gecko, Cobra Mk I, Worm and Cobra Mk III (pirate)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ NEUTRAL_PIRATE_CHANCE = 128
+                        ; Chance out of 256 that a human pirate spawns neutral
+                        ; when the player has a scrambled ID and is a fugitive.
+                        ; 128 gives an even 50% gameplay test split.
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
  POW = 15               ; Pulse laser power
 
  Mlas = 50              ; Mining laser power
@@ -12680,8 +12689,19 @@ ENDIF                  ; ELITE: Unbound build option (end)
  BCS TN3                ; and jump to TN3 if it is set (i.e. if this ship is
                         ; hostile)
 
- LSR A                  ; The ship is not hostile, so extract bit 4 of the
- LSR A                  ; ship's NEWB flags into the C flag, and jump to GOPL if
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ LSR A                  ; The ship is not hostile, so extract bit 3
+ BCS TA22               ; Neutral pirates keep their current course and speed
+
+ELSE                   ; ELITE: Unbound build option (else)
+
+ LSR A                  ; Skip bit 3, as normal builds do not treat neutral
+                        ; pirates differently
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
+ LSR A                  ; Extract bit 4 (docking) into the C flag
  BCC GOPL               ; it is clear (i.e. if this ship is not docking)
 
  JMP DOCKIT             ; The ship is not hostile and is docking, so jump to
@@ -29706,6 +29726,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
  STA NEWB               ; bits 0-3 and 5-6 in NEWB if they are set in the E%
                         ; byte
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR MaybeSpawnNeutralPirate
+                        ; A scrambled fugitive can make this human pirate spawn
+                        ; non-hostile while retaining its pirate identity and
+                        ; combat aggression for retaliation
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
  LDY #NI%-1             ; The final step is to copy the new ship's data block
                         ; from INWK to INF, so set up a counter for NI% bytes
                         ; in Y
@@ -29724,6 +29753,62 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; C flag to indicate success
 
  RTS                    ; Return from the subroutine
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+; ------------------------------------------------------------------------------
+; MaybeSpawnNeutralPirate
+;
+; When the player has a scrambled registration and is already a fugitive,
+; human pirate ships have NEUTRAL_PIRATE_CHANCE chances out of 256 to spawn
+; without NEWB's hostile bit 2. They receive a cruising speed of 16 to 31;
+; their pirate bit and AI aggression remain set, so they fly straight until
+; attacked. ANGRY then restores hostility and they retaliate normally.
+; Thargoids and mission ships are deliberately excluded.
+; ------------------------------------------------------------------------------
+
+.MaybeSpawnNeutralPirate
+
+ LDA T                  ; Apply this only to human ship types PACK through Moray
+ CMP #PACK
+ BCC neutralPirateDone
+ CMP #THG
+ BCS neutralPirateDone
+
+ LDA NEWB               ; The blueprint must identify this instance as a pirate
+ AND #%00001000
+ BEQ neutralPirateDone
+
+ LDA regplate_scrambled ; The player's registration must be scrambled
+ CMP #$FF
+ BNE neutralPirateDone
+
+ LDA FIST               ; Legal status 50 or more means Fugitive
+ CMP #50
+ BCC neutralPirateDone
+
+IF NEUTRAL_PIRATE_CHANCE < 256
+
+ LDA RAND               ; Sample the existing RNG state without advancing it
+ CMP #NEUTRAL_PIRATE_CHANCE
+ BCS neutralPirateDone
+
+ENDIF
+
+ LDA RAND+1             ; Give the neutral pirate a cruising speed of 16 to 31,
+ AND #15                ; as its non-hostile tactics path preserves speed rather
+ ORA #16                ; than accelerating the ship
+ STA INWK+27
+
+ LDA NEWB               ; Clear hostile bit 2, preserving pirate bit 3 and all
+ AND #%11111011         ; other role flags
+ STA NEWB
+
+.neutralPirateDone
+
+ RTS
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -33756,11 +33841,28 @@ IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
 ; This is the Elite-A ship-position fix. It gives x and y random signs and much
 ; wider high-byte ranges, while keeping the ship in front of us.
 ;
+; Other entry points:
+;
+;   AMBPOS              Randomise only the position bytes, without resetting
+;                       the rest of the INWK ship workspace
+;
 ; ******************************************************************************
 
 .rand_posn
 
  JSR ZINF               ; Reset the INWK ship workspace
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+.AMBPOS
+
+ LDA #0                 ; Clear all sign bytes plus z_lo, so direct calls to
+ STA INWK+2             ; AMBPOS replace the complete position without changing
+ STA INWK+5             ; speed, AI, pitch, roll or orientation
+ STA INWK+6
+ STA INWK+8
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR DORND              ; Set A and X to random numbers
 
@@ -34562,6 +34664,25 @@ ENDIF                   ; Elite-A random spawn positions (end)
                         ; so this sets our new ship type to one of the pack
                         ; hunters, namely a Sidewinder, Mamba, Krait, Adder,
                         ; Gecko, Cobra Mk I, Worm or Cobra Mk III (pirate)
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ PHA                    ; Preserve the pirate type while preparing this member
+                        ; of the group independently
+
+IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
+
+ JSR AMBPOS             ; Give every pirate its own position without resetting
+                        ; AI, pitch, roll or orientation
+
+ENDIF                   ; Elite-A random spawn positions (end)
+
+ LDA #0                 ; Clear any speed inherited from the previous member;
+ STA INWK+27            ; MaybeSpawnNeutralPirate assigns neutral cruising speed
+
+ PLA                    ; Restore the pirate type for NWSHP
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR NWSHP              ; Try adding a new ship of type A to the local bubble
 

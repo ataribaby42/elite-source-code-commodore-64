@@ -492,6 +492,17 @@ jehož vláda není Anarchy, Feudal ani Dictatorship, zvýší se `FIST` nejmén
 `SSPR`, takže se stav změní hned při vstupu do zóny. Vyšší hodnota se nesnižuje
 a uvedené tři vlády příznak ignorují.
 
+Při aktivním scramble a `FIST >= 50` mohou lidské pirátské lodě vzniknout bez
+hostile bitu. Testovací hodnota `NEUTRAL_PIRATE_CHANCE = 128` znamená šanci
+128/256, tedy 50 %. Pirát si ponechá pirate bit, AI i původní agresivitu, dostane
+počáteční rychlost 16 až 31 a letí rovně aktuálním kurzem. Při
+`randomspawns=yes` dostane každý pirát ve skupině vlastní pozici, takže pasivní
+lodě nevznikají přes sebe. Před každým `NWSHP` se rychlost pracovního bloku
+vynuluje, aby ji další člen skupiny nezdědil po předchozí pasivní lodi. Po zásahu
+hráčem rutina `ANGRY` hostile bit obnoví a loď se začne normálně bránit. Bez
+scramble nebo při `FIST < 50` zůstává volba hostility beze změny. Thargoidi a
+mise jsou z této změny vyloučeni.
+
 Zkušební PAL tape build s běžnou konfigurací včetně `unbound=yes`,
 `iffunit=yes` a `renderspeedups=yes` prošel v obou větvích včetně TAP
 round-trip ověření.
