@@ -481,7 +481,7 @@ Výchozí commander i Default JAMESON mají hodnotu 0. Při načtení se přijí
 jen hodnoty 0 a `$FF`; libovolná jiná hodnota se normalizuje na 0.
 
 V Anarchy systému je na konci obrazovky Equip Ship položka
-`Scramble Ship ID` za `200.0 Cr` na stejném řádku. Po zakoupení se bajt #73 nastaví
+`Scramble Ship ID` za `5000.0 Cr` na stejném řádku. Po zakoupení se bajt #73 nastaví
 na `$FF`, položka z nabídky zmizí a hráčova registrační rutina i zpráva o blokovaném startu stanice
 zobrazí `??-???`. Nová loď nebo Escape Pod vygenerují novou registraci a
 současně příznak vrátí na 0.
