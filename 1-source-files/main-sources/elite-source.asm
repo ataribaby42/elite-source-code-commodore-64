@@ -9169,7 +9169,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JSR TT111              ; Select the system closest to galactic coordinates
                         ; (QQ9, QQ10)
 
-IF _UNBOUND            ; Centre COMMANDER, name and registration dynamically
+IF _UNBOUND            ; Centre COMMANDER and the current name dynamically
 
  LDY #0                 ; Count the current commander name characters
 
@@ -9183,11 +9183,13 @@ IF _UNBOUND            ; Centre COMMANDER, name and registration dynamically
 
 .statusTitleNameLengthDone
 
- TYA                    ; The complete title has 17 fixed characters, so its
- LSR A                  ; left column is floor((32 - (17 + length)) / 2), or
- EOR #$FF               ; 7 - floor(length / 2). Flooring puts odd titles one
+ TYA                    ; The complete title has 10 fixed characters, so its
+ CLC                    ; left column is floor((32 - (10 + length)) / 2), or
+ ADC #1                 ; 11 - ceil(length / 2). Flooring puts odd titles one
+ LSR A
+ EOR #$FF
  CLC                    ; character to the left of exact centre.
- ADC #8
+ ADC #12
 
 ELSE                   ; Preserve the original fixed title position
 
@@ -20440,11 +20442,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JSR TRADEMODE          ; trading screen with a view type in QQ11 of 4
                         ; (Inventory screen)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ShipPrintInventoryTitle ; Print INVENTORY and the hold capacity, centred
+ELSE                   ; ELITE: Unbound build option (else)
  LDA #11                ; Move the text cursor to column 11 to print the screen
  JSR DOXC               ; title
 
  LDA #164               ; Print recursive token 4 ("INVENTORY{crlf}") followed
  JSR TT60               ; by a paragraph break and Sentence Case
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR NLIN4              ; Draw a horizontal line at pixel row 19 to box in the
                         ; title. The authors could have used a call to NLIN3
@@ -25232,23 +25238,67 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  LDA cmdr_type
  JSR ShipPrintName
+ JMP PlayerRegistrationPrint ; Append the registration, with no newline
 
- ; Print " (".
+.ShipStatusLabel
+ EQUS "Ship: "
+ EQUB 0
+
+.InventoryTitleText
+ EQUS "INVENTORY ("
+ EQUB 0
+
+; ------------------------------------------------------------------------------
+; ShipPrintInventoryTitle
+;
+; Print "INVENTORY (<free>t/<capacity>t)" centred on the 32-column screen.
+; When an odd title width cannot be centred exactly, use the left-hand column.
+; ------------------------------------------------------------------------------
+
+.ShipPrintInventoryTitle
+
+ JSR ShipCargoFree      ; Count the digits in the free-space value
+ LDX #2                 ; Start with one digit for each of the two values
+ CMP #10
+ BCC inventoryTitleFreeDigitsDone
+ INX
+ CMP #100
+ BCC inventoryTitleFreeDigitsDone
+ INX
+
+.inventoryTitleFreeDigitsDone
+
+ STX T
+ JSR PlayerCargoCapacity ; Count the digits in the total-capacity value
+ LDX T
+ CMP #10
+ BCC inventoryTitleCapacityDigitsDone
+ INX
+ CMP #100
+ BCC inventoryTitleCapacityDigitsDone
+ INX
+
+.inventoryTitleCapacityDigitsDone
+
+ TXA                    ; Title length is 15 plus the two digit counts
+ LSR A                  ; left column = 8 - floor(digit count / 2)
+ EOR #$FF               ; which is floor((32 - title length) / 2), so titles
+ CLC                    ; that fall between columns are shifted left
+ ADC #9
+ JSR DOXC
+
  LDX #0
 
-.shipStatusCargoPrefixLoop
+.inventoryTitleTextLoop
 
- LDA ShipStatusCargoPrefix,X
- BEQ shipStatusFree
+ LDA InventoryTitleText,X
+ BEQ inventoryTitleFree
  JSR DASC
  INX
- BNE shipStatusCargoPrefixLoop
+ BNE inventoryTitleTextLoop
 
-.shipStatusFree
+.inventoryTitleFree
 
- ; Print free hold space according to the current ship's Elite-A capacity.
- ; V1K routes this through ShipUsedCapacity so equipment weight can be added
- ; later without changing the ship-exchange/cargo-fit logic again.
  JSR ShipCargoFree
  JSR ShipPrintByte
 
@@ -25257,23 +25307,16 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  LDA #'/'
  JSR DASC
 
- ; Print the current cargo capacity of the ship, including a fitted Large
- ; Cargo Bay extension.
  JSR PlayerCargoCapacity
  JSR ShipPrintByte
 
  LDA #'t'
  JSR DASC
  LDA #')'
- JMP DASC               ; Tail call, deliberately no newline
+ JSR DASC
 
-.ShipStatusLabel
- EQUS "Ship: "
- EQUB 0
-
-.ShipStatusCargoPrefix
- EQUS " ("
- EQUB 0
+ LDA #12                ; Match token 164's newline and paragraph break
+ JMP TT60
 
 ; ------------------------------------------------------------------------------
 ; TitlePrintHeader
@@ -26289,23 +26332,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; Y-th character from NAME
 
  CMP #13                ; If we have reached the end of the name, return from
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
- BNE commanderNameCharacter
-
- LDA QQ11               ; Append the player's registration only to the Status
- CMP #8                 ; Mode title, where QQ11 contains view type 8
- BNE commanderNameDone
- JMP PlayerRegistrationPrint
-
-.commanderNameDone
-
- RTS
-
-.commanderNameCharacter
-
-ELSE                   ; ELITE: Unbound build option (else)
  BEQ ypl-1              ; the subroutine (ypl-1 points to the RTS below)
-ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR TT26               ; Print the character we just loaded
 
@@ -39466,8 +39493,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  PLA                    ; Restore A from the stack
 
+IF _UNBOUND            ; Select 60 only for the blocked station warning
+ JSR FlightMessageDelay
+ELSE
  LDY #20                ; Set Y = 20 for setting the message delay below
-
+ENDIF
  CPX DLY                ; If the message delay in DLY is not zero, jump up to
  BNE me1                ; me1 to erase the current message first (whose token
                         ; number will be in MCH)
@@ -56022,7 +56052,7 @@ ENDIF                  ; Registration display requires the I.F.F. build option
 
  JMP PlayerRegistrationGenerate
 
-; Print the current player registration after the commander name on Status.
+; Print the current player registration after the ship name on Status.
 
 .PlayerRegistrationPrint
 
@@ -56036,6 +56066,24 @@ ENDIF                  ; Registration display requires the I.F.F. build option
  JSR DASC
  LDX regplate_3
  JMP RegistrationNumberPrint
+
+; ------------------------------------------------------------------------------
+; FlightMessageDelay
+;
+; Return Y = 100 for private token 2, or Y = 20 for every other flight message.
+; A and X are preserved.
+; ------------------------------------------------------------------------------
+
+.FlightMessageDelay
+
+ LDY #20
+ CMP #2
+ BNE flightMessageDelayDone
+ LDY #100
+
+.flightMessageDelayDone
+
+ RTS
 
 ; ------------------------------------------------------------------------------
 ; FlightMessageToken
