@@ -11974,6 +11974,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 .nosurviv
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR PlayerRegistrationGenerate ; Give the replacement ship a new registration
+
  JSR PlayerFuelCapacity ; Our replacement ship is delivered with a full tank
  STA QQ14               ; using the current ship type's Elite-A fuel capacity
 ELSE                   ; ELITE: Unbound build option (else)
