@@ -1942,6 +1942,14 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .SVC
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+.regplate_scrambled
+
+ SKIP 1                 ; $FF hides the player's registration, 0 shows it, #73
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  SKIP 1                 ; The save count
                         ;
                         ; When a new commander is created, the save count gets
@@ -1950,6 +1958,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; It is presumably part of the security system for the
                         ; competition, possibly another flag to catch out
                         ; entries with manually altered commander files
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
@@ -6528,9 +6538,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  SKIP 3                 ; Placeholders for bytes #70 to #72
 
- EQUB 128               ; SVC = Save count, #73
-
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+.saved_regplate_scrambled
+
+ EQUB 0                 ; Saved registration scramble flag, #73
 
 .saved_regplate_1
 
@@ -6545,6 +6557,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 42                ; Saved registration number, #76 (JS-042)
 
 ELSE                   ; ELITE: Unbound build option (else)
+
+ EQUB 128               ; SVC = Save count, #73
 
 ; ******************************************************************************
 ;
@@ -6822,9 +6836,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  EQUW 20000 AND Q%      ; TALLY = Number of kills, #71-72
 
- EQUB 128               ; SVC = Save count, #73
-
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ EQUB 0                 ; regplate_scrambled = Registration visible, #73
 
  EQUB 'J'               ; regplate_1 = First registration letter, #74
 
@@ -6833,6 +6847,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 42                ; regplate_3 = Registration number, #76 (JS-042)
 
 ELSE                   ; ELITE: Unbound build option (else)
+
+ EQUB 128               ; SVC = Save count, #73
 
 ;.CHK2                  ; This label is commented out in the original source
 
@@ -23232,7 +23248,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
  CPX Q                  ; If X < Q, loop back up to print the next item on the
  BCC EQL1               ; list of equipment available at this station
 
+IF _UNBOUND            ; Add the Anarchy-only registration service, then clear
+ JSR ScrambleRegistrationListEnd ; the prompt area at the bottom of the screen
+ELSE
  JSR CLYNS              ; Clear the bottom three text rows of the upper screen,
+ENDIF
                         ; and move the text cursor to the first cleared row
 
  LDA #127               ; Print recursive token 127 ("ITEM") followed by a
@@ -23268,6 +23288,10 @@ ELSE                   ; ELITE: Unbound build option (else)
                         ; go to the docking bay (i.e. show the Status Mode
                         ; screen)
 ENDIF                  ; ELITE: Unbound build option (end)
+
+IF _UNBOUND
+ JSR ScrambleRegistrationPurchase ; Handle the Anarchy-only final menu item
+ENDIF
 
  SBC #0                 ; Set A to the number entered - 1 (because the C flag is
                         ; clear), which will be the actual item number we want
@@ -23796,6 +23820,140 @@ ENDIF                  ; ELITE: Unbound build option (end)
 .c
 
  RTS                    ; Return from the subroutine
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+; ------------------------------------------------------------------------------
+; ScrambleRegistrationListEnd
+;
+; Append the registration-scrambling service as the last Equip Ship item in an
+; Anarchy system. Its abbreviated name and price fit on one row. Then continue
+; into the normal prompt area setup.
+; ------------------------------------------------------------------------------
+
+.ScrambleRegistrationListEnd
+
+ LDA gov
+ BNE scrambleRegistrationListDone
+
+ LDA regplate_scrambled  ; Do not offer the service when it is already active
+ BNE scrambleRegistrationListDone
+
+ LDX Q                  ; Q is the next free one-based equipment item number
+ STX QQ25               ; Extend gnum's valid range to include this final item
+ STX ScrambleRegistrationEquipmentNumber
+
+ JSR TT67               ; Start the final item on a new row
+ LDX ScrambleRegistrationEquipmentNumber
+ CLC
+ JSR pr2                ; Print its one-based menu number
+ JSR TT162              ; Print a separating space
+
+ LDX #0
+
+.scrambleRegistrationTextLoop
+
+ LDA ScrambleRegistrationEquipmentText,X
+ BEQ scrambleRegistrationPrice
+ JSR DASC
+ INX
+ BNE scrambleRegistrationTextLoop
+
+.scrambleRegistrationPrice
+
+ LDA #25                ; Put the fixed 200.0 Cr price on the same row
+ JSR DOXC
+ LDX #LO(2000)
+ LDY #HI(2000)
+ SEC
+ LDA #6
+ JSR TT11
+
+.scrambleRegistrationListDone
+
+ JMP CLYNS              ; Set up the normal item prompt area and return
+
+; ------------------------------------------------------------------------------
+; ScrambleRegistrationPurchase
+;
+; Handle the extra Anarchy item before the normal equipment-number conversion.
+; Ordinary selections return A = R with C clear, exactly as the original path
+; expects before its SBC #0. A successful service purchase does not return.
+; ------------------------------------------------------------------------------
+
+.ScrambleRegistrationPurchase
+
+ LDA gov
+ BNE scrambleRegistrationNormalPurchase
+
+ LDA R
+ CMP ScrambleRegistrationEquipmentNumber
+ BNE scrambleRegistrationNormalPurchase
+
+ LDX #LO(2000)          ; Fixed price: 200.0 Cr in tenths of a credit
+ LDY #HI(2000)
+ JSR LCASH
+ BCC scrambleRegistrationNoCash
+
+ LDA #$FF
+ STA regplate_scrambled
+ JSR dn                 ; Print remaining cash and confirm with the normal beep
+ JMP EQSHP              ; Redisplay the equipment list
+
+.scrambleRegistrationNoCash
+
+ LDA #197               ; Print "CASH?" and return to the docking bay
+ JSR prq
+ JMP err
+
+.scrambleRegistrationNormalPurchase
+
+ LDA R
+ CLC
+ RTS
+
+; ------------------------------------------------------------------------------
+; ScrambleRegistrationSafeZone
+;
+; TT100 calls this after every flight-loop iteration, so entering a station
+; safe zone with a scrambled plate immediately raises legal status to at least
+; 100 in lawful and mixed-government systems. Anarchy, Feudal and Dictatorship
+; systems deliberately ignore the scrambled registration.
+; ------------------------------------------------------------------------------
+
+.ScrambleRegistrationSafeZone
+
+ LDA SSPR
+ BEQ scrambleRegistrationSafeZoneDone
+
+ LDA regplate_scrambled
+ CMP #$FF
+ BNE scrambleRegistrationSafeZoneDone
+
+ LDA gov
+ CMP #2                 ; Governments 0 (Anarchy) and 1 (Feudal) ignore it
+ BCC scrambleRegistrationSafeZoneDone
+ CMP #3                 ; Government 3 (Dictatorship) also ignores it
+ BEQ scrambleRegistrationSafeZoneDone
+
+ LDA FIST
+ CMP #100
+ BCS scrambleRegistrationSafeZoneDone
+ LDA #100
+ STA FIST
+
+.scrambleRegistrationSafeZoneDone
+
+ RTS
+
+.ScrambleRegistrationEquipmentNumber
+ EQUB 0
+
+.ScrambleRegistrationEquipmentText
+ EQUS "Scramble Ship ID"
+ EQUB 0
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -33907,6 +34065,10 @@ ENDIF                   ; Elite-A random spawn positions (end)
 
  JSR M%                 ; Call M% to iterate through the main flight loop
 
+IF _UNBOUND            ; Apply the scrambled-plate legal response immediately
+ JSR ScrambleRegistrationSafeZone ; after the flight loop updates SSPR
+ENDIF
+
  DEC DLY                ; Decrement the delay counter in DLY, so any in-flight
                         ; messages get removed once the counter reaches zero
 
@@ -35750,6 +35912,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  JSR ShipValidate       ; Validate the saved player ship type and clamp
                         ; missiles/fuel to that hull. Old saves normally have 0
                         ; in byte #21, which is deliberately Cobra Mk III.
+ JSR PlayerRegistrationScrambleValidate ; Accept only 0 or $FF in save byte #73
  JMP PlayerRegistrationValidate ; Replace invalid/legacy registration bytes
 
 ENDIF                  ; ELITE: Unbound build option (end)
@@ -56837,6 +57000,9 @@ ENDIF                  ; Registration display requires the I.F.F. build option
 
 .PlayerRegistrationGenerate
 
+ LDA #0                 ; A new ship always receives a visible registration
+ STA regplate_scrambled
+
  JSR DORND
  JSR RegistrationLetter
  STA regplate_1
@@ -56850,6 +57016,22 @@ ENDIF                  ; Registration display requires the I.F.F. build option
  JSR DORND
  BEQ playerRegistrationNumber ; Registration number 000 is not valid
  STA regplate_3
+ RTS
+
+; Validate save byte #73. Only 0 (visible) and $FF (scrambled) are valid;
+; legacy save-count values and any other data are normalised to visible.
+
+.PlayerRegistrationScrambleValidate
+
+ LDA regplate_scrambled
+ BEQ playerRegistrationScrambleValid
+ CMP #$FF
+ BEQ playerRegistrationScrambleValid
+ LDA #0
+ STA regplate_scrambled
+
+.playerRegistrationScrambleValid
+
  RTS
 
 ; Validate a registration loaded from a commander file. Original C64 saves
@@ -56884,6 +57066,25 @@ ENDIF                  ; Registration display requires the I.F.F. build option
 
  LDA #' '
  JSR DASC
+
+ LDA regplate_scrambled
+ BEQ playerRegistrationPrintVisible
+
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ LDA #'-'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JMP DASC               ; Tail call prints the third '?' in ??-???
+
+.playerRegistrationPrintVisible
+
  LDA regplate_1
  JSR DASC
  LDA regplate_2
@@ -57172,6 +57373,9 @@ ENDIF
 
 .stationLaunchPreparePlayer
 
+ LDA regplate_scrambled
+ BNE stationLaunchPreparePlayerHidden
+
  LDA regplate_1
  STA StationLaunchBlockerLetter1
  LDA regplate_2
@@ -57179,6 +57383,15 @@ ENDIF
  LDA regplate_3
  STA StationLaunchBlockerNumber
  LDA #0
+ STA StationLaunchBlockerHidden
+ BEQ stationLaunchPrepareDone ; This BEQ is effectively a JMP
+
+.stationLaunchPreparePlayerHidden
+
+ LDA #'?'
+ STA StationLaunchBlockerLetter1
+ STA StationLaunchBlockerLetter2
+ LDA #$FF
  STA StationLaunchBlockerHidden
 
 .stationLaunchPrepareDone

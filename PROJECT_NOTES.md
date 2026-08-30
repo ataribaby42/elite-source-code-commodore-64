@@ -441,8 +441,9 @@ Každý zablokovaný pokus o start zobrazí ve stavovém řádku dynamickou zpr�
 formátu `C1-007:AB-123, DOCK OR LEAVE`. První registrace patří aktuální
 stanici a druhá přesně tomu hráči nebo AI slotu, který test koridoru našel.
 Pirátská AI loď a AI loď se stejným registračním číslem jako hráč se zobrazí
-jako `??-???`. Zpráva používá standardní mechanismus `MESS`, stejné centrování,
-časování a EOR mazání jako zpráva o získané bounty.
+jako `??-???`. Zpráva používá standardní mechanismus `MESS`, stejné centrování
+a EOR mazání jako ostatní zprávy, ale privátní token 2 má `DLY=100`, tedy
+pětinásobnou dobu proti běžné hodnotě 20.
 
 V LOCODE je pouze krátká kontrola před voláním `SFS1`; výpočet válce je v
 HICODE. Předchozí varianta s poloměrem 160 prošla běžným PAL tape buildem v
@@ -463,20 +464,37 @@ Tím zůstává `JS-042` zachováno při prvním spuštění i po volbě Default
 
 Po načtení se obě písmena a nenulové číslo validují. Původní save, jehož
 checksumové hodnoty validaci nesplní, dostane novou náhodnou registraci. Nová
-registrace se generuje také po každém úspěšném nákupu jiné lodi. Status Mode ji
-zobrazuje přímo za jménem commandera. Checksumový postprocesor při
-`unbound=yes` poslední tři bajty nepřepisuje; při `unbound=no` zachovává původní
-checksumové chování.
-
-Titulek Status Mode se při `unbound=yes` centruje podle aktuální délky jména a
-registrace. Pokud vychází střed mezi dvěma sloupci, použije levější sloupec.
+registrace se generuje také po každém úspěšném nákupu jiné lodi a po použití
+Escape Podu. Status Mode ji zobrazuje za názvem hráčovy lodě. Jeho titulek se
+centruje pouze podle `COMMANDER` a aktuální délky jména; při necelém středu se
+volí levější sloupec. Checksumový postprocesor při `unbound=yes` poslední tři
+bajty nepřepisuje; při `unbound=no` zachovává původní checksumové chování.
 
 Registrace zaměřené AI lodě se maskuje jako `??-???` nejen u pirátů, ale také
 tehdy, když se její číselná část shoduje s registračním číslem hráčovy lodě.
 
-Po této změně nebyl proveden skutečný BeebAsm build, protože v pracovním
-prostředí není dostupná linuxová verze assembleru. Paměťové hodnoty níže proto
-neobsahují registrační kód.
+## Scramble Ship Registration
+
+Při `unbound=yes` používá dřívější save-count bajt `#73` příznak
+`regplate_scrambled`: `0` znamená viditelnou registraci a `$FF` skrytou.
+Výchozí commander i Default JAMESON mají hodnotu 0. Při načtení se přijímají
+jen hodnoty 0 a `$FF`; libovolná jiná hodnota se normalizuje na 0.
+
+V Anarchy systému je na konci obrazovky Equip Ship položka
+`Scramble Ship ID` za `200.0 Cr` na stejném řádku. Po zakoupení se bajt #73 nastaví
+na `$FF`, položka z nabídky zmizí a hráčova registrační rutina i zpráva o blokovaném startu stanice
+zobrazí `??-???`. Nová loď nebo Escape Pod vygenerují novou registraci a
+současně příznak vrátí na 0.
+
+Pokud hráč se skrytou registrací vstoupí do bezpečné zóny stanice v systému,
+jehož vláda není Anarchy, Feudal ani Dictatorship, zvýší se `FIST` nejméně na
+100. Kontrola probíhá po každém letovém snímku bezprostředně po aktualizaci
+`SSPR`, takže se stav změní hned při vstupu do zóny. Vyšší hodnota se nesnižuje
+a uvedené tři vlády příznak ignorují.
+
+Zkušební PAL tape build s běžnou konfigurací včetně `unbound=yes`,
+`iffunit=yes` a `renderspeedups=yes` prošel v obou větvích včetně TAP
+round-trip ověření.
 
 ## Volná paměť
 
@@ -484,8 +502,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3EE0 | 288 B | 287 B | $C7B7 | 1609 B | 1608 B |
-| flicker-free | $3F30 | 208 B | 207 B | $C81B | 1509 B | 1508 B |
+| main | $3F40 | 192 B | 191 B | $CB6E | 658 B | 657 B |
+| flicker-free | $3F90 | 112 B | 111 B | $CBD2 | 558 B | 557 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
