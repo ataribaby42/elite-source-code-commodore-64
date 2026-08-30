@@ -14481,6 +14481,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .LAUN
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JMP UnboundStationTunnel ; Show the rectangular station tunnel
+ELSE                   ; ELITE: Unbound build option (else)
  LDY #sfxwhosh          ; Call the NOISE routine with Y = sfxwhosh to make the
  JSR NOISE              ; sound of the ship launching from the station
 
@@ -14490,6 +14493,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; in the much rounder hyperspace rings)
 
                         ; Fall through into HFS2 to draw the launch tunnel rings
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -22653,8 +22657,12 @@ ENDIF                  ; ELITE: Unbound build option (end)
  LDA #255               ; Set the view type in QQ11 to 255
  STA QQ11
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR UnboundStationTunnelDraw ; Remove the rectangular station tunnel
+ELSE                   ; ELITE: Unbound build option (else)
  JSR HFS1               ; Call HFS1 to draw 8 concentric rings to remove the
                         ; launch tunnel that we drew above
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .NLUNCH
 
@@ -55571,6 +55579,127 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
 .BountyMessageValue
  EQUW 0
+
+; ------------------------------------------------------------------------------
+; UnboundStationTunnel
+;
+; Draw the Elite: Unbound station docking tunnel as concentric 2:1 rectangles.
+; LAUN calls this routine in both directions, so station launch and docking use
+; matching rectangular tunnels. Hyperspace and galactic hyperspace remain
+; circular.
+; ------------------------------------------------------------------------------
+
+.UnboundStationTunnel
+
+ LDY #sfxwhosh          ; Make the standard station tunnel sound
+ JSR NOISE
+
+ LDA QQ11               ; Preserve the current view while TT66 clears the
+ PHA                    ; space view and draws its border
+ LDA #0
+ JSR TT66
+ PLA
+ STA QQ11
+
+.UnboundStationTunnelDraw
+
+ LDA #0
+ STA XX4                ; Draw eight sets with initial half-widths 8 to 15
+
+.unboundStationSet
+
+ LDA XX4
+ AND #7
+ CLC
+ ADC #8
+ STA CNT                ; CNT is the half-width of the next rectangle
+
+.unboundStationScale
+
+ JSR UnboundStationRectangle
+
+ ASL CNT                ; Double both dimensions for the next tunnel section
+ LDA CNT
+ CMP #121               ; Keep the rectangle inside the 256 by 144 space view
+ BCC unboundStationScale
+
+ INC XX4
+ LDA XX4
+ CMP #8
+ BCC unboundStationSet
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; UnboundStationRectangle
+;
+; Draw one rectangle centred on (X, Y), using CNT as its half-width and half of
+; CNT as its half-height. The resulting 2:1 outline matches the station slot.
+; ------------------------------------------------------------------------------
+
+.UnboundStationRectangle
+
+ LDA #X                 ; K = left edge
+ SEC
+ SBC CNT
+ STA K
+
+ LDA #X                 ; K+1 = right edge
+ CLC
+ ADC CNT
+ STA K+1
+
+ LDA CNT                ; T = half-height
+ LSR A
+ STA T
+
+ LDA #Y                 ; K+2 = top edge
+ SEC
+ SBC T
+ STA K+2
+
+ LDA #Y                 ; K+3 = bottom edge
+ CLC
+ ADC T
+ STA K+3
+
+ LDA K                  ; Top edge: (left, top) to (right, top)
+ STA X1
+ LDA K+2
+ STA Y1
+ LDA K+1
+ STA X2
+ LDA K+2
+ STA Y2
+ JSR LL30
+
+ LDA K+1                ; Right edge: (right, top) to (right, bottom)
+ STA X1
+ STA X2
+ LDA K+2
+ STA Y1
+ LDA K+3
+ STA Y2
+ JSR LL30
+
+ LDA K+1                ; Bottom edge: (right, bottom) to (left, bottom)
+ STA X1
+ LDA K+3
+ STA Y1
+ LDA K
+ STA X2
+ LDA K+3
+ STA Y2
+ JSR LL30
+
+ LDA K                  ; Left edge: (left, bottom) to (left, top)
+ STA X1
+ STA X2
+ LDA K+3
+ STA Y1
+ LDA K+2
+ STA Y2
+ JMP LL30
 
 .DIALS
  ASSEMBLE_DIALS         ; Move DIALS to HICODE to free LOCODE
