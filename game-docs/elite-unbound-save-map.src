@@ -1,9 +1,9 @@
 ;
 ; ELITE: UNBOUND commander save map for Commodore 64
 ;
-; Valid for both repository branches:
-;   main         7261ea18905abe54f7cf7a0056bde551df74fb9a
-;   flicker-free 214b18421d44952364ca032ad0e725992e1e9e06
+; Base revisions for both repository branches:
+;   main         c24c5134e1bf92ec525385d6c1a7fb370962e385
+;   flicker-free bac2631efaf12d58961a885de2711aaf2660d75f
 ;
 ; The commander name is the Commodore filename. It is not stored in this data.
 ;
@@ -15,8 +15,10 @@
 ; PRG file size:        79 bytes ($4F), including the two-byte load address
 ;
 ; The values below form a loadable example for a new Adder commander. Elite:
-; Unbound does not use commander checksums; bytes #74-#76 store the player's
-; registration plate as two ASCII letters and a non-zero 8-bit number.
+; Unbound does not use commander checksums. Byte #73 stores whether the plate
+; is visible (0) or scrambled ($FF); bytes #74-#76 store the player's plate as
+; two ASCII letters and a non-zero 8-bit number. Other #73 values are changed
+; to 0 when the commander is loaded.
 ;
 
 .org        $0000
@@ -159,7 +161,7 @@ DataStart:
 
     .byte   $00             ; #70 $46 QQ26: market price randomisation byte
     .word   $0000           ; #71 $47 TALLY: integer kill count, low byte first
-    .byte   128             ; #73 $49 SVC: save count
+    .byte   $00             ; #73 $49 regplate_scrambled: 0 visible, $FF hidden
 
     .byte   'J'             ; #74 $4A regplate_1: first letter, ASCII A-Z
     .byte   'S'             ; #75 $4B regplate_2: second letter, ASCII A-Z
