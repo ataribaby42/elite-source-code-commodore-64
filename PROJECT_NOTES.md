@@ -1,6 +1,6 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 29. srpna 2026.
+Stav poznámek: 30. srpna 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
@@ -507,14 +507,28 @@ Zkušební PAL tape build s běžnou konfigurací včetně `unbound=yes`,
 `iffunit=yes` a `renderspeedups=yes` prošel v obou větvích včetně TAP
 round-trip ověření.
 
+## Bezpečné přepsání commander save na disku
+
+Při `unbound=yes` se před uložením commanderu na disk otevře CBM-DOS command
+channel 15 a odešle se příkaz `S:<jméno>`. Mechanika nejprve vyhledá odpovídající
+soubor; pokud existuje, smaže jej, a pokud neexistuje, disk ponechá beze změny.
+Potom se obnoví běžné parametry souboru a commander se uloží obyčejným jménem.
+Není tedy nutné používat nebezpečný save-with-replace prefix `@`.
+
+Změna se netýká ukládání na kazetu. Při chybě otevření command channelu se
+provede stávající obsluha `DISK ERROR`. Celá cesta je podmíněna `unbound=yes`;
+kontrolní PAL tape build potvrdil, že při `unbound=no` zůstávají `LOCODE`,
+`HICODE` i `COMLOD` bitově shodné se stavem před změnou. Implementace přidává
+76 bajtů HICODE a žádný LOCODE.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F40 | 192 B | 191 B | $CB6E | 658 B | 657 B |
-| flicker-free | $3F90 | 112 B | 111 B | $CBD2 | 558 B | 557 B |
+| main | $3F48 | 184 B | 183 B | $CBFB | 517 B | 516 B |
+| flicker-free | $3F98 | 104 B | 103 B | $CC5F | 417 B | 416 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
