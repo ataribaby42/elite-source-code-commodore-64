@@ -4168,8 +4168,13 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .oily
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR JettisonCargoType ; Use the stored commodity for a player-jettisoned
+                        ; canister, or choose the original random cargo type
+ELSE                   ; ELITE: Unbound build option (else)
  JSR DORND              ; Set A and X to random numbers and reduce A to a
  AND #7                 ; random number in the range 0-7
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .slvy2
 
@@ -34154,6 +34159,18 @@ ENDIF                   ; Elite-A random spawn positions (end)
 
 .TT102
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ PHA                    ; Preserve the key while checking the current view
+ LDA QQ11               ; A dedicated view type marks the live jettison prompt
+ CMP #10
+ BNE notJettisonCargoInput
+ PLA
+ JMP JettisonCargoFrame ; Update hyperspace, then process the live prompt
+
+.notJettisonCargoInput
+
+ PLA                    ; Restore the key and the original cursor deltas in X/Y
+ENDIF                  ; ELITE: Unbound build option (end)
  CMP #f8                ; If key "8" was pressed, jump to STATUS to show the
  BNE P%+5               ; Status Mode screen, returning from the subroutine
  JMP STATUS             ; using a tail call
@@ -34252,6 +34269,17 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .INSP
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; In flight, CTRL+2 opens the cargo-jettison screen. The HICODE helper tests
+ ; the raw key logger without changing A, so the original view-key dispatch
+ ; below sees exactly the same key value when the chord is not held.
+ JSR JettisonCargoKey
+ BCC notJettisonCargo
+ JMP JettisonCargo
+
+.notJettisonCargo
+
+ENDIF                  ; ELITE: Unbound build option (end)
  CMP #f12               ; If key F3 was pressed, jump to chview1
  BEQ chview1
 
@@ -55116,6 +55144,382 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ENDIF
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+; ------------------------------------------------------------------------------
+; JettisonCargo
+;
+; CTRL+2 in flight opens a compact cargo-jettison screen. Only tonne-based
+; commodities are offered. N advances to the next occupied cargo slot; Y tries
+; to create one cargo canister behind the player. The hold is decremented and
+; the confirmation beep is made only if NWSHP found both an object slot and
+; enough line-heap memory. One successful jettison returns to Inventory.
+; Jettisoning inside a station safe zone adds 15 legal-status points unless
+; the current system is an Anarchy.
+;
+; Player-jettisoned cargo canisters store a compact tonne-commodity marker in
+; the normally unused missile bits of byte #31 plus the trader bit of byte #36
+; (cargo canisters have neither missiles nor AI). Zero therefore retains the
+; original random-canister behaviour without allocating a separate RAM table.
+; ------------------------------------------------------------------------------
+
+.JettisonCargo
+
+ LDA #10                ; Use a dedicated live trading-screen view so TT102 can
+ JSR TRADEMODE
+
+ LDA #12                ; Position the title one column left of centre
+ JSR DOXC
+ LDX #0
+
+.jettisonTitleLoop
+
+ LDA JettisonTitle,X
+ BEQ jettisonTitleDone
+ JSR DASC
+ INX
+ BNE jettisonTitleLoop
+
+.jettisonTitleDone
+
+ JSR NLIN4              ; Draw the standard title underline
+
+ LDA #%10000000         ; Start the list on row 3 in Sentence Case, matching
+ STA QQ17               ; the compact Sell Equipment list
+ JSR INCYC
+ JSR INCYC
+
+ LDA #0                 ; Start with Food and wait for the CTRL+2 entry chord
+ STA JettisonCargoItem  ; to be released before accepting a Y/N response
+ STA JettisonCargoReady
+ LDA #3                 ; First cargo question is printed on text row 3
+ STA JettisonCargoRow
+
+ JMP JettisonCargoShowNext
+
+; ------------------------------------------------------------------------------
+; JettisonCargoShowNext
+;
+; Draw the next occupied tonne-based cargo row and its prompt, then return to
+; the main loop. This keeps ship movement, AI and combat running while the
+; player decides. If no more eligible cargo remains, return to Inventory.
+; ------------------------------------------------------------------------------
+
+.JettisonCargoShowNext
+
+ LDY JettisonCargoItem
+
+.jettisonCargoShowLoop
+
+ CPY #17
+ BCS jettisonCargoNoMore
+
+ STY QQ29               ; Keep the current commodity across text/input calls
+
+ LDX QQ20,Y             ; Skip cargo types that are not currently in the hold
+ BEQ jettisonCargoNext
+
+ TYA                    ; Each QQ23 market entry occupies four bytes
+ ASL A
+ ASL A
+ TAY
+ LDA QQ23+1,Y           ; Save the unit byte for TT152 and reject kg/g cargo
+ STA QQ19+1
+ AND #96
+ BNE jettisonCargoNext
+
+ LDA JettisonCargoRow   ; Countdown printing uses row 1, so restore this row
+ JSR DOYC               ; explicitly before drawing each cargo question
+ LDA #1                 ; Begin the row at the left edge
+ JSR DOXC
+ LDA #%10000000         ; Capitalise the commodity name like Inventory
+ STA QQ17
+
+ CLC                    ; Tokens 208..224 are Food through Alien Items
+ LDA QQ29
+ ADC #208
+ JSR TT27
+
+ LDA #14                ; Print the quantity in the Inventory column
+ JSR DOXC
+ LDY QQ29
+ LDX QQ20,Y
+ TXA
+ STA QQ25
+ CLC
+ JSR pr2
+ JSR TT152              ; All offered entries print the tonne unit
+
+ LDA #25                ; Draw the standard right-aligned "(Y/N)?" prompt but
+ JSR DOXC               ; do not wait here; TT102 handles the answer next frame
+ LDA #206
+ JSR DETOK
+
+ LDA #0                 ; Require a key-release before accepting this row's
+ STA JettisonCargoReady ; response, just like the original TT221 routine
+ RTS
+
+.jettisonCargoNext
+
+ LDY QQ29
+ INY
+ STY JettisonCargoItem
+ BNE jettisonCargoShowLoop
+
+.jettisonCargoNoMore
+
+ JMP TT213              ; All entries declined/unavailable: show Inventory
+
+; ------------------------------------------------------------------------------
+; JettisonCargoInput
+;
+; Non-blocking Y/N handler called once per main-loop iteration while QQ11=10.
+; Existing keys must first be released. Y attempts the jettison; every other
+; new key behaves as N, matching TT221. Failed spawning advances without a beep.
+; ------------------------------------------------------------------------------
+
+.JettisonCargoFrame
+
+ STA JettisonCargoKeyValue ; Preserve this frame's answer key
+ JSR TT107              ; Advance normal or galactic hyperspace countdown
+
+ LDA QQ11               ; A completed jump changes the view, so do not process
+ CMP #10                ; the old jettison prompt after arriving
+ BNE jettisonCargoFrameDone
+
+ LDA JettisonCargoKeyValue
+ JMP JettisonCargoInput
+
+.jettisonCargoFrameDone
+
+ RTS
+
+.JettisonCargoInput
+
+ LDX JettisonCargoReady
+ BNE jettisonCargoInputReady
+
+ CMP #0                 ; Still holding the entry/previous-response key?
+ BNE jettisonCargoInputDone
+ INC JettisonCargoReady ; All keys released; arm the next response
+
+.jettisonCargoInputDone
+
+ RTS
+
+.jettisonCargoInputReady
+
+ CMP #0                 ; No new key this frame, so keep the prompt active
+ BEQ jettisonCargoInputDone
+ CMP #YINT
+ BEQ jettisonCargoYes
+
+ LDA #'n'               ; As in TT221, every non-Y response counts as no
+ JSR JettisonCargoPrintAnswer
+ JMP jettisonCargoAdvance
+
+.jettisonCargoYes
+
+ LDA #'y'
+ JSR JettisonCargoPrintAnswer
+
+ LDX JettisonCargoItem  ; Live combat can remove cargo while this screen is up,
+ LDA QQ20,X             ; so confirm that the selected tonne still exists
+ BEQ jettisonCargoAdvance
+ STX QQ29
+
+ JSR JettisonCargoSpawn ; Only remove cargo after a canister was really added
+ BCC jettisonCargoAdvance
+
+ LDX QQ29
+ DEC QQ20,X             ; One confirmation always jettisons exactly 1t
+ JSR JettisonCargoPenalty
+ JSR BEEP
+ JMP TT213              ; Successful jettison returns to Inventory
+
+.jettisonCargoAdvance
+
+ INC JettisonCargoRow   ; The next question belongs on the following text row
+ LDY JettisonCargoItem
+ INY
+ STY JettisonCargoItem
+ JMP JettisonCargoShowNext
+
+.JettisonCargoPrintAnswer
+
+ PHA                    ; Put the answer back beside its prompt even if the
+ LDA #31                ; hyperspace countdown changed the text cursor
+ JSR DOXC
+ LDA JettisonCargoRow
+ JSR DOYC
+ PLA
+ JMP TT26
+
+; ------------------------------------------------------------------------------
+; JettisonCargoPenalty
+;
+; Illegal dumping inside a station safe zone adds 15 to FIST in every
+; government except Anarchy. Saturate at 255 so byte overflow cannot make a
+; highly wanted commander appear less criminal.
+; ------------------------------------------------------------------------------
+
+.JettisonCargoPenalty
+
+ LDA SSPR               ; No station indicator means nobody records the dump
+ BEQ jettisonCargoPenaltyDone
+
+ LDA gov                ; Government 0 is Anarchy, where dumping is unpoliced
+ BEQ jettisonCargoPenaltyDone
+
+ LDA FIST
+ CLC
+ ADC #15
+ BCC jettisonCargoPenaltyStore
+ LDA #255               ; Clamp an overflowing legal status to its maximum
+
+.jettisonCargoPenaltyStore
+
+ STA FIST
+
+.jettisonCargoPenaltyDone
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; JettisonCargoSpawn
+;
+; Create a tumbling cargo canister 96 units directly behind the player. NWSHP
+; checks the object slots and line heap. On success, tag the new canister with
+; a 1..14 marker so scooping restores the selected tonne-based commodity.
+;
+; Returns C set on success, clear if no object/heap space was available.
+; ------------------------------------------------------------------------------
+
+.JettisonCargoSpawn
+
+ JSR ZINF               ; Empty ship workspace, facing towards negative z
+
+ LDA #96                ; Place the canister far enough aft to avoid an
+ STA INWK+6             ; immediate collision with the player
+ LDA #%10000000
+ STA INWK+8             ; Negative z sign = behind the player
+
+ JSR DORND              ; Match spawned debris with random pitch, roll and
+ ASL A                  ; speed so the canister tumbles away naturally
+ STA INWK+30
+ TXA
+ AND #%00001111
+ STA INWK+27
+ LDA #$FF
+ ROR A
+ STA INWK+29
+
+ LDA #OIL               ; Add one cargo canister to the local universe
+ JSR NWSHP
+ BCC jettisonCargoSpawnDone
+
+ LDA QQ29               ; Items 0..12 map to markers 1..13; Alien Items (16)
+ CMP #16                ; maps to marker 14, so all tonne cargo fits in 4 bits
+ BCC jettisonCargoMarker
+ LDA #13
+
+.jettisonCargoMarker
+
+ CLC
+ ADC #1
+ TAX
+ AND #%00000111         ; Low three marker bits use the unused missile count
+ LDY #31
+ STA (INF),Y
+
+ TXA
+ AND #%00001000         ; Marker bit 3 uses NEWB's trader flag, which is inert
+ BEQ jettisonCargoMarked ; for a cargo canister with AI disabled
+ LDY #36
+ LDA (INF),Y
+ ORA #%00000001
+ STA (INF),Y
+
+.jettisonCargoMarked
+
+ SEC
+
+.jettisonCargoSpawnDone
+
+ RTS
+
+; ------------------------------------------------------------------------------
+; JettisonCargoType
+;
+; Return the commodity contained by the cargo canister in INWK. A zero marker
+; is an ordinary canister and keeps the original random Food..Computers result.
+; ------------------------------------------------------------------------------
+
+.JettisonCargoType
+
+ LDA INWK+36            ; Move marker bit 3 (NEWB trader) into the C flag
+ LSR A
+ LDA INWK+31
+ AND #%00000111         ; Read marker bits 0..2 from the missile count
+ BCC jettisonCargoMarkerReady
+ ORA #%00001000
+
+.jettisonCargoMarkerReady
+
+ BEQ jettisonCargoRandom ; Zero means an ordinary random cargo canister
+
+ CMP #14                ; Marker 14 is the non-contiguous Alien Items slot 16
+ BNE jettisonCargoNormal
+ LDA #16
+ RTS
+
+.jettisonCargoNormal
+
+ SEC                    ; Stored marker is commodity + 1
+ SBC #1
+ RTS
+
+.jettisonCargoRandom
+
+ JSR DORND
+ AND #7
+ RTS
+
+; ------------------------------------------------------------------------------
+; JettisonCargoKey
+;
+; Test CTRL+2 in the raw C64 key logger while preserving A for TT102. Return C
+; set only when both keys are held.
+; ------------------------------------------------------------------------------
+
+.JettisonCargoKey
+
+ BIT KLO+$06            ; CTRL
+ BPL jettisonCargoKeyNo
+ BIT KLO+$05            ; "2"
+ BPL jettisonCargoKeyNo
+ SEC
+ RTS
+
+.jettisonCargoKeyNo
+
+ CLC
+ RTS
+
+.JettisonTitle
+ EQUS "JETTISON"
+ EQUB 0
+
+.JettisonCargoItem
+ EQUB 0
+
+.JettisonCargoReady
+ EQUB 0
+
+.JettisonCargoRow
+ EQUB 0
+
+.JettisonCargoKeyValue
+ EQUB 0
+
 .DIALS
  ASSEMBLE_DIALS         ; Move DIALS to HICODE to free LOCODE
 ENDIF                  ; ELITE: Unbound build option (end)
