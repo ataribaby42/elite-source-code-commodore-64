@@ -1200,8 +1200,17 @@ ENDIF                  ; White cockpit border build option (end)
                         ; by Commodore
  CLI                    ; Allow interrupts again
 
- LDX #9                 ; Set X = $16 so we copy 9 pages of data from DIALS
-                        ; into DSTORE%
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ LDX #HI(DIALSEND - DIALS)    ; Set X to the number of whole pages in the
+                              ; compressed dashboard data
+
+ELSE                   ; ELITE: Unbound build option (else)
+
+ LDX #9                 ; Set X = 9 so we copy 9 pages of data from DIALS into
+                        ; DSTORE%
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #LO(DSTORE%)       ; Set ZP(1 0) = DSTORE%
  STA ZP
@@ -1212,11 +1221,29 @@ ENDIF                  ; White cockpit border build option (end)
  STA ZP2
  LDA #HI(DIALS)
 
- JSR mvblock            ; Call mvblock to copy 9 pages of data from DIALS to
-                        ; DSTORE%, so this makes a copy of the dashboard bitmap
-                        ; that can be poked into screen memory when the
-                        ; dashboard needs to be redrawn (when changing from a
-                        ; text view to the space view, for example)
+ JSR mvblock            ; Call mvblock to copy the whole pages of data from
+                        ; DIALS to DSTORE%. In an unbound build this is the
+                        ; packed dashboard; otherwise this copies the original
+                        ; nine pages that can be poked into screen memory when
+                        ; the dashboard needs to be redrawn
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ LDY #LO(DIALSEND - DIALS)
+                        ; Set Y to the size of the partial page at the end of the
+                        ; compressed dashboard data
+
+.CopyDialsRLE
+
+ DEY                    ; Decrement Y to get the offset of the next byte to copy
+
+ LDA (ZP2),Y            ; Copy the remaining compressed dashboard bytes into
+ STA (ZP),Y             ; DSTORE%
+
+ TYA                    ; Loop until the partial page has been copied
+ BNE CopyDialsRLE
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDY #0                 ; Finally, we copy two pages of sprite definitions from
                         ; spritp to SPRITELOC%, which is where the game expects
@@ -1630,6 +1657,26 @@ ENDIF
 
 .DIALS
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+IF _DIALS = 2          ; ATARIBABY new dials bitmap
+
+ INCBIN "1-source-files/images/C.CODIALSNEW.RLE.bin"
+
+ELSE                   ; ATARIBABY default dials bitmap
+
+ INCBIN "1-source-files/images/C.CODIALS.RLE.bin"
+
+ENDIF
+
+.DIALSEND
+
+ ASSERT DIALSEND - DIALS >= $100
+ ASSERT DIALSEND - DIALS < $900
+ ASSERT LO(DIALSEND - DIALS) > 0
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  SKIP 24                ; This indents the image by three character blocks to
                         ; skip past the first three characters of the left
                         ; screen margin (the fourth character contains the
@@ -1664,6 +1711,10 @@ ELIF _SOURCE_DISK_FILES
                         ; assembly process
 
 ENDIF
+
+.DIALSEND
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
