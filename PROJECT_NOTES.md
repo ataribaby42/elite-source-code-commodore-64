@@ -507,6 +507,25 @@ Zkušební PAL tape build s běžnou konfigurací včetně `unbound=yes`,
 `iffunit=yes` a `renderspeedups=yes` prošel v obou větvích včetně TAP
 round-trip ověření.
 
+## Aktivní I.F.F. interrogator
+
+Při `unbound=yes iffunit=yes` obsluhuje letová fáze také klávesu `I`, ale jen
+pokud má hráč I.F.F. jednotku skutečně nainstalovanou. Dokud zbývá alespoň
+jedna raketa, `I` používá stejnou cílovací cestu jako `T`.
+
+Bez raket zapne `I` jednorázový I.F.F. interrogator a přehraje krátké vysoké
+pípnutí z rutiny `BEEP`, stejné jako při získání cíle raketou. Interrogator nemá
+žádný stavový indikátor. Jakmile zaměří objekt v hledáčku, znovu přehraje
+stejné pípnutí, zobrazí jeho identifikaci přes běžnou registrační rutinu a
+potom se bez dalšího zvuku vypne. Klávesa `U` aktivní interrogator zruší a
+přehraje stejné `sfxboop` jako odzbrojení rakety.
+
+Stav používá existující `MSAR`; hodnota `MSTG=$FE` pouze čeká na uvolnění
+klávesy `I`, aby se funkce po zaměření nebo zrušení okamžitě znovu nezapnula.
+Nevznikl nový stavový bajt. Změna přidává 13 bajtů do LOCODE a 104 bajtů do
+HICODE. Build s `unbound=no` zůstal bitově shodný ve všech blocích a
+kombinace `unbound=yes iffunit=no` se také úspěšně sestavila.
+
 ## Bezpečné přepsání commander save na disku
 
 Při `unbound=yes` se před uložením commanderu na disk otevře CBM-DOS command
@@ -527,8 +546,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F48 | 184 B | 183 B | $CBFB | 517 B | 516 B |
-| flicker-free | $3F98 | 104 B | 103 B | $CC5F | 417 B | 416 B |
+| main | $3F55 | 171 B | 170 B | $CC63 | 413 B | 412 B |
+| flicker-free | $3FA5 | 91 B | 90 B | $CCC7 | 313 B | 312 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 

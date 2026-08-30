@@ -826,6 +826,9 @@ ENDIF
                         ;
                         ;   * $FF = no target
                         ;
+                        ;   * $FE = wait for the I.F.F. interrogator key to be
+                        ;           released (Unbound with I.F.F. only)
+                        ;
 
 .thiskey
 
@@ -3582,6 +3585,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ;   * Space and "?" to speed up and slow down
 ;   * "U", "T" and "M" to unarm, target and fire missiles
+;   * "I" to target a missile, or run the I.F.F. interrogator when there are
+;     no missiles (Unbound with I.F.F. only)
 ;   * "C=" to fire an energy bomb, or ignored when _IFF_UNIT is TRU
 ;   * Left arrow to launch an escape pod
 ;   * "J" to initiate an in-system jump
@@ -3623,6 +3628,14 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; the speed back up to the minimum value of 1
 
 .MA4
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+IF _IFF_UNIT           ; The I.F.F. interrogator is an Unbound I.F.F. feature
+ JSR IFFInterrogatorKeys ; Process the I.F.F. flight key
+ENDIF
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA KY15               ; If "U" is being pressed and the number of missiles
  AND NOMSL              ; in NOMSL is non-zero, keep going, otherwise jump down
@@ -4493,6 +4506,19 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; the BEEP subroutine to make a short, high beep
 
  LDX XSAV               ; Call ABORT2 to store the details of this missile
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+IF _IFF_UNIT           ; The I.F.F. interrogator is an Unbound I.F.F. feature
+ LDA NOMSL              ; If there are missiles, this is a normal missile lock
+ BNE iffMissileLock
+ JSR IFFInterrogatorLocked ; Identify the target and stop interrogating
+ BEQ MA47               ; IFFInterrogatorLocked returns with A = 0
+.iffMissileLock
+ENDIF
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
  LDY #RED2              ; lock, with the targeted ship's slot number in X
  JSR ABORT2             ; (which we stored in XSAV at the start of this ship's
                         ; loop at MAL1), and set the colour of the missile
@@ -37958,6 +37984,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ;
                         ;   * Non-zero = yes
 
+.KYIFF
+
  EQUS "0"               ; "I" is being pressed (KLO+$1F)
                         ;
                         ;   * 0 = no
@@ -56164,6 +56192,91 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  RTS
 
 IF _IFF_UNIT           ; Registration display requires the I.F.F. build option
+
+; ------------------------------------------------------------------------------
+; IFFInterrogatorKeys
+;
+; If an I.F.F. unit is fitted, make "I" act like "T" while missiles remain.
+; With no missiles, "I" starts a one-shot I.F.F. target interrogation and "U"
+; cancels it. MSTG = $FE debounces the I key after a lock or cancellation.
+; ------------------------------------------------------------------------------
+
+.IFFInterrogatorKeys
+
+ LDA BOMB               ; The I.F.F. unit reuses the old Energy Bomb flag
+ BNE iffInterrogatorFitted
+
+ LDA NOMSL              ; With no fitted unit and no missiles, make sure a
+ BNE iffInterrogatorDone ; previously active interrogation cannot remain armed
+ LDA #0
+ STA MSAR
+ RTS
+
+.iffInterrogatorFitted
+
+ LDA NOMSL
+ BEQ iffInterrogatorNoMissiles
+
+ LDA KYIFF              ; With missiles, make I behave exactly like T
+ BEQ iffInterrogatorDone
+ STA KY14
+
+.iffInterrogatorDone
+
+ RTS
+
+.iffInterrogatorNoMissiles
+
+ LDA MSTG               ; $FE means wait for I to be released before another
+ CMP #$FE               ; interrogation can be started
+ BNE iffInterrogatorCheckCancel
+
+ LDA KYIFF
+ BNE iffInterrogatorDone
+ LDA #$FF
+ STA MSTG
+ RTS
+
+.iffInterrogatorCheckCancel
+
+ LDA KY15               ; U cancels an active interrogation with the normal
+ BEQ iffInterrogatorCheckStart ; missile-unarm sound
+ LDA MSAR
+ BEQ iffInterrogatorDone
+ LDY #sfxboop
+ JSR NOISE
+ LDA #$FE
+ STA MSTG
+ LDA #0
+ STA MSAR
+ RTS
+
+.iffInterrogatorCheckStart
+
+ LDA KYIFF
+ BEQ iffInterrogatorDone
+ LDA MSAR               ; Do not restart an active interrogation
+ BNE iffInterrogatorDone
+ LDA #$FF
+ STA MSAR
+ JMP BEEP               ; Announce activation with the missile-lock beep
+
+; ------------------------------------------------------------------------------
+; IFFInterrogatorLocked
+;
+; Identify the ship in X using the normal missile-lock registration message,
+; then stop the one-shot interrogation without making another sound.
+; ------------------------------------------------------------------------------
+
+.IFFInterrogatorLocked
+
+ STX MSTG
+ JSR ShipRegistrationTarget
+ LDA #$FE               ; Debounce I until it has been released
+ STA MSTG
+ LDA #0
+ STA MSAR               ; Stop interrogating silently
+ RTS
 
 ; ------------------------------------------------------------------------------
 ; ShipRegistrationTarget
