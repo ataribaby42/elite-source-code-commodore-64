@@ -25857,7 +25857,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.40"
+ EQUS "v0.50"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
