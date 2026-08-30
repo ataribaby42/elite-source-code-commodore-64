@@ -548,14 +548,40 @@ kontrolní PAL tape build potvrdil, že při `unbound=no` zůstávají `LOCODE`,
 `HICODE` i `COMLOD` bitově shodné se stavem před změnou. Implementace přidává
 76 bajtů HICODE a žádný LOCODE.
 
+## BBC-style hangár po dokování
+
+Při `unbound=yes` volá dokovací rutina po průletu staničním tunelem nový
+`HALL`. Na dobu stávající dokovací prodlevy zobrazí perspektivní hangár ve
+stylu BBC Elite. Náhodně vybere jednu ze čtyř připravených skupin lodí, nebo
+jednu klasickou hangárovou loď; možný je také prázdný hangár. Podlahové a
+stěnové čáry končí na již nakreslených pixelech lodí, takže jimi neprocházejí.
+
+Při kreslení lodí `UNWISE` dočasně přepne všech 22 použitých instrukcí
+`EOR (SC),Y` na `ORA (SC),Y`. Překrývající se hrany se proto navzájem nemažou.
+Před kreslením pozadí se instrukce vrátí na původní EOR režim. Kontrola
+s `renderspeedups=no` i `renderspeedups=yes` potvrdila, že všech 22 adres stále
+ukazuje na opcode `$51`.
+
+Samostatný 579bajtový blok `elite-hangar.asm` se sestavuje na
+`DSTORE%+$500` a loader jej ukládá za PackBits dashboard. Celý RLE a hangárový
+payload končí na offsetu `$743`, takže z původní devítistránkové oblasti zbývá
+445 bajtů. Nový i starý dashboard používají stejnou pevnou adresu hangáru.
+LOCODE narostl pouze o tříbajtové `JSR`; HICODE se nezměnil. Při `unbound=no`
+zůstaly `LOCODE`, `HICODE` i `COMLOD` v obou větvích bitově shodné.
+
+V obou větvích prošly PAL i NTSC tape buildy včetně TAP round-trip kontroly,
+šifrované GMA86 PAL buildy včetně ověření fast-loader sektorové tabulky a
+šifrované GMA85 NTSC buildy. Úspěšně se sestavil také starý dashboard společně
+s `renderspeedups=yes`.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F55 | 171 B | 170 B | $CCC6 | 314 B | 313 B |
-| flicker-free | $3FA5 | 91 B | 90 B | $CD2A | 214 B | 213 B |
+| main | $3F58 | 168 B | 167 B | $CCC6 | 314 B | 313 B |
+| flicker-free | $3FA8 | 88 B | 87 B | $CD2A | 214 B | 213 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 

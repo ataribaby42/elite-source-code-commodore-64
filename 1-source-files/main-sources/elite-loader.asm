@@ -1203,7 +1203,7 @@ ENDIF                  ; White cockpit border build option (end)
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  LDX #HI(DIALSEND - DIALS)    ; Set X to the number of whole pages in the
-                              ; compressed dashboard data
+                              ; dashboard RLE and hangar payload
 
 ELSE                   ; ELITE: Unbound build option (else)
 
@@ -1223,25 +1223,25 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR mvblock            ; Call mvblock to copy the whole pages of data from
                         ; DIALS to DSTORE%. In an unbound build this is the
-                        ; packed dashboard; otherwise this copies the original
-                        ; nine pages that can be poked into screen memory when
-                        ; the dashboard needs to be redrawn
+                        ; packed dashboard plus the hangar code; otherwise this
+                        ; copies the original nine pages that can be poked into
+                        ; screen memory when the dashboard needs to be redrawn
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  LDY #LO(DIALSEND - DIALS)
                         ; Set Y to the size of the partial page at the end of the
-                        ; compressed dashboard data
+                        ; dashboard RLE and hangar payload
 
-.CopyDialsRLE
+.CopyDialsPayloadTail
 
  DEY                    ; Decrement Y to get the offset of the next byte to copy
 
- LDA (ZP2),Y            ; Copy the remaining compressed dashboard bytes into
- STA (ZP),Y             ; DSTORE%
+ LDA (ZP2),Y            ; Copy the remaining payload bytes into DSTORE%
+ STA (ZP),Y
 
  TYA                    ; Loop until the partial page has been copied
- BNE CopyDialsRLE
+ BNE CopyDialsPayloadTail
 
 ENDIF                  ; ELITE: Unbound build option (end)
 
@@ -1668,6 +1668,15 @@ ELSE                   ; ATARIBABY default dials bitmap
  INCBIN "1-source-files/images/C.CODIALS.RLE.bin"
 
 ENDIF
+
+.DIALSRLEEND
+
+ ASSERT DIALSRLEEND - DIALS <= $500
+
+ SKIP $500 - (DIALSRLEEND - DIALS)
+                        ; Keep the hangar at DSTORE% + $500 for every dashboard
+
+ INCBIN "3-assembled-output/HANGAR.bin"
 
 .DIALSEND
 
