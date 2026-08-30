@@ -23919,10 +23919,10 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
 .scrambleRegistrationPrice
 
- LDA #25                ; Put the fixed 200.0 Cr price on the same row
+ LDA #25                ; Put the fixed 5000.0 Cr price on the same row
  JSR DOXC
- LDX #LO(2000)
- LDY #HI(2000)
+ LDX #LO(50000)
+ LDY #HI(50000)
  SEC
  LDA #6
  JSR TT11
@@ -23948,8 +23948,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  CMP ScrambleRegistrationEquipmentNumber
  BNE scrambleRegistrationNormalPurchase
 
- LDX #LO(2000)          ; Fixed price: 200.0 Cr in tenths of a credit
- LDY #HI(2000)
+ LDX #LO(50000)         ; Fixed price: 5000.0 Cr in tenths of a credit
+ LDY #HI(50000)
  JSR LCASH
  BCC scrambleRegistrationNoCash
 
