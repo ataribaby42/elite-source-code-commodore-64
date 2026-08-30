@@ -22465,9 +22465,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .ptg
 
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
  LSR COK                ; Set bit 0 of the competition flags in COK, so that the
  SEC                    ; competition code will include the fact that we have
  ROL COK                ; manually forced a mis-jump into witchspace
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .MJP
 
@@ -35187,6 +35189,8 @@ ENDIF
                         ; boxed title at the top (i.e. we're going to use the
                         ; screen layout of a space view in the following)
 
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
+
                         ; If the commander check below fails, we keep jumping
                         ; back to here to crash the game with an infinite loop
 
@@ -35254,6 +35258,8 @@ ELSE
                         ; will keep returning the same incorrect value
 
 ENDIF
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  JSR ShipValidate       ; Validate the saved player ship type and clamp
@@ -35522,6 +35528,8 @@ ENDIF                  ; Frame limiter build option (end)
 
  RTS                    ; Return from the subroutine
 
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
+
 ; ******************************************************************************
 ;
 ;       Name: CHECK
@@ -35626,6 +35634,8 @@ ENDIF                  ; Frame limiter build option (end)
                         ; data block
 
  RTS                    ; Return from the subroutine
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -36191,10 +36201,14 @@ ENDIF                  ; Frame limiter build option (end)
 
  JSR TRNME              ; Transfer the commander filename from INWK to NA%
 
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
+
  LSR SVC                ; Halve the save count value in SVC
 
  LDA #4                 ; Print extended token 4 ("COMPETITION NUMBER:")
  JSR DETOK
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDX #NT%               ; We now want to copy the current commander data block
                         ; from location TP to the last saved commander block at
@@ -36211,6 +36225,8 @@ ENDIF                  ; Frame limiter build option (end)
 
  BPL SVL1               ; Loop back until we have copied all the bytes in the
                         ; commander data block
+
+IF NOT(_UNBOUND)       ; ELITE: Unbound build option (begin)
 
  JSR CHECK2             ; Call CHECK2 to calculate the third checksum for the
                         ; last saved commander and return it in A
@@ -36265,6 +36281,8 @@ ENDIF                  ; Frame limiter build option (end)
 
 ;LDA #0                 ; These instructions are commented out in the original
 ;JSR QUS1               ; source
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR KERNALSETUP        ; Set up memory so we can use the Kernal functions,
                         ; which includes swapping the contents of zero page with
