@@ -14580,6 +14580,14 @@ ENDIF                  ; ELITE: Unbound build option (end)
  PHA                    ; Store the child's ship type on the stack so we can
                         ; retrieve it below
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ LDA NEWB               ; Clear the hostile bit inherited from the destroyed
+ AND #%11111011         ; parent, so debris is not marked as hostile by I.F.F.
+ STA NEWB
+
+ENDIF
+
  JSR DORND              ; Set A and X to random numbers
 
  ASL A                  ; Set the child's byte #30 (pitch counter) to a random
