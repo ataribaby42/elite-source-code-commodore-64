@@ -1,6 +1,6 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 30. srpna 2026.
+Stav poznámek: 31. srpna 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
@@ -574,14 +574,28 @@ V obou větvích prošly PAL i NTSC tape buildy včetně TAP round-trip kontroly
 šifrované GMA85 NTSC buildy. Úspěšně se sestavil také starý dashboard společně
 s `renderspeedups=yes`.
 
+## Nadpis nákupu lodí
+
+Při `unbound=yes` má obrazovka CTRL+3 vlastní vystředěný nadpis `BUY SHIP`.
+Běžná obrazovka pod klávesou 3 si ponechává `EQUIP SHIP`. Změna je pouze
+v tisku nadpisu, přidává 27 bajtů HICODE a nemění velikost LOCODE.
+
+V obou větvích prošel běžný nešifrovaný tape-pal build a šifrovaný gma86-pal
+build, včetně TAP round-trip kontroly a ověření sektorové tabulky GMA loaderu.
+Kontrolní tape-pal build s `unbound=no` má LOCODE, HICODE a COMLOD bitově
+shodné se stavem před touto úpravou. Vizuální kontrola ve VICE nebyla provedena.
+
+Níže uvedené hodnoty paměti byly znovu odečteny 31. srpna 2026 z compile.txt
+pro oba PAL buildy; starší tabulka již neodpovídala aktuálnímu zdrojovému kódu.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F58 | 168 B | 167 B | $CCC6 | 314 B | 313 B |
-| flicker-free | $3FA8 | 88 B | 87 B | $CD2A | 214 B | 213 B |
+| main | $3F16 | 234 B | 233 B | $CCD4 | 300 B | 299 B |
+| flicker-free | $3F66 | 154 B | 153 B | $CD38 | 200 B | 199 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
