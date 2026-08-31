@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Elite: Unbound expands Commodore 64 Elite with buyable and flyable ships, ship-specific handling and optional gameplay improvements.">
+  <meta name="theme-color" content="#000000">
+  <title>Elite: Unbound — Commodore 64</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="./js/menu.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="site-toolbar" aria-label="Site controls">
+    <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open menu" aria-controls="site-menu" aria-expanded="false">
+      <span class="burger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+
+    <a class="home-link" href="./index.html" aria-label="Home" title="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 11.5 12 4l9 7.5"></path>
+        <path d="M5.5 10.5V21h13V10.5"></path>
+      </svg>
+    </a>
+  </header>
+
+  <aside class="site-menu" id="site-menu" aria-label="Site menu" aria-hidden="true">
+    <nav>
+      <a href="./index.html" aria-current="page">Elite: Unbound</a>
+      <a href="./instruction-manual.html">Instruction Manual</a>
+      <a href="./technical-info.html">Technical Info</a>
+      <a href="./download.html">Download</a>
+      <a href="./credits.html">Credits &amp; Foundations</a>
+      <a href="./galnet.html">GalNet</a>
+    </nav>
+  </aside>
+  <button class="menu-backdrop" type="button" aria-label="Close menu" hidden></button>
+
+  <div class="page-frame">
+    <header class="site-header">
+      <div class="title-strip">
+        <h1>Elite: Unbound</h1>
+        <p>Commodore 64 Elite, expanded</p>
+      </div>
+    </header>
+
+    <nav class="page-toc" aria-label="On this page">
+      <a href="#the-beginning">The Beginning</a>
+      <a href="#what-is-elite-unbound">What is Elite: Unbound?</a>
+    </nav>
+
+    <main id="content">
+      <article class="article-shell">
+        <header class="hero">
+          <figure class="title-screen">
+            <a class="artwork-link" href="https://www.deviantart.com/ataribaby42/art/Leaving-Lave-971816512" target="_blank" rel="noopener noreferrer">
+              <img class="artwork-image artwork-primary" src="./assets/leaving-lave.jpg" width="640" height="449" alt="Leaving Lave artwork by Ataribaby, 2023">
+              <img class="artwork-image artwork-hover" src="./assets/leaving-lave-8bit.jpg" width="640" height="449" alt="" aria-hidden="true">
+            </a>
+            <figcaption>Leaving Lave by Ataribaby 2023</figcaption>
+          </figure>
+        </header>
+
+        <section id="the-beginning">
+          <h2>The Beginning</h2>
+
+          <p>It all began around 1991, when, as a teenager, I discovered a program with the mysterious name <a href="https://spectrumcomputing.co.uk/entry/1601/ZX-Spectrum/Elite" target="_blank" rel="noopener noreferrer">E L I T E</a> on my eight-bit <a href="https://cs.wikipedia.org/wiki/Didaktik_M" target="_blank" rel="noopener noreferrer">Didaktik M</a>, a locally produced clone of the <a href="https://en.wikipedia.org/wiki/ZX_Spectrum" target="_blank" rel="noopener noreferrer">Sinclair ZX Spectrum 48K</a>. The program came on a cassette borrowed from someone. Being a fan of every kind of 3D simulator—most of which used see-through wireframe graphics at the time—Elite immediately captivated me with its 3D models, whose hidden edges were removed from view.</p>
+
+          <p>Over time, curiosity began to reveal the game’s true depth. This was not merely a simple 3D shooter in the style of Starion or Starfox. There was something more: a complete simulation of life as a space trader, smuggler, bounty hunter, pirate, miner or interstellar playboy. Whatever you wanted to be, you could become.</p>
+
+          <p>The depth with which the game simulated space, spaceflight, combat, economics and trading drew me in completely. That summer, going outside held very little appeal. After a year of playing, my alter ego finally attained the status <code class="nowrap">--- ELITE ---</code>. Fortunately, a detailed guide appeared around that time in the games magazine FIFO, finally answering the questions that had remained unresolved without the original manual.</p>
+
+          <p>Back then, rumours of <a href="https://wiki.alioth.net/index.php/Rock_Hermit" target="_blank" rel="noopener noreferrer">Rock Hermits</a>, generation ships and other mysteries sent me searching across the galaxy. The Rock Hermits eventually turned up; the generation ships never did. A neighbour once claimed to have encountered a ship that remained invisible most of the time and could be seen only on the scanner. According to him, destroying it released a cargo canister, and scooping it revealed something called a Cloaking Device.</p>
+
+          <p>Unfortunately, he never reached a station to save his progress. Pirates destroyed his ship on the way, before he could discover how to use the device. At the time, not a word of the story seemed believable. Today, of course, I know he was telling the truth. The ZX Spectrum version contains a special Asp Mk II fitted with exactly such a device. Once the ship has been destroyed and its canister scooped, pressing <code>Y</code> activates the Cloaking Device.</p>
+
+          <p>Time passed. Secondary school began, the ZX Spectrum clone gave way to an Amiga 1200, and Elite cast its spell once more—this time as <a href="https://en.wikipedia.org/wiki/Frontier:_Elite_II" target="_blank" rel="noopener noreferrer">Frontier: Elite II</a>. But that is another story…</p>
+
+          <p>That period also brought a <a href="https://en.wikipedia.org/wiki/Commodore_64" target="_blank" rel="noopener noreferrer">C64</a> and a first encounter with its version of Elite, which is very close to the original BBC Micro release. The ZX Spectrum version differs in several respects and works somewhat differently. This is because its developers received only the procedural universe-generation code from the original creators. Everything else was recreated by playing the original game on the BBC Micro.</p>
+
+          <p>That history is also why <em>Elite: Unbound</em> aims to echo the aesthetics of the ZX Spectrum version. The Spectrum edition remains my favourite for one simple reason: it was my first.</p>
+
+          <p>For me, the original Elite defined the open-world sandbox built around procedural generation. The game has no ending and no fixed objective beyond attaining ELITE status. Everything else belongs to the player, including the story they choose to create. This is the kind of game I still love and seek out today.</p>
+
+          <p>And now it is 2026, and technology has advanced beyond belief. What once existed only in my imagination—as a simple circle representing a planet grew larger and a space station drifted above its horizon—has become a reality that modern <a href="https://www.elitedangerous.com/" target="_blank" rel="noopener noreferrer">Elite: Dangerous</a> renders almost perfectly.</p>
+
+          <p>Another dream has come true as well: creating the version of Elite I always wanted and being able to offer it here. Hopefully, you will enjoy it too.</p>
+
+          <figure class="section-logo">
+            <img src="./assets/elite-logo-small.png" width="300" height="282" alt="Elite logo">
+          </figure>
+        </section>
+
+        <section id="what-is-elite-unbound">
+          <h2>What is Elite: Unbound?</h2>
+
+          <p><em>Elite: Unbound</em> is a source-code modification of the original Commodore 64 version of <em>Elite</em>. It is built on the complete and extensively documented BBC Micro and Commodore 64 source code made available by <a href="https://elite.bbcelite.com/playing_elite/" target="_blank" rel="noopener noreferrer">Mark Moxon</a>. Without his work, this project would not have been possible.</p>
+
+          <figure class="content-image">
+            <img src="./assets/title-screen.png" width="485" height="399" alt="Elite: Unbound title screen">
+            <figcaption>Title screen</figcaption>
+          </figure>
+
+          <p>The modification runs on a standard Commodore 64 with either a cassette or disk drive; no additional hardware is required. It is distributed as D64 and TAP images for use in a C64 emulator, or for transfer to physical media and use on a real C64.</p>
+
+          <figure class="content-image">
+            <img src="./assets/status-screen.png" width="486" height="400" alt="Elite: Unbound commander status screen">
+            <figcaption>Starting Commander</figcaption>
+          </figure>
+
+          <p>The main goal of <em>Elite: Unbound</em> is to give player greater freedom, more meaningful choices and a stronger sense of immersion. Ships other than the Cobra Mk III can now be purchased and flown. Each has its own agility, speed, hyperspace range, shield strength and hull durability. Cargo and equipment capacity also varies from ship to ship: every piece of internal equipment has a mass and reduces the space available for cargo, making each loadout a deliberate compromise. Ships also differ in the number of laser mounts and guided-missile pylons they provide.</p>
+
+          <figure class="content-image">
+            <img src="./assets/buy-ship.png" width="487" height="400" alt="Elite: Unbound ship purchase screen">
+            <figcaption>Buying a ship</figcaption>
+          </figure>
+
+          <p>This also means that player can sell installed equipment.</p>
+
+          <figure class="content-image">
+            <img src="./assets/sell-equipment.png" width="485" height="399" alt="Elite: Unbound equipment sale screen">
+            <figcaption>Selling installed equipment</figcaption>
+          </figure>
+
+          <p>The player now occupies a more balanced position within the game world. The Energy Bomb—an advantage unavailable to AI ships—has been removed and replaced by an IFF transponder and interrogator for identifying other vessels. Guided missiles have also been reworked, and a hit no longer automatically destroys its target.</p>
+
+          <p>A new career can begin in the modest Adder, which is also the default starting ship, or continue in the capable all-round Cobra Mk III. Another option is the Sidewinder: small and fragile, but fast and agile, which explains its popularity among pirates. Its speed may be the only way out of a fight. The choice of ship—and the kind of story it supports—now belongs to the player.</p>
+
+          <figure class="content-image">
+            <img src="./assets/sidewinder-pirate.png" width="488" height="401" alt="Elite: Unbound pirate Sidewinder status screen">
+            <figcaption>Pirate’s Sidewinder</figcaption>
+          </figure>
+
+          <p>Stations will not launch other vessels while either the player’s ship or an AI ship is blocking the entrance corridor, reducing the risk of collisions. Police ships are naturally exempt from this restriction.</p>
+
+          <p>Basic radio communications have been introduced. A station will warn ships that remain in its approach corridor longer than necessary.</p>
+
+          <figure class="content-image">
+            <img src="./assets/docking.png" width="487" height="401" alt="Elite: Unbound docking corridor communication">
+            <figcaption>A Coriolis station warns the player about loitering in the approach corridor</figcaption>
+          </figure>
+
+          <p>AI ship spawning has been reworked so that it is no longer immediately obvious whether a new contact is a trader or a pirate. Space debris—including cargo canisters, wreckage and asteroids—no longer follows the player during a local jump; it disappears instead.</p>
+
+          <p>Cargo can now be jettisoned in flight, allowing pirates to decide which spoils are worth keeping. Dumping cargo into open space is, of course, prohibited near most stations.</p>
+
+          <p>Every ship, including the player’s, now carries a unique registration number in the format <code>AA-123</code>. It is used for communication and identification, and can be displayed by the IFF system. Pirates and other questionable operators can conceal their registration, and the player may eventually discover how to do the same. The choice comes with both advantages and consequences.</p>
+
+          <figure class="content-image">
+            <img src="./assets/iff.png" width="485" height="399" alt="Elite: Unbound IFF identification display">
+            <figcaption>The IFF system returns the targeted ship’s registration ID</figcaption>
+          </figure>
+
+          <p>The post-docking hangar screen familiar from the BBC Micro version has also been restored.</p>
+
+          <figure class="content-image">
+            <img src="./assets/hangar.png" width="485" height="399" alt="Elite: Unbound post-docking hangar screen">
+            <figcaption>Hangar view after docking</figcaption>
+          </figure>
+
+          <p>Bounty information now reports the actual bounty value rather than a combined total.</p>
+
+          <p>Visual changes include a new white-themed cockpit, the font from the ZX Spectrum version, and single-beam laser fire. Ships are represented as having single-barrel lasers—as suggested by the weapon mounted on the nose of the Cobra Mk III—rather than twin barrels, and the player’s laser now matches the fire used by AI ships. Every laser type has a crosshair, while the revised docking-tunnel effect more closely matches the shape of a station’s docking aperture.</p>
+
+          <p>Technical improvements include a frame-rate limiter set to 12.5 FPS on PAL systems, a revised keyboard and joystick handler that allows both input methods to work simultaneously, and faster circle drawing, particularly when rendering planets.</p>
+
+          <aside class="spoiler-warning">
+            <strong>Flicker-free foundation</strong>
+            <p>This modification includes the backported flicker-free ship drawing and planet fixes from Mark Moxon sources.</p>
+          </aside>
+
+          <p>Such an extensive expansion inevitably comes at a cost. Like every home 8-bit computer of its era, the C64 has very little memory to spare. To make room for the new features, all music was removed and the instrument panel was compressed using RLE compression.</p>
+
+          <p>Existing save games from Commodore 64 <em>Elite</em> remain compatible. When loaded, they are automatically converted to the <em>Elite: Unbound</em> format.</p>
+
+          <p class="commander-signoff">Right on, Commander!</p>
+        </section>
+      </article>
+    </main>
+
+  <footer class="site-footer">
+    <p>Elite: Unbound · Commodore 64 · Ataribaby 2026</p>
+    <a href="#top">Return to top △</a>
+  </footer>
+  </div>
+</body>
+</html>
