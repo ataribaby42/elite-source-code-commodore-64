@@ -45,12 +45,66 @@
     </header>
 
     <main id="content">
-		<aside class="infobox">
+      <aside class="infobox">
         <strong>RTFM!</strong>
         <p>If you are completely new to the world of the original Elite, be sure to read the <a href="./assets/elite-c64-manual.pdf" target="_blank" rel="noopener noreferrer">original Elite C64 manual</a>. The manual below covers only the additions introduced by <em>Elite: Unbound</em>.</p>
         <p class="manual-note">This PDF is my own scan of the manual included with my original copy of Elite for the C64.</p>
       </aside>
-	</main>
+
+      <section id="expanded-status-screen">
+        <h2>Expanded Status Screen</h2>
+
+        <p>The Status screen has been expanded to display additional information.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-status-screen.png" width="488" height="399" alt="Expanded Elite: Unbound Status screen showing ship and equipment information">
+        </figure>
+
+        <p><strong>Ship: ADDER JS-042</strong></p>
+
+        <p>Shows the type of your current ship and its registration number.</p>
+
+        <p><strong>EQUIPMENT (1t)</strong></p>
+
+        <p>Shows the total weight of all installed equipment, excluding guided missiles. Missiles occupy dedicated slots in the ship’s hull and therefore do not take up space in the cargo hold. The total weight of installed equipment is deducted from the ship’s maximum cargo capacity. Consequently, the more equipment you install, the less room remains for cargo.</p>
+      </section>
+
+      <section id="expanded-inventory-screen">
+        <h2>Expanded Inventory Screen</h2>
+
+        <p>The Inventory screen has been expanded to display additional information.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-inventory-screen.png" width="488" height="399" alt="Expanded Elite: Unbound Inventory screen showing free and total cargo capacity">
+        </figure>
+
+        <p><strong>INVENTORY (0t/8t)</strong></p>
+
+        <p>Shows the remaining cargo capacity followed by the ship’s total cargo capacity. The weight of installed equipment is deducted from the total, and the remainder is available for cargo. In this example, the Adder’s unmodified cargo hold has a total capacity of 8t. The installed Front Pulse Laser accounts for 1t, as indicated by <strong>EQUIPMENT (1t)</strong> on the Status screen, while cargo occupies the remaining 7t. This leaves 0t of free capacity.</p>
+
+        <p>Installing a Large Cargo Bay increases the total cargo capacity by an amount that depends on the ship type. This increase is automatically included in the displayed total.</p>
+      </section>
+
+      <section id="new-sell-equip-screen">
+        <h2>New Sell Equip Screen</h2>
+
+        <p><em>Elite: Unbound</em> adds a new option for selling installed ship equipment. Press <code class="nowrap">Ctrl + 2</code> while docked to open the Sell Equip screen. Equipment is bought back for 50% of its purchase price.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-sell-equip-screen.png" width="488" height="399" alt="Elite: Unbound Sell Equip screen offering installed equipment for sale">
+        </figure>
+
+        <p>Each installed item is offered for sale in turn with a <strong>(Y/N)?</strong> prompt. The missile entry displays the total number fitted, but each confirmation sells only one missile. To sell additional missiles, open the Sell Equip screen again.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-sell-equip-error-screen.png" width="488" height="399" alt="Elite: Unbound Sell Equip screen showing an equipment capacity error">
+        </figure>
+
+        <p>Before selling a Large Cargo Bay, the game checks whether the ship’s current load will fit within the standard cargo hold after the extension is removed. If it will not, <strong>EQUIPMENT?</strong> appears when the combined weight of cargo and installed equipment exceeds the standard capacity, while <strong>CARGO?</strong> appears when the cargo alone will not fit.</p>
+
+        <p>Replacing one laser with another on the Equip Ship screen follows a different, older rule: the fitted laser is credited at 100% of its purchase price. Selling a laser directly through the Sell Equip screen returns only 50%.</p>
+      </section>
+    </main>
 
     <footer class="site-footer">
       <p>Elite: Unbound · Commodore 64 · Ataribaby 2026</p>
