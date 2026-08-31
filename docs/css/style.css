@@ -267,7 +267,7 @@ main {
   margin-top: 1.75rem;
 }
 
-.spoiler-warning {
+.infobox {
   margin-top: 1.75rem;
   margin-bottom: 1.75rem;
   padding: 0.9rem 1rem;
@@ -275,13 +275,13 @@ main {
   background: #171717;
 }
 
-.spoiler-warning strong {
+.infobox strong {
   display: block;
   margin-bottom: 0.35rem;
   color: var(--link);
 }
 
-.spoiler-warning p {
+.infobox p {
   margin: 0;
 }
 
@@ -385,7 +385,8 @@ h2 {
   image-rendering: crisp-edges;
 }
 
-.content-image figcaption {
+.content-image figcaption,
+.infobox .manual-note {
   margin: 0.4rem 0 0;
   color: var(--muted);
   font-size: 0.8rem;
