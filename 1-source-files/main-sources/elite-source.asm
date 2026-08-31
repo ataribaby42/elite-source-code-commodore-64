@@ -23128,6 +23128,22 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; Ship screen)
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ PLP                    ; Recover the selected mode after TRADEMODE
+ PHP                    ; Keep it for the equipment/ship list dispatch below
+ BCC eqshipEquipTitle   ; Plain "3" keeps the EQUIP SHIP title
+
+ LDA #12                ; Centre the shorter BUY SHIP title
+ JSR DOXC
+ LDA #'B'
+ JSR TT27
+ LDA #'U'
+ JSR TT27
+ LDA #'Y'
+ JSR spc                ; Finish BUY with a space
+ JMP eqshipShipTitle    ; Share SHIP and the title underline
+
+.eqshipEquipTitle
+
  LDA #11                ; V3O: move the EQUIP SHIP title one column left
 ELSE                   ; ELITE: Unbound build option (else)
  LDA #12                ; Move the text cursor to column 12
@@ -23136,6 +23152,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #207               ; Print recursive token 47 ("EQUIP") followed by a space
  JSR spc
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+.eqshipShipTitle
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #185               ; Print recursive token 25 ("SHIP") and draw a
  JSR NLIN3              ; horizontal line at pixel row 19 to box in the title

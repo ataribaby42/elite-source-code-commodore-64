@@ -36,8 +36,8 @@ příkazem git branch --show-current a podle cesty pracovní kopie.
    pracovní kopii. Nekopírujte celý ASM soubor přes druhou větev; flicker-free
    obsahuje vlastní odlišnosti.
 5. Neprovádějte commit ani push bez výslovného pokynu uživatele.
-6. Pokud uživatel neurčí jinak, předávejte výsledné soubory v jednom ZIPu
-   s oddělenými adresáři main/ a flicker-free/.
+6. Změny provádějte přímo v příslušných pracovních kopiích na disku.
+   ZIPy vytvářejte pouze na výslovnou žádost uživatele.
 
 Aktuální zdrojový kód a výstup skutečného buildu mají přednost před údaji
 v chatu nebo v PROJECT_NOTES.md. Pokud se poznámky rozcházejí s kódem,
