@@ -25894,7 +25894,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.52"
+ EQUS "v0.53"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -26631,18 +26631,19 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
 .ShipMaxPitchDialMagnitude
  EQUB 7, 6, 7, 7, 5, 6, 3, 4, 3, 6, 7, 6, 7
 
-; Default empty cargo capacities. Sidewinder is intentionally tiny at 3t;
+; Default empty cargo capacities. Sidewinder is intentionally tiny at 4t;
 ; Krait and Mamba use 10t.
 ;
 ; Cobra III, Adder, Gecko, Moray, Cobra I, Fer-de-Lance,
 ; Python, Boa, Anaconda, Asp II, Sidewinder, Krait, Mamba
 .ShipDefaultCargo
- EQUB 42, 8, 9, 11, 14, 9, 106, 132, 215, 6, 3, 10, 10
+ EQUB 28, 8, 9, 11, 14, 9, 106, 132, 215, 6, 4, 10, 10
 
 ; ELITE: Unbound Large Cargo Bay capacities. Bonus = floor(base / 10), with a
-; minimum of +1t and hard maximum 255t. Sidewinder 3->4; Krait/Mamba 10->11.
+; minimum of +1t and hard maximum 255t. Cobra III 28->30; Sidewinder 4->5;
+; Krait/Mamba 10->11.
 .ShipExtendedCargo
- EQUB 46, 9, 10, 12, 15, 10, 116, 145, 236, 7, 4, 11, 11
+ EQUB 30, 9, 10, 12, 15, 10, 116, 145, 236, 7, 5, 11, 11
 
 ; Established hull prices use Elite-A _BUG_FIX/source-disc values. Sidewinder,
 ; Krait and Mamba are ELITE: Unbound prices agreed for the Anarchy-only hulls.
