@@ -184,6 +184,13 @@ Manuály musí vycházet z aktuální anglické a české verze webu ve větvi
 `flicker-free`. Na začátku musí obsahovat také úvodní vyprávění, představení
 Elite: Unbound a seznam funkcí; vlastní návod následuje až za nimi.
 
+Na úplný konec obou manuálů vždy připojte aktuální obsah stránky
+`docs/credits.html` pro anglickou verzi a `docs/cs/credits.html` pro českou
+verzi. Sekce musí mít ve své jazykové verzi nadpis `Credits & Foundations`,
+respektive `Poděkování a základy projektu`, a musí být zahrnuta v obsahu,
+interních odkazech a PDF záložkách. Externí odkazy v poděkování zachovejte
+aktivní.
+
 Používejte bílé pozadí a černý text vhodný pro tisk. Hlavní nadpis na první
 straně musí být přesně `Elite: Unbound`, bez podtitulu a bez barevného
 podkladu nebo zvýraznění. Zachovejte obrázky, popisky, pořadí sekcí a
@@ -193,8 +200,9 @@ Vytvořte obsah s čísly stran, klikacími interními odkazy a PDF záložkami.
 Externí odkazy musí zůstat aktivní. Po každém vytvoření nebo úpravě
 vykreslete obě PDF a vizuálně zkontrolujte všechny stránky, zejména titulní
 stranu, zalomení textu, obrázky, popisky a případné přetečení. Ověřte také
-počet stran, textovou vrstvu, odkazy a záložky. Dočasné rendery a pomocné
-soubory po kontrole odstraňte.
+počet stran, textovou vrstvu, odkazy a záložky. Vypište také skutečné názvy
+PDF záložek a ověřte, že žádný název není zdvojený nebo jinak poškozený.
+Dočasné rendery a pomocné soubory po kontrole odstraňte.
 
 ## Důležitá místa
 
