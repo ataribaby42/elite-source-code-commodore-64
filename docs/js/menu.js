@@ -5,6 +5,8 @@
   const backdrop = document.querySelector(".menu-backdrop");
   const menuLinks = menu?.querySelectorAll("a") ?? [];
   const firstMenuLink = menuLinks[0];
+  const openLabel = toggle?.dataset.labelOpen ?? "Open menu";
+  const closeLabel = toggle?.dataset.labelClose ?? "Close menu";
 
   if (!toggle || !menu || !backdrop) {
     return;
@@ -13,7 +15,7 @@
   const setMenuOpen = (open, returnFocus = false) => {
     body.classList.toggle("menu-open", open);
     toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    toggle.setAttribute("aria-label", open ? closeLabel : openLabel);
     menu.setAttribute("aria-hidden", String(!open));
     backdrop.hidden = !open;
 

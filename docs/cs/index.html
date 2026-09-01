@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Elite: Unbound rozšiřuje Elite pro Commodore 64 o lodě, které lze kupovat a řídit, rozdílné vlastnosti lodí a volitelná herní vylepšení.">
+  <meta name="theme-color" content="#000000">
+  <title>Elite: Unbound — Commodore 64</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/menu.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#content">Přejít k obsahu</a>
+
+  <header class="site-toolbar" aria-label="Ovládání webu">
+    <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Otevřít menu" aria-controls="site-menu" aria-expanded="false" data-label-open="Otevřít menu" data-label-close="Zavřít menu">
+      <span class="burger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+
+    <a class="home-link" href="./index.html" aria-label="Domů" title="Domů">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 11.5 12 4l9 7.5"></path>
+        <path d="M5.5 10.5V21h13V10.5"></path>
+      </svg>
+    </a>
+
+    <nav class="language-switch" aria-label="Jazyk">
+      <a lang="en" hreflang="en" href="../index.html" aria-label="English">EN</a>
+      <span lang="cs" aria-current="true">CZ</span>
+    </nav>
+
+    <span class="toolbar-title">Elite: Unbound</span>
+  </header>
+
+  <aside class="site-menu" id="site-menu" aria-label="Menu webu" aria-hidden="true">
+    <nav>
+      <a href="./index.html" aria-current="page">Elite: Unbound</a>
+      <a href="./instruction-manual.html">Návod k použití</a>
+      <a href="./technical-info.html">Technické informace</a>
+      <a href="./download.html">Ke stažení</a>
+      <a href="./credits.html">Poděkování a základy projektu</a>
+      <a href="./galnet.html">GalNet</a>
+    </nav>
+  </aside>
+  <button class="menu-backdrop" type="button" aria-label="Zavřít menu" hidden></button>
+
+  <div class="page-frame">
+    <header class="site-header">
+      <div class="title-strip">
+        <h1>Elite: Unbound</h1>
+        <p>Rozšířená Elite pro Commodore 64</p>
+      </div>
+    </header>
+
+    <nav class="page-toc" aria-label="Obsah stránky">
+      <a href="#the-beginning">Začátky</a>
+      <a href="#what-is-elite-unbound">Co je Elite: Unbound?</a>
+      <a href="#features">Funkce</a>
+    </nav>
+
+    <main id="content">
+      <article class="article-shell">
+        <header class="hero">
+          <figure class="title-screen">
+            <a class="artwork-link" href="https://www.deviantart.com/ataribaby42/art/Leaving-Lave-971816512" target="_blank" rel="noopener noreferrer">
+              <img class="artwork-image artwork-primary" src="../assets/leaving-lave.jpg" width="640" height="449" alt="Obraz Leaving Lave od Ataribabyho, 2023">
+              <img class="artwork-image artwork-hover" src="../assets/leaving-lave-8bit.jpg" width="640" height="449" alt="" aria-hidden="true">
+            </a>
+            <figcaption>Leaving Lave, Ataribaby 2023</figcaption>
+          </figure>
+        </header>
+
+        <section id="the-beginning">
+          <h2>Začátky</h2>
+
+          <p>Všechno začalo kolem roku 1991, kdy jsem jako dospívající objevil na svém osmibitovém počítači <a href="https://cs.wikipedia.org/wiki/Didaktik_M" target="_blank" rel="noopener noreferrer">Didaktik M</a>, československém klonu počítače <a href="https://en.wikipedia.org/wiki/ZX_Spectrum" target="_blank" rel="noopener noreferrer">Sinclair ZX Spectrum 48K</a>, program s tajemným názvem <a class="nowrap" href="https://spectrumcomputing.co.uk/entry/1601/ZX-Spectrum/Elite" target="_blank" rel="noopener noreferrer">E L I T E</a>. Program se ke mně dostal na vypůjčené kazetě. Jako fanouška všech možných 3D simulátorů, které tehdy většinou používaly průhlednou drátovou grafiku, mě Elite okamžitě uchvátila svými 3D modely, jejichž skryté hrany se nezobrazovaly.</p>
+
+          <p>Postupem času jsem ze zvědavosti začal odhalovat skutečnou hloubku hry. Nebyla to jen jednoduchá 3D střílečka ve stylu Starionu nebo Starfoxu. Bylo v ní něco víc: úplná simulace života vesmírného obchodníka, pašeráka, lovce odměn, piráta, horníka nebo mezihvězdného playboye. Mohli jste se stát kýmkoli.</p>
+
+          <p>Hloubka, s jakou hra simulovala vesmír, kosmické lety, souboje, ekonomiku a obchodování, mě zcela pohltila. To léto mě pobyt venku příliš nelákal. Po roce hraní moje alter ego konečně dosáhlo hodnosti <code class="nowrap">--- ELITE ---</code>. Naštěstí přibližně v té době vyšel v herním časopise FIFO podrobný návod, který konečně zodpověděl otázky, jež bez originální příručky zůstávaly nevyřešené.</p>
+
+          <p>Tehdejší zvěsti o <a href="https://wiki.alioth.net/index.php/Rock_Hermit" target="_blank" rel="noopener noreferrer">skalních poustevnících</a>, generačních lodích a dalších záhadách mě přiměly prohledávat celou galaxii. Skalní poustevníci se nakonec objevili, generační lodě nikoli. Jeden soused kdysi tvrdil, že potkal loď, která zůstávala většinu času neviditelná a dala se spatřit pouze na skeneru. Po jejím zničení podle něj vypadl nákladní kontejner a po nabrání se ukázalo, že obsahuje zařízení zvané Cloaking Device.</p>
+
+          <p>Bohužel už nedoletěl ke stanici, aby si postup uložil. Cestou jeho loď zničili piráti, takže nemohl zjistit, jak zařízení použít. Tehdy mi z jeho příběhu nepřipadalo věrohodné ani slovo. Dnes samozřejmě vím, že mluvil pravdu. Verze pro ZX Spectrum obsahuje zvláštní Asp Mk II vybavený přesně takovým zařízením. Po zničení lodi a nabrání jejího kontejneru se Cloaking Device aktivuje klávesou <code>Y</code>.</p>
+
+          <p>Čas plynul. Začala střední škola, klon ZX Spectra vystřídala Amiga 1200 a Elite znovu zapůsobila svým kouzlem, tentokrát jako <a href="https://en.wikipedia.org/wiki/Frontier:_Elite_II" target="_blank" rel="noopener noreferrer">Frontier: Elite II</a>. To už je ale jiný příběh…</p>
+
+          <p>V té době jsem získal také <a href="https://en.wikipedia.org/wiki/Commodore_64" target="_blank" rel="noopener noreferrer">C64</a> a poprvé se setkal s jeho verzí Elite, která má velmi blízko k původní verzi pro BBC Micro. Verze pro ZX Spectrum se v několika ohledech liší a funguje poněkud jinak. Její vývojáři totiž od původních autorů dostali pouze kód pro procedurální generování vesmíru. Všechno ostatní vytvořili znovu podle hraní původní verze na BBC Micro.</p>
+
+          <p>Právě proto se <em>Elite: Unbound</em> snaží navázat na estetiku verze pro ZX Spectrum. Spectrum zůstává mou nejoblíbenější verzí z prostého důvodu: byla první.</p>
+
+          <p>Původní Elite pro mě definovala otevřený sandboxový svět založený na procedurálním generování. Nemá konec ani pevně stanovený cíl kromě dosažení hodnosti ELITE. Všechno ostatní patří hráči, včetně příběhu, který se rozhodne vytvořit. Právě takové hry mám stále rád a dodnes je vyhledávám.</p>
+
+          <p>A nyní je rok 2026 a technika pokročila neuvěřitelným způsobem. To, co kdysi existovalo pouze v mé představivosti, když se jednoduchý kruh představující planetu zvětšoval a nad jejím obzorem se vznášela vesmírná stanice, se stalo skutečností, kterou moderní <a href="https://www.elitedangerous.com/" target="_blank" rel="noopener noreferrer">Elite: Dangerous</a> vykresluje téměř dokonale.</p>
+
+          <p>Splnil se mi i další sen: vytvořit takovou verzi Elite, jakou jsem si vždy přál, a nabídnout ji zde. Snad se bude líbit i vám.</p>
+
+          <figure class="section-logo">
+            <img src="../assets/elite-logo-small.png" width="300" height="282" alt="Logo Elite">
+          </figure>
+        </section>
+
+        <section id="what-is-elite-unbound">
+          <h2>Co je Elite: Unbound?</h2>
+
+          <p><em>Elite: Unbound</em> je modifikace zdrojového kódu původní verze <em>Elite</em> pro Commodore 64. Vychází z kompletního a rozsáhle zdokumentovaného zdrojového kódu verzí pro BBC Micro a Commodore 64, který zpřístupnil <a href="https://elite.bbcelite.com/playing_elite/" target="_blank" rel="noopener noreferrer">Mark Moxon</a>. Bez jeho práce by tento projekt nemohl vzniknout.</p>
+
+          <figure class="content-image">
+            <img src="../assets/title-screen.png" width="485" height="399" alt="Úvodní obrazovka Elite: Unbound">
+            <figcaption>Úvodní obrazovka</figcaption>
+          </figure>
+
+          <p>Modifikaci lze spustit na běžném Commodoru 64 s kazetovou nebo disketovou mechanikou a nevyžaduje žádný další hardware. Je distribuována jako obrazy D64 a TAP určené pro emulátor C64 nebo k přenosu na fyzická média a použití na skutečném C64.</p>
+
+          <figure class="content-image">
+            <img src="../assets/status-screen.png" width="486" height="400" alt="Stavová obrazovka velitele v Elite: Unbound">
+            <figcaption>Počáteční velitel</figcaption>
+          </figure>
+
+          <p>Hlavním cílem <em>Elite: Unbound</em> je nabídnout hráči větší svobodu, smysluplnější volby a silnější pocit ponoření do světa hry. Nyní lze kupovat a řídit i jiné lodě než Cobru Mk III. Každá má vlastní obratnost, rychlost, dosah hyperprostoru, sílu štítů a odolnost trupu. Kapacita pro náklad a vybavení se rovněž liší podle typu lodi: každé vnitřní vybavení má svou hmotnost a zmenšuje prostor dostupný pro náklad, takže každá konfigurace představuje promyšlený kompromis. Lodě se liší také počtem závěsů pro lasery a řízené střely.</p>
+
+          <figure class="content-image">
+            <img src="../assets/buy-ship.png" width="487" height="400" alt="Obrazovka nákupu lodí v Elite: Unbound">
+            <figcaption>Nákup lodi</figcaption>
+          </figure>
+
+          <p>Nainstalované vybavení lodi lze také prodávat.</p>
+
+          <figure class="content-image">
+            <img src="../assets/sell-equipment.png" width="485" height="399" alt="Obrazovka prodeje vybavení v Elite: Unbound">
+            <figcaption>Prodej nainstalovaného vybavení</figcaption>
+          </figure>
+
+          <p>Hráč má nyní ve světě vyváženější postavení. Energy Bomb, tedy výhoda nedostupná lodím řízeným počítačem, byla odstraněna a nahrazena transpondérem a dotazovačem I.F.F. pro identifikaci ostatních plavidel. Přepracovány byly také řízené střely, jejichž zásah už cíl automaticky nezničí.</p>
+
+          <p>Novou kariéru lze zahájit ve skromném Adderu, který je zároveň výchozí lodí, nebo pokračovat ve schopné univerzální Cobře Mk III. Další možností je Sidewinder: malý a křehký, ale rychlý a obratný, což vysvětluje jeho oblibu mezi piráty. Jeho rychlost může být jedinou cestou z boje. Volba lodi a příběhu, který umožňuje, nyní patří hráči.</p>
+
+          <figure class="content-image">
+            <img src="../assets/sidewinder-pirate.png" width="488" height="401" alt="Stavová obrazovka pirátského Sidewinderu v Elite: Unbound">
+            <figcaption>Pirátský Sidewinder</figcaption>
+          </figure>
+
+          <p>Pokud vstupní koridor blokuje hráčova loď nebo loď řízená počítačem, stanice nedovolí start dalších plavidel, čímž se snižuje riziko kolizí. Policejní lodě jsou z tohoto omezení přirozeně vyňaty.</p>
+
+          <p>Doplněna byla základní rádiová komunikace. Stanice varuje lodě, které zůstávají v přibližovacím koridoru déle, než je nutné.</p>
+
+          <figure class="content-image">
+            <img src="../assets/docking.png" width="487" height="401" alt="Komunikace v dokovacím koridoru Elite: Unbound">
+            <figcaption>Stanice Coriolis varuje hráče před zdržováním v přibližovacím koridoru</figcaption>
+          </figure>
+
+          <p>Objevování lodí řízených počítačem bylo přepracováno tak, aby nebylo okamžitě zřejmé, zda je nový kontakt obchodník, nebo pirát. Vesmírný odpad včetně nákladních kontejnerů, trosek a asteroidů už při místním skoku nenásleduje hráče a místo toho zmizí.</p>
+
+          <p>Náklad lze nyní odhazovat za letu, takže si piráti mohou rozhodnout, kterou kořist stojí za to ponechat. Odhazování nákladu do volného prostoru je samozřejmě v blízkosti většiny stanic zakázáno.</p>
+
+          <p>Každá loď včetně hráčovy má nyní jedinečné registrační ID ve formátu <code>AA-123</code>. Používá se ke komunikaci a identifikaci a lze je zobrazit prostřednictvím systému I.F.F. Piráti a další pochybní provozovatelé mohou svou registraci skrývat a hráč možná časem zjistí, jak učinit totéž. Tato volba přináší výhody i následky.</p>
+
+          <figure class="content-image">
+            <img src="../assets/iff.png" width="485" height="399" alt="Identifikace cíle systémem I.F.F. v Elite: Unbound">
+            <figcaption>Systém I.F.F. zobrazí registrační ID zaměřené lodi</figcaption>
+          </figure>
+
+          <p>Obnovena byla také scéna hangáru po přistání, známá z verze pro BBC Micro.</p>
+
+          <figure class="content-image">
+            <img src="../assets/hangar.png" width="485" height="399" alt="Hangár po přistání v Elite: Unbound">
+            <figcaption>Pohled do hangáru po přistání</figcaption>
+          </figure>
+
+          <p>Zobrazení odměny nyní uvádí její skutečnou hodnotu namísto celkového součtu kreditů.</p>
+
+          <p>Mezi vizuální změny patří nový přístrojový panel v bílém motivu, písmo z verze pro ZX Spectrum a laserová palba s jedním paprskem. Lodě jsou pojaty jako stroje s jednohlavňovými lasery, jak naznačuje zbraň na přídi Cobry Mk III, nikoli se dvěma hlavněmi. Hráčův laser tak odpovídá palbě lodí řízených počítačem. Každý typ laseru má zaměřovací kříž a upravený efekt dokovacího tunelu lépe odpovídá tvaru vstupního otvoru stanice.</p>
+
+          <p>Mezi technická vylepšení patří omezení snímkové frekvence na 12,5 FPS v systémech PAL, upravená obsluha klávesnice a joysticku umožňující současné použití obou způsobů ovládání a rychlejší vykreslování kružnic, především u planet.</p>
+
+          <aside class="infobox">
+            <strong>Základ s omezeným blikáním</strong>
+            <p>Tato modifikace obsahuje zpětně přenesené opravy kreslení lodí a planet s omezeným blikáním ze zdrojových kódů Marka Moxona.</p>
+          </aside>
+
+          <p>Tak rozsáhlé rozšíření se nevyhnutelně neobejde bez ústupků. Stejně jako každý domácí osmibitový počítač své doby má C64 velmi málo volné paměti. Aby vzniklo místo pro nové funkce, byla odstraněna veškerá hudba a přístrojový panel byl komprimován pomocí RLE.</p>
+
+          <p>Existující uložené pozice z <em>Elite</em> pro Commodore 64 zůstávají kompatibilní. Po načtení se automaticky převedou do formátu <em>Elite: Unbound</em>.</p>
+
+        </section>
+
+        <section id="features">
+          <h2>Funkce</h2>
+
+          <p>Přehled hlavních funkcí <em>Elite: Unbound</em>.</p>
+
+          <ul>
+            <li>Nové hry začínají v maličkém Adderu</li>
+            <li>Alternativní počáteční pozice dodávané jako uložené hry ve formátu C64 TAP</li>
+            <li>Možnost kupovat a řídit různé typy lodí</li>
+            <li>Možnost prodávat nainstalované vybavení lodi</li>
+            <li>Jednotka I.F.F. nahrazující Energy Bomb</li>
+            <li>Jedinečná registrační ID pro všechny lodě řízené počítačem i hráčovu loď</li>
+            <li>Realistické poškození lodí řízených počítačem řízenými střelami, takže větší plavidla už nezničí jediná střela</li>
+            <li>Odhazování nákladu za letu</li>
+            <li>Bohatší zážitky pro pirátskou kariéru</li>
+            <li>Náhodně volené pozice nových lodí řízených počítačem</li>
+            <li>Rozšířené obrazovky Status a Inventory</li>
+            <li>Zprávy o odměně zobrazující pouze přidělenou odměnu</li>
+            <li>Nový přístrojový panel v bílém motivu</li>
+            <li>Chráněné přibližovací koridory stanic</li>
+            <li>Upravené postupy startu a přistání, které brání kolizím s loděmi řízenými počítačem opouštějícími stanici</li>
+            <li>Základní komunikace stanic, která zatím zahrnuje varování před zdržováním a jeden další zvláštní případ</li>
+            <li>Obnovená scéna dokovacího hangáru z Elite pro BBC Micro</li>
+            <li>Soustředné obdélníkové rámy dokovacího tunelu nahrazující kruhové prstence, aby lépe odpovídaly vstupnímu otvoru stanice</li>
+            <li>Rychlejší vykreslování kružnic, zejména u planet</li>
+            <li>Vylepšená obsluha vstupu z klávesnice a joysticku</li>
+            <li>Omezovač snímkové frekvence</li>
+            <li>Disketová i kazetová verze</li>
+            <li>Provoz na standardním Commodoru 64 bez dalšího hardwaru</li>
+            <li>Kompatibilita s uloženými pozicemi z původní Elite pro Commodore 64</li>
+          </ul>
+        </section>
+
+        <p class="commander-signoff">Right on, Commanders!</p>
+      </article>
+    </main>
+
+  <footer class="site-footer">
+    <p>Elite: Unbound · Commodore 64 · Ataribaby 2026</p>
+    <a href="#top">Zpět nahoru △</a>
+  </footer>
+  </div>
+</body>
+</html>

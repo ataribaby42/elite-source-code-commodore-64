@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Návod k použití Elite: Unbound pro Commodore 64.">
+  <meta name="theme-color" content="#000000">
+  <title>Návod k použití — Elite: Unbound</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/menu.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#content">Přejít k obsahu</a>
+
+  <header class="site-toolbar" aria-label="Ovládání webu">
+    <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Otevřít menu" aria-controls="site-menu" aria-expanded="false" data-label-open="Otevřít menu" data-label-close="Zavřít menu">
+      <span class="burger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+
+    <a class="home-link" href="./index.html" aria-label="Domů" title="Domů">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 11.5 12 4l9 7.5"></path>
+        <path d="M5.5 10.5V21h13V10.5"></path>
+      </svg>
+    </a>
+
+    <nav class="language-switch" aria-label="Jazyk">
+      <a lang="en" hreflang="en" href="../instruction-manual.html" aria-label="English">EN</a>
+      <span lang="cs" aria-current="true">CZ</span>
+    </nav>
+
+    <span class="toolbar-title">Elite: Unbound</span>
+  </header>
+
+  <aside class="site-menu" id="site-menu" aria-label="Menu webu" aria-hidden="true">
+    <nav>
+      <a href="./index.html">Elite: Unbound</a>
+      <a href="./instruction-manual.html" aria-current="page">Návod k použití</a>
+      <a href="./technical-info.html">Technické informace</a>
+      <a href="./download.html">Ke stažení</a>
+      <a href="./credits.html">Poděkování a základy projektu</a>
+      <a href="./galnet.html">GalNet</a>
+    </nav>
+  </aside>
+  <button class="menu-backdrop" type="button" aria-label="Zavřít menu" hidden></button>
+
+  <div class="page-frame">
+    <header class="site-header">
+      <div class="title-strip">
+        <h1>Návod k použití</h1>
+      </div>
+    </header>
+
+    <nav class="page-toc" aria-label="Obsah stránky">
+      <a href="#status-screen">Obrazovka Status</a>
+      <a href="#inventory-screen">Obrazovka Inventory</a>
+      <a href="#sell-equip-screen">Obrazovka Sell Equip</a>
+      <a href="#buy-ship-screen">Obrazovka Buy Ship</a>
+      <a href="#equip-ship-screen">Obrazovka Equip Ship</a>
+      <a href="#in-flight-cargo-jettison">Odhazování nákladu za letu</a>
+      <a href="#iff-transponder-and-interrogator-operations">Obsluha transpondéru a dotazovače I.F.F.</a>
+      <a href="#bounty-display">Zobrazení odměny</a>
+      <a href="#station-docking-procedure">Postup při dokování u stanice</a>
+    </nav>
+
+    <main id="content">
+      <aside class="infobox">
+        <strong>RTFM!</strong>
+        <p>Pokud jste ve světě původní Elite úplným začátečníkem, nezapomeňte si přečíst <a href="../assets/elite-c64-manual.pdf" target="_blank" rel="noopener noreferrer">originální příručku Elite pro C64</a>. Následující návod popisuje pouze rozšíření obsažená v <em>Elite: Unbound</em>.</p>
+        <p class="manual-note">Tento PDF soubor je můj vlastní sken příručky dodané s mou původní kopií Elite pro C64.</p>
+      </aside>
+
+      <section id="status-screen">
+        <h2>Obrazovka Status</h2>
+
+        <p>Obrazovka Status byla rozšířena o další údaje.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-status-screen.png" width="488" height="399" alt="Rozšířená obrazovka Status v Elite: Unbound s údaji o lodi a vybavení">
+        </figure>
+
+        <p><strong>Ship: ADDER JS-042</strong></p>
+
+        <p>Zobrazuje typ aktuální lodi a její registrační ID.</p>
+
+        <p><strong>EQUIPMENT (1t)</strong></p>
+
+        <p>Zobrazuje celkovou hmotnost veškerého nainstalovaného vybavení kromě řízených střel. Střely jsou umístěny ve vyhrazených závěsech v trupu lodi, a proto nezabírají místo v nákladovém prostoru. Celková hmotnost nainstalovaného vybavení se odečítá od maximální kapacity nákladového prostoru lodi. Čím více vybavení tedy nainstalujete, tím méně místa zbude pro náklad.</p>
+      </section>
+
+      <section id="inventory-screen">
+        <h2>Obrazovka Inventory</h2>
+
+        <p>Obrazovka Inventory byla rozšířena o další údaje.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-inventory-screen.png" width="488" height="399" alt="Rozšířená obrazovka Inventory v Elite: Unbound s volnou a celkovou kapacitou nákladového prostoru">
+        </figure>
+
+        <p><strong>INVENTORY (0t/8t)</strong></p>
+
+        <p>Zobrazuje zbývající kapacitu pro náklad a za ní celkovou kapacitu nákladového prostoru lodi. Od celkové kapacity se odečítá hmotnost nainstalovaného vybavení a zbytek je k dispozici pro náklad. V tomto příkladu má neupravený nákladový prostor Adderu celkovou kapacitu 8t. Nainstalovaný Front Pulse Laser zabírá 1t, jak ukazuje údaj <strong>EQUIPMENT (1t)</strong> na obrazovce Status, a zbývajících 7t zabírá náklad. Volná kapacita je tedy 0t.</p>
+
+        <p>Instalace Large Cargo Bay zvětší celkovou kapacitu nákladového prostoru o hodnotu, která závisí na typu lodi. Toto rozšíření je automaticky zahrnuto do zobrazené celkové kapacity.</p>
+      </section>
+
+      <section id="sell-equip-screen">
+        <h2>Obrazovka Sell Equip</h2>
+
+        <p>Nainstalované vybavení lodi lze nyní prodávat. Obrazovku Sell Equip otevřete po přistání stisknutím <code class="nowrap">Ctrl + 2</code>. Vybavení se vykupuje za 50 % pořizovací ceny.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-sell-equip-screen.png" width="488" height="399" alt="Obrazovka Sell Equip v Elite: Unbound s nabídkou nainstalovaného vybavení k prodeji">
+        </figure>
+
+        <p>Každá nainstalovaná položka je postupně nabídnuta k prodeji s otázkou <strong>(Y/N)?</strong> U řízených střel se zobrazí jejich celkový počet, ale každým potvrzením se prodá pouze jedna. Chcete-li prodat další střely, znovu otevřete obrazovku Sell Equip.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-sell-equip-error-screen.png" width="488" height="399" alt="Obrazovka Sell Equip v Elite: Unbound s chybou kapacity vybavení">
+        </figure>
+
+        <p>Large Cargo Bay lze prodat pouze tehdy, pokud se aktuální náklad lodi po odstranění rozšíření vejde do základního nákladového prostoru. V opačném případě se zobrazí <strong>EQUIPMENT?</strong>, pokud součet hmotnosti nákladu a nainstalovaného vybavení překračuje základní kapacitu, nebo <strong>CARGO?</strong>, pokud se nevejde samotný náklad.</p>
+
+        <p>Při výměně jednoho laseru za jiný na obrazovce Equip Ship platí odlišné starší pravidlo: nainstalovaný laser se započte za 100 % své pořizovací ceny. Přímý prodej laseru prostřednictvím obrazovky Sell Equip vrátí pouze 50 %.</p>
+      </section>
+
+      <section id="buy-ship-screen">
+        <h2>Obrazovka Buy Ship</h2>
+
+        <p>Nyní lze kupovat nové lodě. Obrazovku Buy Ship otevřete po přistání stisknutím <code class="nowrap">Ctrl + 3</code>.</p>
+
+        <p>Obrazovka zobrazuje seznam právě nabízených lodí a jejich pořizovací ceny. Dostupnost závisí na ekonomice systému; v anarchických systémech se navíc nabízejí lodě z černého trhu.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-buy-ship-screen.png" width="488" height="399" alt="Obrazovka Buy Ship v Elite: Unbound se seznamem dostupných lodí a jejich cen">
+        </figure>
+
+        <p>Před koupí nové lodi je nutné prodat veškeré běžné nainstalované vybavení, protože je nelze přenést do nového trupu, a také nadbytečné střely, které nová loď neunese. Naval Energy Unit je z tohoto požadavku vyňata a přenese se do nové lodi.</p>
+
+        <p>Při koupi nové lodi se stávající náklad zachová. Ověří se, zda se vejde do <strong>základního nákladového prostoru</strong> nové lodi. Přenášená Naval Energy Unit se započítává jako 1t.</p>
+
+        <p>Koupě může být zamítnuta jednou z následujících zpráv: <strong>CASH?</strong>, <strong>EQUIPMENT?</strong>, <strong>CARGO?</strong> nebo <strong>MISSILES?</strong>.</p>
+      </section>
+
+      <section id="equip-ship-screen">
+        <h2>Obrazovka Equip Ship</h2>
+
+        <p>Na tuto obrazovku byla přidána <strong>I.F.F. Unit</strong>, kterou lze koupit od Tech Level 7 výše.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-equip-ship-screen.png" width="488" height="399" alt="Obrazovka Equip Ship v Elite: Unbound s jednotkou I.F.F. a cenami vybavení podle typu lodi">
+        </figure>
+
+        <p>Jedinou další změnou je, že ceny vybavení se nyní liší podle typu lodi, kterou řídíte.</p>
+
+        <p>V obzvlášť pochybných systémech zde možná najdete i méně legální možnosti.</p>
+      </section>
+
+      <section id="in-flight-cargo-jettison">
+        <h2>Odhazování nákladu za letu</h2>
+
+        <p>Za letu lze nyní odhodit jeden nákladní kontejner o hmotnosti 1t. Obrazovku Jettison otevřete stisknutím <code class="nowrap">Ctrl + 2</code>.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-jettison-screen.png" width="488" height="399" alt="Obrazovka odhazování nákladu za letu v Elite: Unbound">
+        </figure>
+
+        <p>Jednotlivé druhy nákladu, které lze odhodit, se postupně zobrazí s otázkou <strong>(Y/N)?</strong> Vybrat lze jakékoli zboží přepravované v jednotunových kontejnerech kromě <strong>Alien Items</strong>. Potvrzením volby se odhodí jeden kontejner o hmotnosti 1t. V kontejneru zůstane vybrané zboží, takže jeho opětovné nabrání pomocí Fuel Scoops vrátí stejný druh nákladu.</p>
+
+        <p>Úspěšné odhození potvrdí pípnutí a poté se zobrazí obrazovka <strong>INVENTORY</strong>.</p>
+
+        <p><strong class="warning-label">VAROVÁNÍ!</strong> Odhazování nákladu v bezpečnostní zóně většiny stanic je nezákonné a může nepříznivě ovlivnit váš právní status.</p>
+      </section>
+
+      <section id="iff-transponder-and-interrogator-operations">
+        <h2>Obsluha transpondéru a dotazovače I.F.F.</h2>
+
+        <p>Toto nové zařízení umožňuje včas rozpoznat nepřátelská plavidla a identifikovat ostatní lodě.</p>
+
+        <figure class="content-image">
+          <img src="../assets/iff.png" width="485" height="399" alt="Identifikace cíle pomocí I.F.F. s registračním ID lodi">
+        </figure>
+
+        <p>Jednotka I.F.F. je plně integrována do zaměřovacího systému řízených střel a dokáže pracovat také samostatně, pokud na palubě nejsou žádné řízené střely.</p>
+
+        <p>Jednotku I.F.F. aktivujete klávesou <strong>I</strong>. Pokud jsou na palubě řízené střely, klávesa <strong>I</strong> plní stejnou zaměřovací funkci jako klávesa <strong>T</strong> pro zaměřování střel a zaměření probíhá naprosto stejně. Po zaměření cíle se zobrazí jeho registrační ID, pokud je vysíláno; v opačném případě se zobrazí <strong>??-???</strong>.</p>
+
+        <p>Pokud na palubě nezůstala žádná řízená střela, klávesa <strong>I</strong> aktivuje dotazovač. Pípnutí podobně jako při zaměřování střely oznámí připravenost k zaměření cíle. Po zaměření se zobrazí registrační ID cíle a dotazovač se vypne. Před zaměřením jej lze vypnout ručně klávesou <strong>U</strong>.</p>
+
+        <p>Transpondér pracuje automaticky a nevyžaduje žádnou obsluhu. Registrační ID vaší lodi se vysílá nepřetržitě.</p>
+
+        <p>Nepřátelské kontakty jsou označeny také na skeneru.</p>
+
+        <figure class="content-image">
+          <img src="../assets/iff-hostile.png" width="280" height="104" alt="Skener se značkou nepřátelského kontaktu I.F.F.">
+        </figure>
+
+        <p>Tyto kontakty mají hlavičku značky ve tvaru písmene <strong>T</strong> namísto otočeného tvaru písmene <strong>L</strong>, který se používá pro ostatní kontakty.</p>
+      </section>
+
+      <section id="bounty-display">
+        <h2>Zobrazení odměny</h2>
+
+        <p>Po zničení cíle se na vylepšeném zobrazení odměny ukáže odměna získaná za daný cíl namísto celkového zůstatku kreditů po jejím přičtení.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-bounty.png" width="486" height="399" alt="Vylepšené zobrazení odměny za zničený cíl">
+        </figure>
+      </section>
+
+      <section id="station-docking-procedure">
+        <h2>Postup při dokování u stanice</h2>
+
+        <p>Stanice nyní mají chráněný přibližovací koridor, který vede směrem ven od dokovacího vstupu.</p>
+
+        <figure class="content-image">
+          <img src="../assets/docking.png" width="487" height="401" alt="Stanice Coriolis varující loď před zdržováním v dokovacím koridoru">
+        </figure>
+
+        <p>Každá loď, která se v tomto koridoru zbytečně zdržuje, obdrží od stanice varování. Dokud je koridor obsazený, žádná loď nedostane povolení ke startu.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Elite: Unbound · Commodore 64 · Ataribaby 2026</p>
+      <a href="#top">Zpět nahoru △</a>
+    </footer>
+  </div>
+</body>
+</html>

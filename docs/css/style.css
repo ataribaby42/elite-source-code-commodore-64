@@ -170,6 +170,31 @@ pre {
   stroke-width: 2.5;
 }
 
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-left: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.language-switch a,
+.language-switch span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0.25rem;
+  text-decoration: none;
+}
+
+.language-switch [aria-current="true"] {
+  color: var(--text);
+}
+
 .toolbar-title {
   margin-left: auto;
   padding: 0 0.65rem;
@@ -268,6 +293,8 @@ pre {
 .page-toc a {
   display: inline-block;
   flex: 0 0 auto;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .source-links span {
