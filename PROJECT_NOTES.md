@@ -620,6 +620,27 @@ tabulky GMA loaderu. Kontrolní tape-pal build s `unbound=no` má LOCODE, HICODE
 i COMLOD bitově shodné se stavem před změnou. Vizuální kontrola ve VICE nebyla
 provedena.
 
+## Oprava artefaktů I.F.F. značek na skeneru
+
+I.F.F. rozšiřuje původní EOR kresbu blipu o pravou část hlavy T. Při mazání se
+proto musí použít stejný hostile stav jako při předchozím vykreslení. Artefakty
+mohly vzniknout ve třech situacích: `WARPJUNK` kopíroval do INWK pouze bajty
+0–31 a ponechal starou hodnotu NEWB v bajtu 36, `ANGRY` mohl změnit L na T mezi
+dvěma voláními `SCAN` a `TACTICS` měnil hostile stav ještě před smazáním staré
+značky.
+
+Při `iffunit=yes` nyní `WARPJUNK` kopíruje celý 37bajtový blok. Změna hostility
+přes zásah laserem nebo vypuštěnou raketu nejprve smaže starou značku a potom
+ji překreslí s novým stavem. V `MVEIT` se I.F.F. značka maže před voláním
+`TACTICS`. Cesty pro `iffunit=no` zůstávají v podmíněných větvích původní.
+
+Pomocné rutiny jsou v HICODE; oproti bezprostřednímu stavu před opravou se
+LOCODE zmenšil o 5 bajtů a HICODE narostl o 78 bajtů. V obou větvích prošel
+běžný nešifrovaný tape-pal build včetně TAP round-trip kontroly a šifrovaný
+gma86-pal build včetně ověření fast-loader sektorové tabulky. Vizuální kontrola
+ve VICE nebyla provedena. Kontrolní tape-pal build s `iffunit=no` se v obou
+větvích také úspěšně sestavil.
+
 Níže uvedené hodnoty paměti byly znovu odečteny 1. září 2026 z compile.txt
 pro oba PAL buildy; starší tabulka již neodpovídala aktuálnímu zdrojovému kódu.
 
@@ -629,8 +650,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F58 | 168 B | 167 B | $CCDE | 290 B | 289 B |
-| flicker-free | $3FA8 | 88 B | 87 B | $CD42 | 190 B | 189 B |
+| main | $3F11 | 239 B | 238 B | $CD22 | 222 B | 221 B |
+| flicker-free | $3F61 | 159 B | 158 B | $CD86 | 122 B | 121 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
@@ -638,8 +659,8 @@ Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
     ASSERT F% < $CE00
 
 LOCODE a HICODE jsou samostatné oblasti a jejich rezervy se nesčítají.
-Nejkritičtější je flicker-free LOCODE. Větší nové rutiny umisťovat přednostně
-do HICODE a po každé změně znovu odečíst R% a F% z compile.txt.
+Ve flicker-free jsou nyní těsné obě oblasti, přičemž menší rezervu má HICODE.
+Po každé změně znovu odečíst R% a F% z compile.txt.
 
 ## Doporučená kontrola po dalších změnách
 
