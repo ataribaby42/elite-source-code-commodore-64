@@ -57808,19 +57808,19 @@ ENDIF
  RTS
 
 .StationLaunchMessageText
- EQUS ", DOCK OR LEAVE"
+ EQUS ",DOCK OR LEAVE"
  EQUB 0
 
 .ScrambleRegistrationPirateText
- EQUS ", SCRAM PIRATE!"
+ EQUS ",SCRAM PIRATE!"
  EQUB 0
 
 .RunRegistrationPirateText
- EQUS ", RUN PIRATE!"
+ EQUS ",RUN PIRATE!"
  EQUB 0
 
 .DieRegistrationPirateText
- EQUS ", DIE PIRATE!"
+ EQUS ",DIE PIRATE!"
  EQUB 0
 
 .StationLaunchMessageOffsets
@@ -58073,7 +58073,7 @@ ENDIF
 
 .unboundLaunchBlocked
 
- LDA #0                 ; A blocked launch always uses ", DOCK OR LEAVE"
+ LDA #0                 ; A blocked launch always uses ",DOCK OR LEAVE"
  STA StationLaunchMessageRequestedKind
  CLC                    ; A ship blocks the launch corridor
 
