@@ -4641,8 +4641,16 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  STA INWK+35            ; Store the hit ship's updated energy in ship byte #35
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ JSR IFFAngryCurrentShip ; Keep the scanner marker in sync while making it hostile
+
+ELSE
+
  LDA TYPE               ; Call ANGRY to make this ship hostile, now that we
  JSR ANGRY              ; have hit it
+
+ENDIF
 
 ; ******************************************************************************
 ;
@@ -14310,9 +14318,18 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JSR GINF               ; Get the address of the data block for the target ship
                         ; and store it in INF
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ JSR IFFAngryMissileTarget
+                        ; Keep the target's scanner marker in sync with hostility
+
+ELSE
+
  LDA FRIN,X             ; Fetch the ship type of the missile's target into A
 
  JSR ANGRY              ; Call ANGRY to make the target ship hostile
+
+ENDIF
 
  LDY #BLACK2            ; We have just launched a missile, so we need to remove
  JSR ABORT              ; missile lock and hide the leftmost indicator on the
@@ -39243,8 +39260,18 @@ IF _WARPJUNK      		; ATARIBABY warp junk modification
 
  JSR GINF               ; Set INF to point to the ship data block for slot X
 
- LDY #31                ; Copy the ship's data block into INWK, as SCAN works
-                        ; on the ship data in INWK rather than directly in K%
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ LDY #NI%-1             ; Copy the whole ship data block into INWK, including
+                        ; the NEWB flags in byte #36, so SCAN erases the same
+                        ; I.F.F. marker that was originally drawn
+
+ELSE
+
+ LDY #31                ; Copy the first 32 bytes of the ship's data block into
+                        ; INWK, as SCAN works on INWK rather than directly in K%
+
+ENDIF
 
 .WJCOPY
 
@@ -39252,7 +39279,7 @@ IF _WARPJUNK      		; ATARIBABY warp junk modification
  STA INWK,Y             ; to by INF into the Y-th byte of INWK
 
  DEY                    ; Decrement the counter to point at the next byte
- BPL WJCOPY             ; Loop back until all 32 bytes have been copied
+ BPL WJCOPY             ; Loop back until all the required bytes have been copied
 
  STX XSAV               ; Store the ship slot number while we call SCAN
 
@@ -46397,12 +46424,32 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .MV26
 
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+ JSR SCAN               ; Erase the scanner marker before TACTICS can change the
+                        ; hostile flag and therefore the marker's L/T shape
+
+ LDX TYPE               ; SCAN corrupts X, so restore the ship type for TACTICS
+ JSR TACTICS
+
+ JMP MV31               ; Skip the normal post-TACTICS scanner erase below
+
+ELSE
+
  JSR TACTICS            ; Call TACTICS to apply AI tactics to this ship
+
+ENDIF
 
 .MV30
 
  JSR SCAN               ; Draw the ship on the scanner, which has the effect of
                         ; removing it as it hasn't yet moved
+
+IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
+
+.MV31
+
+ENDIF
 
 ; ******************************************************************************
 ;
@@ -57068,6 +57115,76 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  RTS
 
 IF _IFF_UNIT           ; Registration display requires the I.F.F. build option
+
+; ------------------------------------------------------------------------------
+; IFFAngryCurrentShip
+;
+; Keep the current ship's EOR-drawn scanner marker matched to its hostile flag
+; while calling ANGRY. INWK, TYPE and INF already describe the current ship.
+; ------------------------------------------------------------------------------
+
+.IFFAngryCurrentShip
+
+ LDA BOMB
+ BEQ iffAngryCurrentOriginal
+
+ LDA NEWB
+ AND #%00000100
+ BNE iffAngryCurrentOriginal
+
+.iffAngryRefresh
+
+ JSR SCAN               ; Erase the old non-hostile marker
+
+ LDA TYPE
+ JSR ANGRY              ; Change the stored hostile state
+
+ LDY #36
+ LDA (INF),Y
+ STA NEWB               ; Match the current workspace to the stored NEWB flags
+
+ JMP SCAN               ; Redraw the marker with its new shape and return
+
+.iffAngryCurrentOriginal
+
+ LDA TYPE
+ JMP ANGRY              ; Use the original path and return
+
+; ------------------------------------------------------------------------------
+; IFFAngryMissileTarget
+;
+; Make the ship in slot X hostile after a missile launch while keeping its
+; scanner marker matched. INF points to the target's ship data block.
+; ------------------------------------------------------------------------------
+
+.IFFAngryMissileTarget
+
+ LDA BOMB
+ BEQ iffAngryMissileOriginal
+
+ LDY #36
+ LDA (INF),Y
+ AND #%00000100
+ BNE iffAngryMissileOriginal
+
+ LDA FRIN,X
+ STA TYPE
+
+ LDY #NI%-1
+
+.copyMissileTarget
+
+ LDA (INF),Y
+ STA INWK,Y
+ DEY
+ BPL copyMissileTarget
+
+ JMP iffAngryRefresh    ; Refresh this newly hostile target and return
+
+.iffAngryMissileOriginal
+
+ LDA FRIN,X
+ JMP ANGRY              ; Use the original path and return
 
 ; ------------------------------------------------------------------------------
 ; IFFInterrogatorKeys
