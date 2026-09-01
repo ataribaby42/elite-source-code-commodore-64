@@ -11160,9 +11160,7 @@ MACRO ASSEMBLE_DIALS
  STA T1                 ; indicator's colour
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
- JSR ShipNormalizeSpeedBar ; Normalise speed to 0..15 for the current hull
- CMP #15                ; If this is maximum speed, set the bar length to 16 so
- ADC #0                 ; the SP indicator reaches its rightmost pixel
+ JSR ShipNormalizeSpeedBar ; Normalise speed to 0..16 for the current hull
  JSR DIL                ; Draw the already-normalised speed indicator and move
                         ; SC to the roll indicator
 ELSE                   ; ELITE: Unbound build option (else)
@@ -25569,10 +25567,10 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
 
 ; ------------------------------------------------------------------------------
 ; ShipNormalizeSpeedBar / ShipNormalizeFuelBar / ShipNormalizeBarDial
-; Scale a ship-dependent speed or fuel value to the dashboard's 0..15 range.
+; Scale ship-dependent speed to 0..16 or fuel to 0..15 for the dashboard.
 ;
-; Inputs: A = current value, X = maximum value for the current hull.
-; Return: A = floor(current * 15 / maximum), clamped to 15.
+; ShipNormalizeBarDial inputs: A = current value, X = hull maximum,
+; Y = maximum indicator length. Returns floor(current * Y / X), clamped to Y.
 ; ------------------------------------------------------------------------------
 
 .ShipNormalizeSpeedBar
@@ -25580,6 +25578,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  LDA DELTA              ; Preserve the speed while fetching the hull maximum
  PHA
  JSR PlayerMaxSpeed
+ LDY #16                ; The speed indicator uses its full 16-pixel width
  BNE shipNormalizeBarValue ; All player hulls have a non-zero maximum speed
 
 .ShipNormalizeFuelBar
@@ -25587,6 +25586,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  LDA QQ14               ; Preserve the fuel level while fetching tank capacity
  PHA
  JSR PlayerFuelCapacity
+ LDY #15                ; The fuel indicator uses the standard 0..15 range
 
 .shipNormalizeBarValue
 
@@ -25600,7 +25600,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  CMP T
  BCC shipNormalizeBarStart
 
- LDA #15                ; Maximum (or an over-range value) fills the bar
+ TYA                    ; Maximum (or an over-range value) fills the bar
  RTS
 
 .shipNormalizeBarStart
@@ -25608,7 +25608,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  LDA #0
  STA R                  ; R = division remainder
  STA P                  ; P = normalised result
- LDY #15                ; Add current/maximum fifteen times to multiply by 15
+                        ; Add current/maximum Y times to scale to the bar width
 
 .shipNormalizeBarLoop
 
@@ -25626,7 +25626,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  DEY
  BNE shipNormalizeBarLoop
 
- LDA P                  ; Return floor(current * 15 / maximum) in A
+ LDA P                  ; Return floor(current * bar width / maximum) in A
  RTS
 
 ; ------------------------------------------------------------------------------

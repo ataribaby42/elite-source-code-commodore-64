@@ -585,7 +585,27 @@ build, včetně TAP round-trip kontroly a ověření sektorové tabulky GMA load
 Kontrolní tape-pal build s `unbound=no` má LOCODE, HICODE a COMLOD bitově
 shodné se stavem před touto úpravou. Vizuální kontrola ve VICE nebyla provedena.
 
-Níže uvedené hodnoty paměti byly znovu odečteny 31. srpna 2026 z compile.txt
+## Plynulé škálování rychloměru
+
+Při `unbound=yes` původní normalizace rychlosti počítala
+`floor(DELTA * 15 / maximum)`. Hodnota těsně pod maximální rychlostí proto u
+všech třinácti typů lodí končila na 14 pixelech, zatímco zvláštní obsluha
+přesného maxima nastavila rovnou 16 pixelů. To způsobovalo viditelný skok o dva
+pixely na konci ukazatele.
+
+`ShipNormalizeSpeedBar` nyní používá přímo rozsah 0..16, tedy
+`floor(DELTA * 16 / maximum)`, zatímco `ShipNormalizeFuelBar` zůstává na
+rozsahu 0..15. Pro všechny maximální rychlosti v `ShipMaxSpeed` je největší
+krok ukazatele jeden pixel a hodnota těsně pod maximem se zobrazuje jako 15.
+Změna zmenšuje HICODE o 3 bajty a nemění LOCODE.
+
+V obou větvích prošel běžný nešifrovaný tape-pal build s `unbound=yes` a
+šifrovaný gma86-pal build včetně TAP round-trip kontroly a ověření sektorové
+tabulky GMA loaderu. Kontrolní tape-pal build s `unbound=no` má LOCODE, HICODE
+i COMLOD bitově shodné se stavem před změnou. Vizuální kontrola ve VICE nebyla
+provedena.
+
+Níže uvedené hodnoty paměti byly znovu odečteny 1. září 2026 z compile.txt
 pro oba PAL buildy; starší tabulka již neodpovídala aktuálnímu zdrojovému kódu.
 
 ## Volná paměť
@@ -594,8 +614,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F16 | 234 B | 233 B | $CCD4 | 300 B | 299 B |
-| flicker-free | $3F66 | 154 B | 153 B | $CD38 | 200 B | 199 B |
+| main | $3F58 | 168 B | 167 B | $CCDE | 290 B | 289 B |
+| flicker-free | $3FA8 | 88 B | 87 B | $CD42 | 190 B | 189 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
