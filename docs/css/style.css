@@ -170,6 +170,14 @@ pre {
   stroke-width: 2.5;
 }
 
+.toolbar-title {
+  margin-left: auto;
+  padding: 0 0.65rem;
+  color: var(--link);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .site-menu {
   position: fixed;
   z-index: 45;
