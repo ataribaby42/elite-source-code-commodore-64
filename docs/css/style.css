@@ -57,6 +57,18 @@ pre {
   white-space: nowrap;
 }
 
+.github-icon {
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.25em;
+  vertical-align: -0.08em;
+  fill: var(--text);
+}
+
+.warning-label {
+  color: var(--link);
+}
+
 .skip-link {
   position: fixed;
   z-index: 60;
@@ -240,7 +252,7 @@ pre {
   flex-flow: row wrap;
   justify-content: flex-start;
   align-items: baseline;
-  gap: 1.25rem;
+  gap: 1.25rem 0.75rem;
   margin: 1rem 0 0;
   text-align: left;
 }
@@ -441,6 +453,43 @@ li {
 .credit-links {
   margin: 1.25rem 0;
   overflow-wrap: anywhere;
+}
+
+.galnet-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.05rem;
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
+
+.galnet-profile img {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.platform-links {
+  margin: 0;
+  padding: 0 0 0 0.75rem;
+  list-style: none;
+}
+
+.platform-links li {
+  margin: 0.65rem 0;
+}
+
+.platform-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.platform-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  color: var(--text);
+  fill: currentColor;
 }
 
 .ship-list {

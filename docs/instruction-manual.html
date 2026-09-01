@@ -44,6 +44,18 @@
       </div>
     </header>
 
+    <nav class="page-toc" aria-label="On this page">
+      <a href="#status-screen">Status Screen</a>
+      <a href="#inventory-screen">Inventory Screen</a>
+      <a href="#sell-equip-screen">Sell Equip Screen</a>
+      <a href="#buy-ship-screen">Buy Ship Screen</a>
+      <a href="#equip-ship-screen">Equip Ship Screen</a>
+      <a href="#in-flight-cargo-jettison">In-Flight Cargo Jettison</a>
+      <a href="#iff-transponder-and-interrogator-operations">I.F.F. Transponder and Interrogator Operations</a>
+      <a href="#bounty-display">Bounty Display</a>
+      <a href="#station-docking-procedure">Station Docking Procedure</a>
+    </nav>
+
     <main id="content">
       <aside class="infobox">
         <strong>RTFM!</strong>
@@ -51,8 +63,8 @@
         <p class="manual-note">This PDF is my own scan of the manual included with my original copy of Elite for the C64.</p>
       </aside>
 
-      <section id="expanded-status-screen">
-        <h2>Expanded Status Screen</h2>
+      <section id="status-screen">
+        <h2>Status Screen</h2>
 
         <p>The Status screen has been expanded to display additional information.</p>
 
@@ -62,15 +74,15 @@
 
         <p><strong>Ship: ADDER JS-042</strong></p>
 
-        <p>Shows the type of your current ship and its registration number.</p>
+        <p>Shows the type of your current ship and its registration ID.</p>
 
         <p><strong>EQUIPMENT (1t)</strong></p>
 
         <p>Shows the total weight of all installed equipment, excluding guided missiles. Missiles occupy dedicated slots in the ship’s hull and therefore do not take up space in the cargo hold. The total weight of installed equipment is deducted from the ship’s maximum cargo capacity. Consequently, the more equipment you install, the less room remains for cargo.</p>
       </section>
 
-      <section id="expanded-inventory-screen">
-        <h2>Expanded Inventory Screen</h2>
+      <section id="inventory-screen">
+        <h2>Inventory Screen</h2>
 
         <p>The Inventory screen has been expanded to display additional information.</p>
 
@@ -85,10 +97,10 @@
         <p>Installing a Large Cargo Bay increases the total cargo capacity by an amount that depends on the ship type. This increase is automatically included in the displayed total.</p>
       </section>
 
-      <section id="new-sell-equip-screen">
-        <h2>New Sell Equip Screen</h2>
+      <section id="sell-equip-screen">
+        <h2>Sell Equip Screen</h2>
 
-        <p><em>Elite: Unbound</em> adds a new option for selling installed ship equipment. Press <code class="nowrap">Ctrl + 2</code> while docked to open the Sell Equip screen. Equipment is bought back for 50% of its purchase price.</p>
+        <p>Installed ship equipment can now be sold. Press <code class="nowrap">Ctrl + 2</code> while docked to open the Sell Equip screen. Equipment is bought back for 50% of its purchase price.</p>
 
         <figure class="content-image">
           <img src="./assets/manual-sell-equip-screen.png" width="488" height="399" alt="Elite: Unbound Sell Equip screen offering installed equipment for sale">
@@ -100,9 +112,105 @@
           <img src="./assets/manual-sell-equip-error-screen.png" width="488" height="399" alt="Elite: Unbound Sell Equip screen showing an equipment capacity error">
         </figure>
 
-        <p>Before selling a Large Cargo Bay, the game checks whether the ship’s current load will fit within the standard cargo hold after the extension is removed. If it will not, <strong>EQUIPMENT?</strong> appears when the combined weight of cargo and installed equipment exceeds the standard capacity, while <strong>CARGO?</strong> appears when the cargo alone will not fit.</p>
+        <p>A Large Cargo Bay can be sold only if the ship’s current load will fit within the standard cargo hold after the extension is removed. Otherwise, <strong>EQUIPMENT?</strong> appears when the combined weight of cargo and installed equipment exceeds the standard capacity, while <strong>CARGO?</strong> appears when the cargo alone will not fit.</p>
 
         <p>Replacing one laser with another on the Equip Ship screen follows a different, older rule: the fitted laser is credited at 100% of its purchase price. Selling a laser directly through the Sell Equip screen returns only 50%.</p>
+      </section>
+
+      <section id="buy-ship-screen">
+        <h2>Buy Ship Screen</h2>
+
+        <p>New ships can now be purchased. Press <code class="nowrap">Ctrl + 3</code> while docked to open the Buy Ship screen.</p>
+
+        <p>The screen lists the ships currently offered for sale and their purchase prices. Availability depends on the system’s economy, with additional black-market ships offered in Anarchy systems.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-buy-ship-screen.png" width="488" height="399" alt="Elite: Unbound Buy Ship screen listing available ships and their prices">
+        </figure>
+
+        <p>Before buying a new ship, you must sell all ordinary installed equipment, as it cannot be transferred to the new hull, along with any excess missiles that the new ship cannot carry. The Naval Energy Unit is exempt and transfers to the new ship.</p>
+
+        <p>When you purchase a new ship, your existing cargo is retained. It is then checked to ensure that it fits within the new ship’s <strong>standard cargo hold</strong>. A transferred Naval Energy Unit also counts as 1t.</p>
+
+        <p>A purchase may be rejected with one of the following messages: <strong>CASH?</strong>, <strong>EQUIPMENT?</strong>, <strong>CARGO?</strong>, or <strong>MISSILES?</strong>.</p>
+      </section>
+
+      <section id="equip-ship-screen">
+        <h2>Equip Ship Screen</h2>
+
+        <p>The <strong>I.F.F. Unit</strong> has been added to this screen and becomes available for purchase at Tech Level 7 and above.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-equip-ship-screen.png" width="488" height="399" alt="Elite: Unbound Equip Ship screen showing the I.F.F. Unit and ship-specific equipment prices">
+        </figure>
+
+        <p>The only other change is that equipment prices now vary according to the type of ship you are flying.</p>
+
+        <p>In particularly disreputable systems, you may even find some less-than-legal options here.</p>
+      </section>
+
+      <section id="in-flight-cargo-jettison">
+        <h2>In-Flight Cargo Jettison</h2>
+
+        <p>A single 1t cargo canister can now be jettisoned while in flight. Press <code class="nowrap">Ctrl + 2</code> to open the Jettison screen.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-jettison-screen.png" width="488" height="399" alt="Elite: Unbound in-flight cargo jettison screen">
+        </figure>
+
+        <p>Eligible cargo types are presented in turn with a <strong>(Y/N)?</strong> prompt. Any commodity carried in one-tonne canisters can be selected, except <strong>Alien Items</strong>. Confirming a choice ejects one 1t canister. The canister retains the selected commodity, so recovering it with Fuel Scoops returns the same type of cargo.</p>
+
+        <p>A successful jettison is confirmed by a beep, after which the <strong>INVENTORY</strong> screen is displayed.</p>
+
+        <p><strong class="warning-label">WARNING!</strong> Jettisoning cargo within the Safety Zone of most stations is illegal and can adversely affect your legal status.</p>
+      </section>
+
+      <section id="iff-transponder-and-interrogator-operations">
+        <h2>I.F.F. Transponder and Interrogator Operations</h2>
+
+        <p>This new device provides early warning of hostile vessels and identifies other ships.</p>
+
+        <figure class="content-image">
+          <img src="./assets/iff.png" width="485" height="399" alt="I.F.F. target identification showing a ship’s registration ID">
+        </figure>
+
+        <p>The I.F.F. Unit is fully integrated with the guided-missile targeting system and can also operate independently when no guided missiles are aboard.</p>
+
+        <p>Use <strong>I</strong> to activate the I.F.F. Unit. When guided missiles are aboard, the <strong>I</strong> key performs the same targeting function as the missile-targeting key <strong>T</strong>, and targeting proceeds in exactly the same way. Once a target is acquired, its registration ID is displayed if it is being transmitted; otherwise, <strong>??-???</strong> appears.</p>
+
+        <p>If no guided missiles remain aboard, pressing <strong>I</strong> activates the interrogator. A beep signals that it is ready to acquire a target, much like missile targeting. Once a target is acquired, its registration ID is displayed and the interrogator switches off. Press <strong>U</strong> to switch it off manually before a target is acquired.</p>
+
+        <p>Transponder operation is automatic and requires no interaction. Your ship’s registration ID is broadcast continuously.</p>
+
+        <p>Hostile contacts are also identified on the scanner.</p>
+
+        <figure class="content-image">
+          <img src="./assets/iff-hostile.png" width="280" height="104" alt="Scanner display showing an I.F.F. hostile-contact marker">
+        </figure>
+
+        <p>These contacts have a <strong>T</strong>-shaped blip head instead of the rotated <strong>L</strong> shape used for other contacts.</p>
+      </section>
+
+      <section id="bounty-display">
+        <h2>Bounty Display</h2>
+
+        <p>After a target is destroyed, the upgraded bounty display shows the bounty awarded for that target rather than your total credit balance after the reward has been added.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-bounty.png" width="486" height="399" alt="Upgraded bounty display showing the reward for a destroyed target">
+        </figure>
+      </section>
+
+      <section id="station-docking-procedure">
+        <h2>Station Docking Procedure</h2>
+
+        <p>Stations now have a protected approach corridor extending outward from the docking entrance.</p>
+
+        <figure class="content-image">
+          <img src="./assets/docking.png" width="487" height="401" alt="A Coriolis station warning a ship about loitering in its docking corridor">
+        </figure>
+
+        <p>Any ship that loiters in this corridor receives a loitering warning from the station. No ship is cleared for launch while the corridor remains occupied.</p>
       </section>
     </main>
 
