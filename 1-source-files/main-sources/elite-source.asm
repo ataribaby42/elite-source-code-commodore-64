@@ -25124,7 +25124,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; Return A = cmdr_type. Normal systems use the existing Elite-A-derived list.
 ; Anarchy systems merge Sidewinder, Krait and Mamba into the price-ordered list.
 ; The special hull thresholds are Sidewinder economy 0..6, Krait 0..5 and
-; Mamba 0..4. Poor Agricultural (7) therefore uses the normal list unchanged.
+; Mamba 0..2. Poor Agricultural (7) therefore uses the normal list unchanged.
 ; ------------------------------------------------------------------------------
 
 .ShipMenuTypeAtIndex
@@ -25138,12 +25138,12 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 .shipMenuTypeAnarchy
 
  LDA QQ28
- CMP #5
- BCC shipMenuTypeAnarchyStandard ; Economies 0..4: all three special hulls
- BEQ shipMenuTypeAnarchyRichAg   ; Rich Agricultural: Sidewinder + Krait
+ CMP #3
+ BCC shipMenuTypeAnarchyStandard ; Economies 0..2: all three special hulls
 
  CMP #6
- BEQ shipMenuTypeAnarchyAverageAg ; Average Agricultural: Sidewinder only
+ BCC shipMenuTypeAnarchyRichAg   ; Economies 3..5: Sidewinder + Krait
+ BEQ shipMenuTypeAnarchyAverageAg ; Economy 6: Sidewinder only
 
  LDA ShipMenuTypes,X    ; Poor Agricultural: no black-market hulls
  RTS
@@ -26276,17 +26276,18 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 .ShipMenuTypes
  EQUB 1, 2, 3, 4, 0, 5, 6, 7, 8, 9
 
-; Anarchy systems with economy 0..4 additionally offer all three ELITE: Unbound
+; Anarchy systems with economy 0..2 additionally offer all three ELITE: Unbound
 ; black-market hulls. This merged list remains price-ordered:
 ; Sidewinder 20500, Adder 27000, Krait 30500, Gecko 32500, Moray 36000,
 ; Mamba 37500, then the normal list from Cobra Mk I onward.
 .ShipMenuTypesAnarchy
  EQUB 10, 1, 11, 2, 3, 12, 4, 0, 5, 6, 7, 8, 9
 
-; Rich Agricultural Anarchy (economy 5): merge Sidewinder and Krait into the
-; four normally available hulls, preserving price order.
+; Anarchy systems with economies 3..5 merge Sidewinder and Krait into the
+; normally available hulls, preserving price order. Economy 3 uses all seven
+; entries; economies 4 and 5 use the first six.
 .ShipMenuTypesAnarchyRichAg
- EQUB 10, 1, 11, 2, 3, 4
+ EQUB 10, 1, 11, 2, 3, 4, 0
 
 ; Average Agricultural Anarchy (economy 6): merge Sidewinder into the three
 ; normally available hulls, preserving price order.
@@ -26300,9 +26301,9 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 10, 8, 6, 5, 4, 4, 3, 1
 
 ; Extra black-market rows in Anarchy systems by economy 0..7. Sidewinder is
-; available through economy 6, Krait through 5 and Mamba through 4.
+; available through economy 6, Krait through 5 and Mamba through 2.
 .ShipAnarchyBonusByEconomy
- EQUB 3, 3, 3, 3, 3, 2, 1, 0
+ EQUB 3, 3, 3, 2, 2, 2, 1, 0
 
 ; Maximum missile capacities. Established hulls use Elite-A new_details;
 ; Sidewinder/Krait/Mamba use the agreed ELITE: Unbound player-hull values.

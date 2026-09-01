@@ -641,7 +641,18 @@ gma86-pal build včetně ověření fast-loader sektorové tabulky. Vizuální k
 ve VICE nebyla provedena. Kontrolní tape-pal build s `iffunit=no` se v obou
 větvích také úspěšně sestavil.
 
-Níže uvedené hodnoty paměti byly znovu odečteny 1. září 2026 z compile.txt
+## Dostupnost Mamby podle ekonomiky
+
+Mamba je v anarchických systémech nabízena pouze pro ekonomiky 0 až 2.
+Sidewinder zůstává dostupný pro ekonomiky 0 až 6 a Krait pro 0 až 5. Pro
+ekonomiku 3 se proto používá cenově seřazený seznam se Sidewinderem a Kraitem,
+jehož poslední položka Cobra Mk III zachovává správný celkový počet nabídek.
+
+Změna přidává 1 bajt do HICODE a nemění LOCODE. V obou větvích prošel běžný
+nešifrovaný tape-pal build včetně TAP round-trip kontroly a šifrovaný
+gma86-pal build včetně ověření fast-loader sektorové tabulky.
+
+Níže uvedené hodnoty paměti byly znovu odečteny 2. září 2026 z compile.txt
 pro oba PAL buildy; starší tabulka již neodpovídala aktuálnímu zdrojovému kódu.
 
 ## Volná paměť
@@ -650,8 +661,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F11 | 239 B | 238 B | $CD22 | 222 B | 221 B |
-| flicker-free | $3F61 | 159 B | 158 B | $CD86 | 122 B | 121 B |
+| main | $3F11 | 239 B | 238 B | $CD23 | 221 B | 220 B |
+| flicker-free | $3F61 | 159 B | 158 B | $CD87 | 121 B | 120 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 
