@@ -241,6 +241,8 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA and tape variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
 
+  **Important:** Elite: Unbound is not fully compatible with encryption, original-binary matching or binary verification. Builds with `unbound=yes` must also use `encrypt=no match=no verify=no`.
+
   When this option is enabled, the bitmap selected by `dials` is kept in memory as PackBits data and unpacked directly into screen memory only when the dashboard is displayed. Builds with `unbound=no` retain the original uncompressed dashboard path.
 
 * `realmissiledamage=yes` - Make missile hits subtract 81 energy from AI ships instead of destroying them instantly. This Elite-A-style option is disabled by default, works independently of `unbound`, and leaves stations immune.
