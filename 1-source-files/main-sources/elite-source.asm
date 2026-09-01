@@ -33564,28 +33564,11 @@ IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
 ; This is the Elite-A ship-position fix. It gives x and y random signs and much
 ; wider high-byte ranges, while keeping the ship in front of us.
 ;
-; Other entry points:
-;
-;   AMBPOS              Randomise only the position bytes, without resetting
-;                       the rest of the INWK ship workspace
-;
 ; ******************************************************************************
 
 .rand_posn
 
  JSR ZINF               ; Reset the INWK ship workspace
-
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
-
-.AMBPOS
-
- LDA #0                 ; Clear all sign bytes plus z_lo, so direct calls to
- STA INWK+2             ; AMBPOS replace the complete position without changing
- STA INWK+5             ; speed, AI, pitch, roll or orientation
- STA INWK+6
- STA INWK+8
-
-ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR DORND              ; Set A and X to random numbers
 
@@ -33614,6 +33597,29 @@ ENDIF                  ; ELITE: Unbound build option (end)
  JMP DORND              ; Return with fresh random A, X and flags
 
 ENDIF                   ; Elite-A random spawn positions (end)
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+; ------------------------------------------------------------------------------
+; AMBPOS
+;
+; Scatter a pack member within the current coarse position without resetting
+; the rest of the INWK ship workspace. The pack therefore stays together while
+; its members do not spawn at exactly the same coordinates.
+; ------------------------------------------------------------------------------
+
+.AMBPOS
+
+ JSR DORND              ; Keep the pack's shared high bytes and signs, but give
+ STA INWK               ; this member independent low x and y coordinates within
+ STX INWK+3             ; the same 256-unit coarse position
+
+ JSR DORND
+ STA INWK+6             ; Scatter the low z coordinate within that same position
+
+ RTS
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -33913,9 +33919,26 @@ ENDIF
  DEC DLY                ; Decrement the delay counter in DLY, so any in-flight
                         ; messages get removed once the counter reaches zero
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
+
  BEQ me2                ; If DLY is now 0, jump to me2 to remove any in-flight
-                        ; message from the space view, and once done, return to
-                        ; me3 below, skipping the following two instructions
+
+ELSE                   ; Original correlated spawn positions
+
+ BNE P%+5               ; With Unbound's original spawn path, me2 is just beyond
+ JMP me2                ; branch range, so use an equivalent long branch
+
+ENDIF                  ; Elite-A random spawn positions (end)
+
+ELSE                   ; ELITE: Unbound build option (else)
+
+ BEQ me2                ; Preserve the original game's short branch
+
+ENDIF                  ; ELITE: Unbound build option (end)
+                        ; Once me2 has removed the message, it returns to me3,
+                        ; skipping the following two instructions
 
  BPL me3                ; If DLY is positive, jump to me3 to skip the next
                         ; instruction
@@ -34416,12 +34439,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  PHA                    ; Preserve the pirate type while preparing this member
                         ; of the group independently
 
-IF _RANDOM_SPAWNS      ; Elite-A random spawn positions (begin)
-
- JSR AMBPOS             ; Give every pirate its own position without resetting
-                        ; AI, pitch, roll or orientation
-
-ENDIF                   ; Elite-A random spawn positions (end)
+ JSR AMBPOS             ; Scatter each pirate inside the pack's shared coarse
+                        ; position without resetting AI, speed or orientation
 
  LDA #0                 ; Clear any speed inherited from the previous member;
  STA INWK+27            ; MaybeSpawnNeutralPirate assigns neutral cruising speed

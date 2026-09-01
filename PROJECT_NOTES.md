@@ -504,9 +504,12 @@ Při aktivním scramble a `FIST >= 50` mohou lidské pirátské lodě vzniknout 
 hostile bitu. Testovací hodnota `NEUTRAL_PIRATE_CHANCE = 128` znamená šanci
 128/256, tedy 50 %. Pirát si ponechá pirate bit, AI i původní agresivitu, dostane
 počáteční rychlost 16 až 31 a letí rovně aktuálním kurzem. Při
-`randomspawns=yes` dostane každý pirát ve skupině vlastní pozici, takže pasivní
-lodě nevznikají přes sebe. Před každým `NWSHP` se rychlost pracovního bloku
-vynuluje, aby ji další člen skupiny nezdědil po předchozí pasivní lodi. Po zásahu
+`unbound=yes` sdílejí všichni piráti ve skupině hrubou pozici určenou rutinou
+`Ze`, ale každý dostane vlastní spodní bajty souřadnic x, y a z. Zůstanou proto
+pohromadě jako pack, aniž by pasivní lodě vznikaly přesně přes sebe. Platí to
+nezávisle na `randomspawns`; tato volba určuje pouze způsob výběru společné hrubé
+pozice packu. Před každým `NWSHP` se rychlost pracovního bloku vynuluje, aby ji
+další člen skupiny nezdědil po předchozí pasivní lodi. Po zásahu
 hráčem rutina `ANGRY` hostile bit obnoví a loď se začne normálně bránit. Bez
 scramble nebo při `FIST < 50` zůstává volba hostility beze změny. Thargoidi a
 mise jsou z této změny vyloučeni.
@@ -514,6 +517,18 @@ mise jsou z této změny vyloučeni.
 Zkušební PAL tape build s běžnou konfigurací včetně `unbound=yes`,
 `iffunit=yes` a `renderspeedups=yes` prošel v obou větvích včetně TAP
 round-trip ověření.
+
+Po zúžení rozptylu packu prošly v obou větvích kontrolní PAL tape buildy i
+šifrované GMA86 PAL buildy s `randomspawns=yes` i `randomspawns=no`; diskové
+buildy ověřily automatickou fast-loader sektorovou tabulku. Pro kombinaci
+`unbound=yes randomspawns=no` používá vzdálený skok na `me2` dlouhou větev,
+zatímco `unbound=no` zachovává původní krátkou větev a úspěšně se sestaví.
+
+Nová `AMBPOS` je v běžné konfiguraci o 3 bajty HICODE větší a LOCODE nemění.
+Při `randomspawns=yes` končí main na `R%=$3F19`, `F%=$CCDD` (prakticky volných
+230 bajtů LOCODE a 290 bajtů HICODE) a flicker-free na `R%=$3F69`, `F%=$CD41`
+(150 bajtů LOCODE a 190 bajtů HICODE). Při `randomspawns=no` je `F%=$CCED`
+v main a `F%=$CD51` ve flicker-free.
 
 ## Aktivní I.F.F. interrogator
 
