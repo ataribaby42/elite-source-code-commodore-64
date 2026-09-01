@@ -172,6 +172,30 @@ Protože jde o striktní nerovnost, při rozdílu 16 bajtů lze skutečně přid
 nejvýše 15 bajtů. Poslední naměřené hodnoty jsou v PROJECT_NOTES.md a po
 každé větší úpravě je nutné je znovu odečíst z compile.txt.
 
+## PDF manuály
+
+Při generování PDF manuálu vytvořte vždy samostatnou anglickou a českou
+verzi přímo v adresáři `manual/`:
+
+- `manual/elite-unbound-manual-en.pdf`;
+- `manual/elite-unbound-manual-cz.pdf`.
+
+Manuály musí vycházet z aktuální anglické a české verze webu ve větvi
+`flicker-free`. Na začátku musí obsahovat také úvodní vyprávění, představení
+Elite: Unbound a seznam funkcí; vlastní návod následuje až za nimi.
+
+Používejte bílé pozadí a černý text vhodný pro tisk. Hlavní nadpis na první
+straně musí být přesně `Elite: Unbound`, bez podtitulu a bez barevného
+podkladu nebo zvýraznění. Zachovejte obrázky, popisky, pořadí sekcí a
+jazykovou verzi zdrojového webu.
+
+Vytvořte obsah s čísly stran, klikacími interními odkazy a PDF záložkami.
+Externí odkazy musí zůstat aktivní. Po každém vytvoření nebo úpravě
+vykreslete obě PDF a vizuálně zkontrolujte všechny stránky, zejména titulní
+stranu, zalomení textu, obrázky, popisky a případné přetečení. Ověřte také
+počet stran, textovou vrstvu, odkazy a záložky. Dočasné rendery a pomocné
+soubory po kontrole odstraňte.
+
 ## Důležitá místa
 
 - Hlavní hra:

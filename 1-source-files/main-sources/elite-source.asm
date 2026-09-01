@@ -25616,7 +25616,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.50"
+ EQUS "v0.51"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
