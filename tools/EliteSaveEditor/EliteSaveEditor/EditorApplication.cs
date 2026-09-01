@@ -6,7 +6,7 @@ namespace EliteSaveEditor;
 
 internal sealed class EditorApplication
 {
-    private const string Title = "Elite C64 Commander Save Editor";
+    private const string Title = "Elite C64 Commander Save Editor - Ataribaby 2026";
 
     private CommanderSave _commander = CommanderSave.CreateOriginalJameson();
     private string? _sourcePath;
