@@ -51,7 +51,7 @@ public static class GameData
 
     public static readonly ShipDefinition[] Ships =
     [
-        new(0,  "Cobra Mk III",  4,  70, 4,  42,  46),
+        new(0,  "Cobra Mk III",  4,  70, 4,  28,  30),
         new(1,  "Adder",         1,  60, 2,   8,   9),
         new(2,  "Gecko",         2,  70, 4,   9,  10),
         new(3,  "Moray",         2,  80, 4,  11,  12),
@@ -61,7 +61,7 @@ public static class GameData
         new(7,  "Boa",           6,  90, 2, 132, 145),
         new(8,  "Anaconda",     16, 100, 4, 215, 236),
         new(9,  "Asp Mk II",     1, 125, 1,   6,   7),
-        new(10, "Sidewinder",    1,  50, 1,   3,   4),
+        new(10, "Sidewinder",    1,  50, 1,   4,   5),
         new(11, "Krait",         0,  60, 1,  10,  11),
         new(12, "Mamba",         2,  60, 1,  10,  11)
     ];
