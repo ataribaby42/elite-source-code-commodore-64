@@ -196,6 +196,9 @@ straně musí být přesně `Elite: Unbound`, bez podtitulu a bez barevného
 podkladu nebo zvýraznění. Zachovejte obrázky, popisky, pořadí sekcí a
 jazykovou verzi zdrojového webu.
 
+Popisky obrázků umístěte přímo pod příslušný obrázek a vodorovně je
+vystřeďte podle obrázku, nikoli podle stránky.
+
 Vytvořte obsah s čísly stran, klikacími interními odkazy a PDF záložkami.
 Externí odkazy musí zůstat aktivní. Po každém vytvoření nebo úpravě
 vykreslete obě PDF a vizuálně zkontrolujte všechny stránky, zejména titulní
