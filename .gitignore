@@ -23,8 +23,13 @@ $RECYCLE.BIN/
 *.code-workspace
 run.bat
 
+# Python bytecode
+__pycache__/
+*.pyc
+
 # Build artifacts
 /1-source-files/main-sources/elite-build-options.asm
 /3-assembled-output
 /5-compiled-game-disks
 /5-compiled-game-tapes
+/5-compiled-game-cartridges

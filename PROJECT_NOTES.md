@@ -860,4 +860,35 @@ Pro každou dotčenou větev:
 6. zkontrolovat unbound=no a také fpslimiter=no inputfix=no, pokud změna
    zasahuje společnou cestu;
 7. necommitovat ani nepushovat bez výslovného pokynu;
-8. při předání vytvořit ZIP s adresáři main/ a flicker-free/.
+8. ZIP vytvořit pouze na výslovnou žádost uživatele.
+
+## Nativní EasyFlash varianty
+
+Makefile podporuje nové varianty `easyflash-pal` a `easyflash-ntsc`.
+PAL používá stejný herní build jako GMA86, NTSC stejný build jako GMA85;
+samotné herní bloky COMLOD, LOCODE a HICODE se kvůli cartridge nemění.
+Výstupy jsou nativní CRT obrazy typu EasyFlash v adresáři
+`5-compiled-game-cartridges/`.
+
+Bank 0 obsahuje ROMH reset stub a CBM80 bootstrap v ROML. Reset stub přepne
+EasyFlash z ultimax do osmikipobajtového režimu a předá řízení standardnímu
+KERNAL resetu. Bootstrap provede `IOINIT`, `RAMTAS`, `RESTOR` a `SCINIT`, poté
+zkopíruje 544bajtový rezidentní loader do `$0334-$0553`. Pořadí je důležité:
+`RAMTAS` musí proběhnout před kopírováním loaderu, jinak jeho pracovní prostor
+vymaže a pozdější kazetové či diskové commander I/O nemá správně inicializované
+KERNAL hodnoty.
+
+Python skript `2-build-files/elite-easyflash.py` ukládá do ROML bank od banky 1
+manifest `ECRT`, tři deskriptory s cílovou adresou, délkou a XOR kontrolou a za
+ně bloky COMLOD (`$4000`), LOCODE (`$1D00`) a HICODE (`$6A00`). Loader ověřuje
+manifest, cílové adresy i všechny tři XOR hodnoty. Pro zápis pod ROML cartridge
+dočasně skryje, po zavedení všech bloků ji vypne a vstoupí do hry na `$1D22`.
+Standardní ukládání a načítání commanderů z kazety i disku tak zůstává
+dostupné. Aktuální obrazy mají sedm payload ROML bank a velikost 73936 bajtů;
+bootstrap má 719 bajtů a ROMH reset stub 38 bajtů.
+
+V obou větvích prošly úplné `easyflash-pal` i `easyflash-ntsc` buildy s běžnou
+konfigurací Elite: Unbound včetně `renderspeedups=yes`. Všechny čtyři CRT obrazy
+prošly `cartconv -c` a ve VICE se v odpovídajícím PAL nebo NTSC režimu dostaly
+na titulní obrazovku. Uživatel před integrací ověřil stejnou opravenou bootovací
+architekturu při skutečném načítání i ukládání commanderů na kazetu a disk.
