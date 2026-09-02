@@ -243,6 +243,16 @@ By default the build process will create a typical Elite game disk with a standa
 
   **Important:** Elite: Unbound is not fully compatible with encryption, original-binary matching or binary verification. Builds with `unbound=yes` must also use `encrypt=no match=no verify=no`.
 
+  The only two supported build configurations for Elite: Unbound are:
+
+  ```text
+  make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+
+  make variant=gma86-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+  ```
+
+  Other option combinations are not guaranteed to build or function correctly, as they may cause individual code blocks to exceed their memory limits.
+
   When this option is enabled, the bitmap selected by `dials` is kept in memory as PackBits data and unpacked directly into screen memory only when the dashboard is displayed. Builds with `unbound=no` retain the original uncompressed dashboard path.
 
 * `realmissiledamage=yes` - Make missile hits subtract 81 energy from AI ships instead of destroying them instantly. This Elite-A-style option is disabled by default, works independently of `unbound`, and leaves stations immune.
@@ -268,10 +278,6 @@ So, for example:
 `make variant=gma86-pal commander=max encrypt=no match=no verify=no`
 
 will build an unencrypted GMA85 PAL variant with a maxed-out commander, no workspace noise and no crc32 verification.
-
-For example, the following enables all the added visual and gameplay options in a PAL tape build:
-
-`make variant=tape-pal laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes renderspeedups=yes whitecockpit=yes encrypt=no match=no verify=no`
 
 The unencrypted version should be more useful for anyone who wants to make modifications to the game code. As this argument produces unencrypted files, the binaries produced will be quite different to the binaries on the original source disk, which are encrypted.
 
