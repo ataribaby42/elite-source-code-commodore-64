@@ -440,8 +440,9 @@ náhodnou cestou.
 Každý zablokovaný pokus o start zobrazí ve stavovém řádku dynamickou zprávu ve
 formátu `C1-007:AB-123, DOCK OR LEAVE`. První registrace patří aktuální
 stanici a druhá přesně tomu hráči nebo AI slotu, který test koridoru našel.
-Pirátská AI loď a AI loď se stejným registračním číslem jako hráč se zobrazí
-jako `??-???`. Zpráva používá standardní mechanismus `MESS`, stejné centrování
+Pirátská AI loď a AI loď s celou registrací shodnou s hráčem se zobrazí jako
+`??-???`; samotná shoda číselné části registraci neskrývá. Zpráva používá
+standardní mechanismus `MESS`, stejné centrování
 a EOR mazání jako ostatní zprávy, ale privátní token 2 má `DLY=100`, tedy
 pětinásobnou dobu proti běžné hodnotě 20.
 
@@ -470,8 +471,8 @@ centruje pouze podle `COMMANDER` a aktuální délky jména; při necelém stře
 volí levější sloupec. Checksumový postprocesor při `unbound=yes` poslední tři
 bajty nepřepisuje; při `unbound=no` zachovává původní checksumové chování.
 
-Registrace zaměřené AI lodě se maskuje jako `??-???` nejen u pirátů, ale také
-tehdy, když se její číselná část shoduje s registračním číslem hráčovy lodě.
+Registrace zaměřené AI lodě se maskuje jako `??-???` u pirátů a při shodě celé
+registrace AI lodě s hráčovou. Samotná shoda číselné části identitu neskrývá.
 
 ## Scramble Ship Registration
 
@@ -742,6 +743,14 @@ z `, STOP NOW!`, `, WE FOUND YOU!` a `, SURRENDER!`.
 0 až 100 %, vyhodnocovaná jednou pro každou takto vytvořenou hostile police
 Viperu. Aktuálně je nastavena na 50 %.
 
+Původní krátká větev `BCS P%+7` v náhodné policejní spawn cestě byla po
+přidání komunikačního hooku příliš krátká: při zamítnutém spawnu přeskočila
+`NWSHP`, ale dopadla přímo do `RandomPoliceSpawnComplete`. Carry z porovnání
+pak vypadal jako úspěšný spawn a jako odesílatel se použil poslední existující
+slot, typicky Slunce v slotu 1. Pojmenované návěští `randomPoliceDone` nyní
+přeskakuje spawn i komunikační hook, takže policejní zprávu může vyvolat pouze
+skutečně vytvořená Viper. Změna nemění velikost kódu.
+
 Společný prefix `, ` se nyní tiskne jednou v `CommMessagePrint` a není opakován
 v každém uloženém textu. Původních deset textových zakončení proto zabírá 122
 bajtů od `$F7F0` do `$F869`; policejní zakončení navazují od `$F86A` do `$F88C`
@@ -797,14 +806,37 @@ přísným limitem `$900` celé oblasti dashboardu.
 Níže uvedené hodnoty paměti byly znovu odečteny 2. září 2026 z compile.txt
 pro oba PAL buildy; starší tabulka již neodpovídala aktuálnímu zdrojovému kódu.
 
+## Poškození při kolizi podle velikosti lodí
+
+Pouze při `unbound=yes` se běžné kolize s AI objekty škálují podle pěti
+velikostních tříd: debris, very small, small, medium a large. Sidewinder je
+samostatně ve třídě very small; Adder, Gecko, Mamba, Krait a Worm jsou small.
+Python, Boa a Anaconda jsou large. Asteroid a rock hermit jsou large, boulder
+je small a splinter patří mezi debris. Stanice nadále používají svou původní
+zvláštní kolizní větev.
+
+Stejná třída zachovává původní poškození `128 + current AI energy / 2`. AI
+objekt o jednu třídu menší způsobí polovinu a o dvě či více tříd menší čtvrtinu
+původního poškození. AI objekt o jednu třídu větší přidá 64 bodů se saturací na
+255; rozdíl dvou nebo více tříd hráče okamžitě zničí. Kolidující AI objekt se
+nadále označí ke zničení, aby se kolize neopakovala v následujícím snímku.
+
+Třídy nezabírají samostatné tabulky. AI třída je v bitech 4 až 6 tabulky
+`KWH%`; `EXNO2` je před započtením combat points maskuje. Hráčova třída je ve
+stejných bitech `ShipShieldStrength`; `PlayerShieldStrength` vrací pouze spodní
+čtyři bity skutečné síly štítu. Změna přidává 79 bajtů LOCODE a 4 bajty HICODE.
+Kontrolní `unbound=no` PAL tape build byl v obou větvích porovnán proti čistému
+HEAD: všech 34 BIN/PRG/TAP souborů bylo bitově shodných. Vizuální test kolizí ve
+VICE zatím proveden nebyl.
+
 ## Volná paměť
 
 Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F51 | 175 B | 174 B | $CD7E | 130 B | 129 B |
-| flicker-free | $3FA1 | 95 B | 94 B | $CDE2 | 30 B | 29 B |
+| main | $3FA0 | 96 B | 95 B | $CD8F | 113 B | 112 B |
+| flicker-free | $3FF0 | 16 B | 15 B | $CDF3 | 13 B | 12 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 

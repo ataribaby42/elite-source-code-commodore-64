@@ -125,6 +125,12 @@ ENDIF                  ; ELITE: Unbound build option (end)
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  MAM = 18               ; Ship type for a Mamba
 
+ COLLISION_CLASS_DEBRIS     = $00
+ COLLISION_CLASS_VERY_SMALL = $10
+ COLLISION_CLASS_SMALL      = $20
+ COLLISION_CLASS_MEDIUM     = $30
+ COLLISION_CLASS_LARGE      = $40
+
 ENDIF                  ; ELITE: Unbound build option (end)
  KRA = 19               ; Ship type for a Krait
 
@@ -4500,11 +4506,19 @@ ENDIF                  ; ELITE: Unbound build option (end)
  SEC                    ; denote that it has been killed and should be removed
  ROR INWK+31            ; from the local bubble
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR ShipCollisionDamage ; Scale damage by the two ships' relative size classes
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  LDA INWK+35            ; Load A with the energy level of the ship we just hit
 
  SEC                    ; Set the amount of damage in A to 128 + A / 2, so
  ROR A                  ; this is quite a big dent, and colliding with higher
                         ; energy ships will cause more damage
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .MA63
 
@@ -18541,6 +18555,91 @@ IF _RENDER_SPEEDUPS    ; Circle rendering speed-up build option (begin)
 
 ENDIF                  ; Circle rendering speed-up build option (end)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+; Scale collision damage according to the relative size classes encoded in the
+; player shield table and the AI combat-point table. The original damage is
+; retained for equal classes, halved or quartered for a smaller collider, and
+; increased by 64 for a collider one class larger. A difference of two or more
+; classes is fatal. AI ships are still removed by MA58, preventing a repeated
+; collision on the following frame.
+
+.ShipCollisionDamage
+
+ LDA INWK+35            ; Start with the original 128 + current AI energy / 2
+ SEC
+ ROR A
+ STA T1
+
+ LDY cmdr_type          ; Fetch the size class packed with the player's shield
+ CPY #13                ; strength, treating an invalid hull as Cobra Mk III
+ BCC shipCollisionPlayerOK
+ LDY #0
+
+.shipCollisionPlayerOK
+
+ LDA ShipShieldStrength,Y
+ AND #%01110000
+ STA T
+
+ LDY TYPE               ; Fetch the current AI object's packed size class
+ LDA KWH%-1,Y
+ AND #%01110000
+ CMP T
+ BEQ shipCollisionSameSize
+ BCC shipCollisionSmaller
+
+ SEC                    ; AI object is larger; find the class difference
+ SBC T
+ CMP #2 * COLLISION_CLASS_VERY_SMALL
+ BCS shipCollisionFatal
+
+ LDA T1                 ; One class larger adds 64 damage, saturating at 255
+ CLC
+ ADC #64
+ BCC shipCollisionDone
+ LDA #255
+
+.shipCollisionDone
+
+ SEC                    ; OOPS subtracts A with SBC, so supply an exact hit
+ RTS
+
+.shipCollisionSmaller
+
+ EOR #$FF               ; Convert AI class - player class into the positive
+ SEC                    ; player class - AI class difference
+ ADC T
+ CMP #2 * COLLISION_CLASS_VERY_SMALL
+ BCS shipCollisionMuchSmaller
+
+ LDA T1                 ; One class smaller causes half the original damage
+ LSR A
+ SEC
+ RTS
+
+.shipCollisionMuchSmaller
+
+ LDA T1                 ; Two or more classes smaller causes one quarter
+ LSR A
+ LSR A
+ SEC
+ RTS
+
+.shipCollisionSameSize
+
+ LDA T1                 ; Equal size classes preserve the original damage
+ SEC
+ RTS
+
+.shipCollisionFatal
+
+ JMP DEATH
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
+
+
 ; ******************************************************************************
 ;
 ;       Name: R%
@@ -25582,6 +25681,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
 
  JSR PlayerShipIndex
  LDA ShipShieldStrength,X
+ AND #%00001111         ; Strip the collision class packed into bits 4 to 6
  RTS
 
 .PlayerLaserMounts
@@ -25959,7 +26059,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.60"
+ EQUS "v0.70"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -26650,9 +26750,22 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
 
 ; Relative shield strengths. Cobra Mk III value 7 is the 100% reference;
 ; established hulls use Elite-A new_shields and Sidewinder/Krait/Mamba use the
-; agreed ELITE: Unbound values 2/3/4.
+; agreed ELITE: Unbound values 2/3/4. Bits 4 to 6 contain the collision size
+; class; PlayerShieldStrength strips them before returning the shield value.
 .ShipShieldStrength
- EQUB 7, 4, 5, 6, 5, 8, 11, 10, 13, 10, 2, 3, 4
+ EQUB COLLISION_CLASS_MEDIUM + 7        ; Cobra Mk III
+ EQUB COLLISION_CLASS_SMALL + 4         ; Adder
+ EQUB COLLISION_CLASS_SMALL + 5         ; Gecko
+ EQUB COLLISION_CLASS_MEDIUM + 6        ; Moray
+ EQUB COLLISION_CLASS_MEDIUM + 5        ; Cobra Mk I
+ EQUB COLLISION_CLASS_MEDIUM + 8        ; Fer-de-Lance
+ EQUB COLLISION_CLASS_LARGE + 11        ; Python
+ EQUB COLLISION_CLASS_LARGE + 10        ; Boa
+ EQUB COLLISION_CLASS_LARGE + 13        ; Anaconda
+ EQUB COLLISION_CLASS_MEDIUM + 10       ; Asp Mk II
+ EQUB COLLISION_CLASS_VERY_SMALL + 2    ; Sidewinder
+ EQUB COLLISION_CLASS_SMALL + 3         ; Krait
+ EQUB COLLISION_CLASS_SMALL + 4         ; Mamba
 
 ; Available laser mounts: 1=front, 2=front/rear, 4=all four.
 ; Sidewinder, Krait and Mamba are front-only player hulls.
@@ -34569,9 +34682,9 @@ ENDIF                   ; Elite-A random spawn positions (end)
                         ; rarely, a Cougar
 
  CMP T                  ; If the random value in A >= our badness level, which
- BCS P%+7               ; will be the case unless we have been really, really
-                        ; bad, then skip the following two instructions (so
-                        ; if we are really bad, there's a higher chance of
+ BCS randomPoliceDone   ; will be the case unless we have been really, really
+                        ; bad, then skip the spawn and its communication hook
+                        ; (so if we are really bad, there's a higher chance of
                         ; spawning a cop, otherwise we got away with it, for
                         ; now)
 
@@ -34584,6 +34697,8 @@ ENDIF                   ; Elite-A random spawn positions (end)
                         ; A successfully spawned hostile Viper may transmit
 
  ENDIF                  ; ELITE: Unbound build option (end)
+
+.randomPoliceDone
 
  LDA MANY+COPS          ; If we now have at least one cop in the local bubble,
  BNE MLOOPS             ; jump down to MLOOPS to stop spawning, otherwise fall
@@ -48530,8 +48645,18 @@ ENDIF
                         ; the X-1-th value from KWL% because ship types start
                         ; at 1 rather than 0)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ LDA KWH%-1,X           ; Strip the collision class packed into bits 4 to 6,
+ AND #%00001111         ; then add the integer combat points and previous carry
+ ADC TALLY
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  LDA TALLY              ; And then we add the low byte of TALLY(1 0):
  ADC KWH%-1,X           ;
+
+ENDIF                  ; ELITE: Unbound build option (end)
  STA TALLY              ;   TALLY = TALLY + carry + integer kill count
                         ;
                         ; where the integer kill count is taken from the KWH%
@@ -57538,12 +57663,20 @@ ENDIF                  ; Registration display requires the I.F.F. build option
 
 ; Return C set when an AI registration must be hidden. A contains its non-zero
 ; registration number and Y contains its NEWB flags. Pirates and ships whose
-; number matches the player's registration both return ??-???.
+; complete registration matches the player's both return ??-???.
 
 .AIRegistrationHidden
 
  CMP regplate_3
+ BNE aiRegistrationCheckPirate
+ JSR AIRegistrationLetters
+ CMP regplate_2
+ BNE aiRegistrationCheckPirate
+ CPX regplate_1
  BEQ aiRegistrationHidden
+
+.aiRegistrationCheckPirate
+
  TYA
  AND #%00001000
  BNE aiRegistrationHidden
