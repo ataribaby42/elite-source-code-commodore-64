@@ -6571,39 +6571,60 @@ ENDIF
 
 .KWH%
 
- EQUB 0                 ; Missile                               0.58203125
- EQUB 0                 ; Coriolis space station                0.0
- EQUB 0                 ; Escape pod                            0.0625
- EQUB 0                 ; Alloy plate                           0.0390625
- EQUB 0                 ; Cargo canister                        0.0390625
- EQUB 0                 ; Boulder                               0.0234375
- EQUB 0                 ; Asteroid                              0.03125
- EQUB 0                 ; Splinter                              0.0390625
- EQUB 0                 ; Shuttle                               0.0625
- EQUB 0                 ; Transporter                           0.06640625
- EQUB 0                 ; Cobra Mk III                          0.9140625
- EQUB 0                 ; Python                                0.6640625
- EQUB 0                 ; Boa                                   0.83203125
- EQUB 1                 ; Anaconda                              1.0
- EQUB 0                 ; Rock hermit (asteroid)                0.33203125
- EQUB 0                 ; Viper                                 0.1015625
- EQUB 0                 ; Sidewinder                            0.33203125
- EQUB 0                 ; Mamba                                 0.5
- EQUB 0                 ; Krait                                 0.33203125
- EQUB 0                 ; Adder                                 0.3515625
- EQUB 0                 ; Gecko                                 0.33203125
- EQUB 0                 ; Cobra Mk I                            0.6640625
- EQUB 0                 ; Worm                                  0.1953125
- EQUB 1                 ; Cobra Mk III (pirate)                 1.1640625
- EQUB 1                 ; Asp Mk II                             1.08203125
- EQUB 1                 ; Python (pirate)                       1.1640625
- EQUB 1                 ; Fer-de-lance                          1.25
- EQUB 0                 ; Moray                                 0.75
- EQUB 2                 ; Thargoid                              2.6640625
- EQUB 0                 ; Thargon                               0.12890625
- EQUB 5                 ; Constrictor                           5.33203125
- EQUB 5                 ; Cougar                                5.33203125
- EQUB 0                 ; Dodecahedron ("Dodo") space station   0.0
+IF _UNBOUND
+
+ COLLISION_CLASS_DEBRIS     = $00
+ COLLISION_CLASS_VERY_SMALL = $10
+ COLLISION_CLASS_SMALL      = $20
+ COLLISION_CLASS_MEDIUM     = $30
+ COLLISION_CLASS_LARGE      = $40
+
+ELSE
+
+ COLLISION_CLASS_DEBRIS     = 0
+ COLLISION_CLASS_VERY_SMALL = 0
+ COLLISION_CLASS_SMALL      = 0
+ COLLISION_CLASS_MEDIUM     = 0
+ COLLISION_CLASS_LARGE      = 0
+
+ENDIF
+
+                        ; In ELITE: Unbound, unused bits 4 to 6 contain the
+                        ; collision size class. EXNO2 masks them
+                        ; before adding the integer combat points.
+ EQUB 0 + COLLISION_CLASS_DEBRIS  ; Missile                 0.58203125
+ EQUB 0 + COLLISION_CLASS_LARGE   ; Coriolis station        0.0
+ EQUB 0 + COLLISION_CLASS_VERY_SMALL ; Escape pod            0.0625
+ EQUB 0 + COLLISION_CLASS_DEBRIS  ; Alloy plate             0.0390625
+ EQUB 0 + COLLISION_CLASS_DEBRIS  ; Cargo canister          0.0390625
+ EQUB 0 + COLLISION_CLASS_SMALL   ; Boulder                 0.0234375
+ EQUB 0 + COLLISION_CLASS_LARGE   ; Asteroid                0.03125
+ EQUB 0 + COLLISION_CLASS_DEBRIS  ; Splinter                0.0390625
+ EQUB 0 + COLLISION_CLASS_SMALL   ; Shuttle                 0.0625
+ EQUB 0 + COLLISION_CLASS_MEDIUM  ; Transporter             0.06640625
+ EQUB 0 + COLLISION_CLASS_MEDIUM  ; Cobra Mk III            0.9140625
+ EQUB 0 + COLLISION_CLASS_LARGE   ; Python                  0.6640625
+ EQUB 0 + COLLISION_CLASS_LARGE   ; Boa                     0.83203125
+ EQUB 1 + COLLISION_CLASS_LARGE   ; Anaconda                1.0
+ EQUB 0 + COLLISION_CLASS_LARGE   ; Rock hermit (asteroid)  0.33203125
+ EQUB 0 + COLLISION_CLASS_MEDIUM  ; Viper                   0.1015625
+ EQUB 0 + COLLISION_CLASS_VERY_SMALL ; Sidewinder            0.33203125
+ EQUB 0 + COLLISION_CLASS_SMALL   ; Mamba                   0.5
+ EQUB 0 + COLLISION_CLASS_SMALL   ; Krait                   0.33203125
+ EQUB 0 + COLLISION_CLASS_SMALL   ; Adder                   0.3515625
+ EQUB 0 + COLLISION_CLASS_SMALL   ; Gecko                   0.33203125
+ EQUB 0 + COLLISION_CLASS_MEDIUM  ; Cobra Mk I              0.6640625
+ EQUB 0 + COLLISION_CLASS_SMALL   ; Worm                    0.1953125
+ EQUB 1 + COLLISION_CLASS_MEDIUM  ; Cobra Mk III (pirate)   1.1640625
+ EQUB 1 + COLLISION_CLASS_MEDIUM  ; Asp Mk II               1.08203125
+ EQUB 1 + COLLISION_CLASS_LARGE   ; Python (pirate)         1.1640625
+ EQUB 1 + COLLISION_CLASS_MEDIUM  ; Fer-de-lance            1.25
+ EQUB 0 + COLLISION_CLASS_MEDIUM  ; Moray                   0.75
+ EQUB 2 + COLLISION_CLASS_LARGE   ; Thargoid                2.6640625
+ EQUB 0 + COLLISION_CLASS_VERY_SMALL ; Thargon               0.12890625
+ EQUB 5 + COLLISION_CLASS_MEDIUM  ; Constrictor             5.33203125
+ EQUB 5 + COLLISION_CLASS_MEDIUM  ; Cougar                  5.33203125
+ EQUB 0 + COLLISION_CLASS_LARGE   ; Dodecahedron station    0.0
 
 ; ******************************************************************************
 ;
