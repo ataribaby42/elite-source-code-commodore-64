@@ -32,6 +32,8 @@ endef
 #                         gma86-pal
 #                         tape-pal
 #                         tape-ntsc
+#                         easyflash-pal
+#                         easyflash-ntsc
 #                         source-disk-build (the binaries we get from running a build)
 #                         source-disk-files (the binaries already on the source disk)
 #
@@ -98,6 +100,8 @@ endef
 #
 #   make variant=tape-pal encrypt=no match=no verify=no
 #   make variant=tape-ntsc encrypt=no match=no verify=no
+#   make variant=easyflash-pal encrypt=no match=no verify=no
+#   make variant=easyflash-ntsc encrypt=no match=no verify=no
 #
 # These produce:
 #
@@ -242,6 +246,20 @@ else ifeq ($(variant), tape-ntsc)
   tape-video=ntsc
   tape-output=5-compiled-game-tapes/elite-commodore-64-ntsc.tap
   media-target=c64-tape
+else ifeq ($(variant), easyflash-pal)
+  # EasyFlash PAL uses the PAL/GMA86 game build.
+  variant-number=2
+  folder=gma86-pal
+  suffix=-easyflash-pal
+  easyflash-output=5-compiled-game-cartridges/elite-commodore-64-easyflash-pal.crt
+  media-target=c64-easyflash
+else ifeq ($(variant), easyflash-ntsc)
+  # EasyFlash NTSC uses the NTSC/GMA85 game build.
+  variant-number=1
+  folder=gma85-ntsc
+  suffix=-easyflash-ntsc
+  easyflash-output=5-compiled-game-cartridges/elite-commodore-64-easyflash-ntsc.crt
+  media-target=c64-easyflash
 else
   variant-number=1
   folder=gma85-ntsc
@@ -252,7 +270,7 @@ endif
 
 ifeq ($(unbound), yes)
   ifneq ($(filter $(variant),source-disk-build source-disk-files),)
-    $(error unbound=yes is supported by the GMA and tape variants only; the source-disk variants exceed the original HICODE limit)
+    $(error unbound=yes is supported by the GMA, tape and EasyFlash variants only; the source-disk variants exceed the original HICODE limit)
   endif
 endif
 
@@ -342,7 +360,7 @@ else
   scannercolorfix-enabled=FALSE
 endif
 
-.PHONY: all c64-build c64-disk c64-tape
+.PHONY: all c64-build c64-disk c64-tape c64-easyflash
 all: c64-build $(media-target)
 
 c64-build:
@@ -437,3 +455,24 @@ c64-tape: c64-build
 		--name ELITE \
 		--full-boot \
 		--output $(tape-output)
+
+# -----------------------------------------------------------------------------
+# EasyFlash cartridge build
+# -----------------------------------------------------------------------------
+#
+# Selected using:
+#
+#   variant=easyflash-pal
+#   variant=easyflash-ntsc
+#
+c64-easyflash: c64-build
+	$(BEEBASM) -i 1-source-files/main-sources/elite-easyflash-loader.asm -v >> 3-assembled-output/compile.txt
+	$(BEEBASM) -i 1-source-files/main-sources/elite-easyflash-boot.asm -v >> 3-assembled-output/compile.txt
+	$(BEEBASM) -i 1-source-files/main-sources/elite-easyflash-reset.asm -v >> 3-assembled-output/compile.txt
+	$(PYTHON) 2-build-files/elite-easyflash.py \
+		--boot-low 3-assembled-output/elite-easyflash-boot-low.bin \
+		--boot-high 3-assembled-output/elite-easyflash-boot-high.bin \
+		--comlod 3-assembled-output/COMLOD.bin \
+		--locode 3-assembled-output/LOCODE.bin \
+		--hicode 3-assembled-output/HICODE.bin \
+		--output $(easyflash-output)

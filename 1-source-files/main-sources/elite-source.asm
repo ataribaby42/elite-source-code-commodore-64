@@ -18784,8 +18784,8 @@ ELSE                   ; ELITE: Unbound build option (else)
 ENDIF                  ; ELITE: Unbound build option (end)
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
- JSR PlayerCargoCapacity ; A = this hull's current capacity, including the
-                         ; Large Cargo Bay 10% extension when fitted
+ JSR PlayerCargoCapacity ; A = this hull's current capacity, including its
+                         ; configured Large Cargo Bay capacity when fitted
 
  CMP CNT                ; Capacity >= used means the cargo fits
  BCC tnprCargoFull
@@ -24465,8 +24465,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; extension: one missile is sold per visit/confirmation, so a commander can
 ; reduce a missile load without having to discard the whole rack.
 ;
-; The C64 Large Cargo Bay is retained by ELITE: Unbound. It adds 10% of the
-; hull's default cargo capacity (floor, minimum +1t, total capped at 255t).
+; The C64 Large Cargo Bay is retained by ELITE: Unbound. Each hull has its own
+; configured extended cargo capacity, with a hard maximum of 255t.
 ; It can only be sold when current used capacity fits back into the base hold;
 ; otherwise the sale is refused with "CARGO?".
 ; ------------------------------------------------------------------------------
@@ -24940,7 +24940,11 @@ ELSE                   ; ELITE: Unbound build option (else)
  EQUW 1                 ; 0  Fuel, calculated in EQSHP  140.0 Cr (full tank)
  EQUW 300               ; 1  Missile                     30.0 Cr
 ENDIF                  ; ELITE: Unbound build option (end)
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ EQUW 6000              ; 2  Large Cargo Bay            600.0 Cr
+ELSE                   ; ELITE: Unbound build option (else)
  EQUW 4000              ; 2  Large Cargo Bay            400.0 Cr
+ENDIF                  ; ELITE: Unbound build option (end)
  EQUW 6000              ; 3  E.C.M. System              600.0 Cr
  EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
@@ -24975,7 +24979,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  ; Category 1: Adder, Gecko, Cobra Mk I
  EQUW 250               ; 1  Missile                     25.0 Cr
- EQUW 4000              ; 2  Large Cargo Bay            400.0 Cr
+ EQUW 5000              ; 2  Large Cargo Bay            500.0 Cr
  EQUW 4000              ; 3  E.C.M. System              400.0 Cr
  EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
@@ -24990,7 +24994,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  ; Category 2: Fer-de-Lance, Asp Mk II
  EQUW 250               ; 1  Missile                     25.0 Cr
- EQUW 4000              ; 2  Large Cargo Bay            400.0 Cr
+ EQUW 20000             ; 2  Large Cargo Bay           2000.0 Cr
  EQUW 5000              ; 3  E.C.M. System              500.0 Cr
  EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
@@ -25005,7 +25009,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  ; Category 3: Python, Boa, Anaconda (ELITE: Unbound heavy-ship category)
  EQUW 250               ; 1  Missile                     25.0 Cr
- EQUW 40000             ; 2  Large Cargo Bay           4000.0 Cr
+ EQUW 60000             ; 2  Large Cargo Bay           6000.0 Cr
  EQUW 8000              ; 3  E.C.M. System              800.0 Cr
  EQUW 4000              ; 4  Extra Pulse Lasers         400.0 Cr
  EQUW 10000             ; 5  Extra Beam Lasers         1000.0 Cr
@@ -25851,9 +25855,9 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; ------------------------------------------------------------------------------
 ; PlayerCargoCapacity / ShipCargoCapacityType
 ;
-; Return the current cargo capacity in tonnes. A fitted Large Cargo Bay adds
-; floor(10% of the hull's default capacity), with a minimum bonus of +1t and a
-; hard maximum total capacity of 255t.
+; Return the current cargo capacity in tonnes. A fitted Large Cargo Bay selects
+; the hull's configured capacity from ShipExtendedCargo. Capacities are stored
+; as one-byte values, with a hard maximum of 255t.
 ;
 ; PlayerCargoCapacity uses cmdr_type. ShipCargoCapacityType takes A = ship type.
 ; CRGO remains the original C64 fitted/not-fitted flag (22 = standard,
@@ -26524,7 +26528,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 ; 13 words = 26 bytes. Non-laser equipment in categories 0/1/2/4 follows the
 ; agreed Elite-A values; Python and Boa are deliberately moved into category 3
 ; with Anaconda so the three heavy cargo hulls share the same equipment economy.
-; Category 3 also gives Large Cargo Bay the custom 4000 Cr price. Laser prices
+; Category 3 also gives Large Cargo Bay the custom 6000 Cr price. Laser prices
 ; are intentionally vanilla C64 in every category. Sidewinder, Krait and Mamba
 ; use category 4.
 ;
@@ -26552,19 +26556,18 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 .ShipMaxPitchDialMagnitude
  EQUB 7, 6, 7, 7, 5, 6, 3, 4, 3, 6, 7, 6, 7
 
-; Default empty cargo capacities. Sidewinder is intentionally tiny at 4t;
-; Krait and Mamba use 10t.
+; Default empty cargo capacities. Cobra Mk III uses 25t, Sidewinder is
+; intentionally tiny at 4t, and Krait and Mamba use 10t.
 ;
 ; Cobra III, Adder, Gecko, Moray, Cobra I, Fer-de-Lance,
 ; Python, Boa, Anaconda, Asp II, Sidewinder, Krait, Mamba
 .ShipDefaultCargo
- EQUB 28, 8, 9, 11, 14, 9, 106, 132, 215, 6, 4, 10, 10
+ EQUB 25, 8, 9, 11, 14, 9, 106, 132, 215, 6, 4, 10, 10
 
-; ELITE: Unbound Large Cargo Bay capacities. Bonus = floor(base / 10), with a
-; minimum of +1t and hard maximum 255t. Cobra III 28->30; Sidewinder 4->5;
-; Krait/Mamba 10->11.
+; ELITE: Unbound final capacities with Large Cargo Bay fitted. Each hull has an
+; independently configured value, with a hard maximum of 255t.
 .ShipExtendedCargo
- EQUB 30, 9, 10, 12, 15, 10, 116, 145, 236, 7, 5, 11, 11
+ EQUB 35, 12, 11, 15, 20, 11, 125, 155, 253, 9, 5, 12, 12
 
 ; Established hull prices use Elite-A _BUG_FIX/source-disc values. Sidewinder,
 ; Krait and Mamba are ELITE: Unbound prices agreed for the Anarchy-only hulls.

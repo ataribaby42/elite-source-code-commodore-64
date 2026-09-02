@@ -51,19 +51,19 @@ public static class GameData
 
     public static readonly ShipDefinition[] Ships =
     [
-        new(0,  "Cobra Mk III",  4,  70, 4,  28,  30),
-        new(1,  "Adder",         1,  60, 2,   8,   9),
-        new(2,  "Gecko",         2,  70, 4,   9,  10),
-        new(3,  "Moray",         2,  80, 4,  11,  12),
-        new(4,  "Cobra Mk I",    3,  60, 4,  14,  15),
-        new(5,  "Fer-de-Lance",  3,  85, 4,   9,  10),
-        new(6,  "Python",        4,  80, 4, 106, 116),
-        new(7,  "Boa",           6,  90, 2, 132, 145),
-        new(8,  "Anaconda",     16, 100, 4, 215, 236),
-        new(9,  "Asp Mk II",     1, 125, 1,   6,   7),
+        new(0,  "Cobra Mk III",  4,  70, 4,  25,  35),
+        new(1,  "Adder",         1,  60, 2,   8,  12),
+        new(2,  "Gecko",         2,  70, 4,   9,  11),
+        new(3,  "Moray",         2,  80, 4,  11,  15),
+        new(4,  "Cobra Mk I",    3,  60, 4,  14,  20),
+        new(5,  "Fer-de-Lance",  3,  85, 4,   9,  11),
+        new(6,  "Python",        4,  80, 4, 106, 125),
+        new(7,  "Boa",           6,  90, 2, 132, 155),
+        new(8,  "Anaconda",     16, 100, 4, 215, 253),
+        new(9,  "Asp Mk II",     1, 125, 1,   6,   9),
         new(10, "Sidewinder",    1,  50, 1,   4,   5),
-        new(11, "Krait",         0,  60, 1,  10,  11),
-        new(12, "Mamba",         2,  60, 1,  10,  11)
+        new(11, "Krait",         0,  60, 1,  10,  12),
+        new(12, "Mamba",         2,  60, 1,  10,  12)
     ];
 
     public static readonly byte[] DefaultMarketAvailability =

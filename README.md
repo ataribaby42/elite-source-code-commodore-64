@@ -58,6 +58,7 @@ Visit the [Elite: Unbound website](https://ataribaby42.github.io/elite-source-co
   * [Building the source disk files variant](#building-the-source-disk-files-variant)
   * [Differences between the variants](#differences-between-the-variants)
   * [Notes about tape version](#notes-about-tape-version)
+  * [Notes about EasyFlash cartridge versions](#notes-about-easyflash-cartridge-versions)
 
 * [Notes on the original source files](#notes-on-the-original-source-files)
 
@@ -143,6 +144,8 @@ There are five main folders in this repository, which reflect the order of the b
 
 * [5-compiled-game-disks](5-compiled-game-disks) contains the final output of the build process: a d64 disk image that contains the compiled game and which can be run on real hardware or in an emulator.
 
+* [5-compiled-game-cartridges](5-compiled-game-cartridges) contains the EasyFlash CRT cartridge images produced by the `easyflash-pal` and `easyflash-ntsc` variants, for use in compatible emulators or on EasyFlash-compatible hardware.
+
 ## Flicker-free Elite
 
 This repository also includes a flicker-free version, which incorporates the backported flicker-free ship-drawing routines from the BBC Master, as well as a fix for planets so they no longer flicker. The flicker-free code is in a separate branch called `flicker-free`, and apart from the code differences for reducing flicker, this branch is identical to the main branch and the same build process applies.
@@ -209,6 +212,8 @@ By default the build process will create a typical Elite game disk with a standa
   * `variant=gma86-pal`
   * `variant=tape-pal`
   * `variant=tape-ntsc`
+  * `variant=easyflash-pal`
+  * `variant=easyflash-ntsc`
   * `variant=source-disk-build`
   * `variant=source-disk-files`
 
@@ -241,16 +246,20 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `randomspawns=yes` - Use the Elite-A ship-position fix for traders, junk and AI ships. It gives both axes random signs and wider high-byte ranges, so ship types are no longer tied to a particular part of the screen. This option is disabled by default and can be combined with `unbound=yes`.
 
-* `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA and tape variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
+* `unbound=yes` - Enable all ELITE: Unbound gameplay and UI changes in the GMA, tape and EasyFlash variants. The option is disabled by default, so builds without it retain the original behaviour. The source-disk variants are not supported because the added code exceeds their original HICODE limit.
 
   **Important:** Elite: Unbound is not fully compatible with encryption, original-binary matching or binary verification. Builds with `unbound=yes` must also use `encrypt=no match=no verify=no`.
 
-  The only two supported build configurations for Elite: Unbound are:
+  The supported build configurations for Elite: Unbound are:
 
   ```text
-  make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+  make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes unbound=yes
 
-  make variant=gma86-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+  make variant=gma86-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes unbound=yes
+
+  make variant=easyflash-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes unbound=yes
+
+  make variant=easyflash-ntsc encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes unbound=yes
   ```
 
   Other option combinations are not guaranteed to build or function correctly, as they may cause individual code blocks to exceed their memory limits.
@@ -632,6 +641,35 @@ The `flicker-free` branch produces:
 ```
 
 Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns`, `unbound`, `realmissiledamage`, `renderspeedups` and `whitecockpit` can be used with the tape variants in the same way as with the GMA disk variants.
+
+### Notes about EasyFlash cartridge versions
+
+The EasyFlash builds contain the same game code and support the same build options as the corresponding GMA disk builds. Only the boot and loading process is different.
+
+Two EasyFlash variants are available:
+
+* `variant=easyflash-pal` uses the PAL/GMA86 game build.
+* `variant=easyflash-ntsc` uses the NTSC/GMA85 game build.
+
+For example:
+
+```text
+make variant=easyflash-pal encrypt=no match=no verify=no
+make variant=easyflash-ntsc encrypt=no match=no verify=no
+```
+
+The generated native EasyFlash CRT image boots directly from the cartridge. Its loader establishes the normal C64 KERNAL state, copies COMLOD, LOCODE and HICODE from banked flash into their original RAM locations, and disables the cartridge before entering the game. Cassette and disk commander loading and saving therefore remain available during play.
+
+The cartridge images are written to:
+
+```text
+5-compiled-game-cartridges/elite-commodore-64-easyflash-pal.crt
+5-compiled-game-cartridges/elite-commodore-64-easyflash-ntsc.crt
+5-compiled-game-cartridges/elite-commodore-64-flicker-free-easyflash-pal.crt
+5-compiled-game-cartridges/elite-commodore-64-flicker-free-easyflash-ntsc.crt
+```
+
+The CRT files use the standard EasyFlash hardware type supported by C64 emulators and EasyFlash-compatible cartridges.
 
 ## Notes on the original source files
 
