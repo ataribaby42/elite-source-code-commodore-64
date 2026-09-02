@@ -1,6 +1,6 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 31. srpna 2026.
+Stav poznámek: 2. září 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
@@ -496,9 +496,11 @@ V okamžiku, kdy tato kontrola nastaví `FIST=100`, zobrazí se dynamická zprá
 s registrací aktuální stanice a registrací hráčovy lodě. Protože je scramble
 aktivní, hráčova běžná registrační rutina vypíše `??-???`. Koncovka se pro
 každou zprávu rovnoměrně náhodně vybere z `, SCRAM PIRATE!`, `, RUN PIRATE!`
-a `, DIE PIRATE!`. Zpráva používá stejný privátní token jako
+a `, DIE PIRATE!`. Výběr nyní používá společnou rutinu
+`CommMessageRandomThree` v prostoru za RLE dashboardem. Zpráva používá stejný privátní token jako
 `DOCK OR LEAVE`, včetně `DLY=100`, a zvolený text zůstává stabilní pro EOR
-překreslení. Implementace přidává 99 bajtů HICODE a žádný LOCODE.
+překreslení. Texty jsou uloženy v rezidentním prostoru za RLE dashboardem;
+HICODE obsahuje tiskovou rutinu a tabulku offsetů. LOCODE se nemění.
 
 Při aktivním scramble a `FIST >= 50` mohou lidské pirátské lodě vzniknout bez
 hostile bitu. Testovací hodnota `NEUTRAL_PIRATE_CHANCE = 128` znamená šanci
@@ -577,12 +579,15 @@ Před kreslením pozadí se instrukce vrátí na původní EOR režim. Kontrola
 s `renderspeedups=no` i `renderspeedups=yes` potvrdila, že všech 22 adres stále
 ukazuje na opcode `$51`.
 
-Samostatný 579bajtový blok `elite-hangar.asm` se sestavuje na
-`DSTORE%+$500` a loader jej ukládá za PackBits dashboard. Celý RLE a hangárový
-payload končí na offsetu `$743`, takže z původní devítistránkové oblasti zbývá
-445 bajtů. Nový i starý dashboard používají stejnou pevnou adresu hangáru.
-LOCODE narostl pouze o tříbajtové `JSR`; HICODE se nezměnil. Při `unbound=no`
-zůstaly `LOCODE`, `HICODE` i `COMLOD` v obou větvích bitově shodné.
+Samotný hangárový kód zabírá 579 bajtů a sestavuje se v `elite-hangar.asm` na
+`DSTORE%+$500`; loader jej ukládá za PackBits dashboard. Soubor nyní obsahuje
+také komunikační rutiny a texty popsané níže, takže celý blok má 1002 bajtů a končí na
+`$F87A`. Celý RLE, hangárový a komunikační payload tak končí na offsetu `$8EA`
+a na konci původní devítistránkové oblasti zbývá 22 bajtů. Komprimovaný nový
+dashboard navíc ponechává 81 bajtů před pevnou adresou hangáru; celkem je tedy
+volných 103 bajtů ve dvou nesouvislých blocích. Nový i starý dashboard
+používají stejnou pevnou adresu hangáru. Původní přidání hangáru zvětšilo
+LOCODE pouze o tříbajtové `JSR` a HICODE nezměnilo.
 
 V obou větvích prošly PAL i NTSC tape buildy včetně TAP round-trip kontroly,
 šifrované GMA86 PAL buildy včetně ověření fast-loader sektorové tabulky a
@@ -652,6 +657,143 @@ Změna přidává 1 bajt do HICODE a nemění LOCODE. V obou větvích prošel b
 nešifrovaný tape-pal build včetně TAP round-trip kontroly a šifrovaný
 gma86-pal build včetně ověření fast-loader sektorové tabulky.
 
+## Fronta komunikačních zpráv a testovací pirátská hláška
+
+Soukromý letový token 2 nyní obsluhuje obecné zprávy od stanic i AI lodí.
+Každá přijatá zpráva jednou krátce pípne. Ve 3D pohledu se zobrazí okamžitě;
+na mapě, Statusu a ostatních obrazovkách se uloží do jediné čekající pozice a
+zobrazí se po návratu do 3D pohledu bez druhého pípnutí. Novější komunikace
+vždy nahradí starší čekající komunikaci a neexistují žádné priority zpráv.
+Dynamické registrace odesílatele a příjemce se při odložení ihned zkopírují,
+takže zpráva zůstane správná i po zániku nebo opětovném použití AI slotu.
+Stanice i AI komunikace připravují registraci hráče společnou rutinou
+`CommMessagePreparePlayerRecipient`; při aktivním scrambled ID uloží příjemce
+jako `??-???`.
+Běžný reset letového stavu v `RES2` zároveň nuluje `CommMessagePending`, takže
+odložená komunikace nepřežije smrt, hyperspace, mis-jump, zadokování, start ze
+stanice ani použití záchranného modulu.
+Běžné zprávy přes ostatní tokeny, například bounty nebo ENERGY LOW, se nemění.
+
+Jako první AI test vybírají pirátské spawny rovnoměrně z textů
+`, BOO YOU DEAD!`, `, PREPARE DIE!` a `, SCUMBAG!`. Společná rutina
+`CommMessageRandomThree` vrací index 0 až 2; přičtení začátku souvislé skupiny
+druhů zpráv ji používá jak pro tyto tři hlášky, tak pro staniční trojici
+`SCRAM/RUN/DIE PIRATE!`. Stejným způsobem lze přidat další třířádkové skupiny
+pro obchodníky, policii nebo bounty huntery. Před
+celým packem se vynuluje uložený odesílatel a po každém `NWSHP` se zkontroluje
+úspěšné vytvoření i finální bity `NEWB`. Odesílatelem se stane první úspěšně
+vytvořený pirát, který si po případné neutralizaci stále ponechal současně
+pirate a hostile bit. Pravděpodobnost se vyhodnotí až po zpracování celého
+packu a zpráva se proto odešle nejvýše jednou. Pokud se žádný člen nevytvoří
+nebo jsou všichni pasivní, zpráva se neodešle.
+
+Stejná kontrola následuje také za samostatným spawnem v cestě `focoug`.
+Touto cestou mohou vznikat i bounty hunters, Thargoid, Cougar a Constrictor,
+ale komunikaci může vyvolat pouze úspěšně vytvořená loď s finální kombinací
+pirate+hostile. Každý takový samostatný pirát má právě jeden pokus.
+
+`PIRATE_COMM_CHANCE_PERCENT` určuje společnou pravděpodobnost v rozsahu
+0 až 100 %. Nula kód zcela vypne, 100 zprávu vždy povolí a mezilehlá hodnota
+se převede na osmibitový práh a spotřebuje jedinou hodnotu z `DORND` za celý
+pack nebo samostatného piráta. Aktuální hodnota je 50 %. Pro přesných 50 % se
+používá přímo horní bit náhodného bajtu, který rozděluje všech 256 hodnot na
+128 povolených a 128 zamítnutých; ostatní mezilehlé hodnoty nadále používají
+osmibitový práh.
+
+Všechny čtyři konstanty `PIRATE_COMM_CHANCE_PERCENT`,
+`TRADER_COMM_CHANCE_PERCENT`, `BOUNTY_HUNTER_COMM_CHANCE_PERCENT` a
+`POLICE_COMM_CHANCE_PERCENT` lze nezávisle přepsat na libovolné celé číslo
+od 0 do 100 bez další změny kódu. Assembler tento rozsah kontroluje pomocí
+`ASSERT`. Hodnoty 0, 50 a 100 mají zkrácené překladové větve; ostatní hodnoty
+1 až 99 používají obecný osmibitový práh.
+
+Samostatná větev `MTT4` po úspěšném `NWSHP` nyní umožňuje komunikaci obchodníka,
+tedy lodě typu Cobra Mk III, Python, Boa nebo Anaconda vytvořené touto větví. Přímé
+napojení na `MTT4` je záměrné: blueprinty lodí Cobra Mk III, Python a Boa nemají
+v tabulce `E%` nastavený trader bit, přestože je tato spawn větev považuje za
+obchodníky. Neúspěšný spawn zprávu neodešle. Odesílatelem je nová loď v posledním
+obsazeném slotu `FRIN` a rovnoměrně se vybírá z `, HAVE NICE TRIP`, `, HELLO`
+a `, JUST PASSING`.
+
+`TRADER_COMM_CHANCE_PERCENT` je samostatná pravděpodobnost v rozsahu 0 až 100 %
+se stejnou logikou jako pirátská volba. Vyhodnocuje se
+jednou za úspěšně vytvořeného obchodníka a aktuálně je nastavena na 50 %.
+
+Samostatný spawn v cestě `focoug` po úspěšném `NWSHP` rozlišuje finální příznaky
+role. Finální kombinace pirate+hostile používá pirátskou sadu, zatímco kombinace
+bounty-hunter+hostile používá sadu `, WRONG PLACE!`, `, HERE WE GO!`
+a `, MY BOUNTY!`. Odesílatelem je opět skutečný nově vytvořený slot. Tím se
+zabrání tomu, aby pirátské varianty Cobra Mk III, Asp Mk II a Python ze stejné
+spawn větve dostaly zprávu lovce odměn. Jde pouze o klasifikaci role lodi;
+nezavádí se žádná priorita zpráv a jediná čekající pozice stále obsahuje poslední
+přijatou komunikaci.
+
+`BOUNTY_HUNTER_COMM_CHANCE_PERCENT` je třetí nezávislá pravděpodobnost v rozsahu
+0 až 100 %, vyhodnocovaná jednou pro samostatně vytvořeného hostile bounty
+huntera. Aktuálně je nastavena na 50 %.
+
+Hostile police Viper může komunikovat ze dvou spawn cest. Viper vypuštěná
+nepřátelskou stanicí dědí hostile příznak stanice. Náhodně vytvořená Viper dostane
+hostile příznak v `TACTICS` jen při `FIST >= 40`, takže stejná podmínka rozhoduje
+o zprávě bez změny herního chování. Po úspěšném spawnu se rovnoměrně vybírá
+z `, STOP NOW!`, `, WE FOUND YOU!` a `, SURRENDER!`.
+
+`POLICE_COMM_CHANCE_PERCENT` je čtvrtá nezávislá pravděpodobnost v rozsahu
+0 až 100 %, vyhodnocovaná jednou pro každou takto vytvořenou hostile police
+Viperu. Aktuálně je nastavena na 50 %.
+
+Společný prefix `, ` se nyní tiskne jednou v `CommMessagePrint` a není opakován
+v každém uloženém textu. Původních deset textových zakončení proto zabírá 122
+bajtů od `$F7F0` do `$F869`; policejní zakončení navazují od `$F86A` do `$F88C`
+při aktuálním nastavení všech šancí na 50 %.
+Desetibajtová
+`CommMessageOffsets` zůstává v HICODE; její jednobajtové offsety nadále ukazují
+relativně k `CommMessageText`, i když text překračuje hranici stránky `$F7FF`.
+Tři zakončení lovce odměn mají 36 bajtů v samostatném bloku `$F466` až `$F489`
+těsně před hangárem. S `dials=new` zbývá 39 bajtů před tímto blokem, 6 bajtů
+za ním a při šanci 50 % 3 bajty za hangárem; celkem 48 nesouvislých bajtů.
+Obecná mezilehlá pirátská šance spotřebuje poslední 2 bajty této rezervy, takže
+v nejhorším případě zbývá 39 + 6 + 1 = 46 bajtů. Delší `dials=old` ponechává
+ve stejných třech blocích 19 bajtů při 50 % a 17 bajtů v nejhorším případě.
+
+Komunikační rutiny a texty ponechané v prostoru RLE dashboardu zabírají při
+aktuálních 50 % 478 bajtů a v největší obecné mezilehlé variantě 480 bajtů.
+Proti stavu před zavedením komunikace se LOCODE v obou větvích
+zmenšil o 2 bajty a HICODE se zmenšil o 166 bajtů. Kontrola zároveň odhalila starší
+chybějící podmínku u `IFFAngryCurrentShip` a `IFFAngryMissileTarget`:
+`unbound=no iffunit=yes` odkazovalo na rutiny sestavované pouze pro Unbound.
+Mimo Unbound nyní tyto dvě cesty používají původní `ANGRY` a kontrolní build
+znovu prochází.
+
+V obou větvích prošel nešifrovaný tape-pal build s `unbound=yes`, nešifrovaný
+i šifrovaný gma86-pal build včetně ověření fast-loader sektorové tabulky a kontrolní
+tape-pal build s `unbound=no iffunit=yes`. Oba tape buildy prošly TAP
+round-trip kontrolou. Úspěšně prošel také tape-pal build s `unbound=yes`,
+`iffunit=no` a `randomspawns=no`. Vizuální kontrola ve VICE nebyla provedena.
+Po přidání komunikace lovců odměn byly znovu úspěšně provedeny nešifrovaný
+gma86-pal pro `dials=new` i `dials=old`, šifrovaný gma86-pal s `dials=new`
+a nešifrovaný tape-pal s `dials=new`; ve všech případech samostatně v obou
+větvích. GMA buildy ověřily fast-loader tabulku a tape buildy prošly úplným
+round-trip ověřením. Vizuální kontrola nové zprávy ve VICE zatím provedena nebyla.
+Po doplnění policejní komunikace znovu prošly v obou větvích nešifrované
+gma86-pal buildy s `dials=new` i `dials=old`, šifrovaný gma86-pal, běžný
+nešifrovaný tape-pal a kontrolní tape-pal s `unbound=no`. GMA buildy ověřily
+fast-loader tabulku a tape buildy úplný round-trip. Hodnota policejní šance 50 %
+byla rovněž sestavena; v `main` prošel celý tape build, ve flicker-free prošly
+herní zdroj, HICODE a loader, ale následný pomocný zápis `README.txt` zablokoval
+přechodný zámek souboru. Finální 100% buildy obou větví prošly celé. Vizuální
+kontrola policejních zpráv ve VICE zatím provedena nebyla.
+
+Po finálním nastavení všech čtyř komunikačních šancí na 50 % prošel v obou
+větvích běžný nešifrovaný tape-pal build včetně úplného TAP round-trip ověření,
+šifrovaný gma86-pal build a přesná běžná nešifrovaná gma86-pal konfigurace
+s `renderspeedups=yes`. Oba GMA buildy ověřily automatickou fast-loader
+sektorovou tabulku. Optimalizovaná 50% větev a odstranění nadbytečných instrukcí
+udržely `HANGAR.bin` na 1021 bajtech (`$3FD`). Kontrolní plné tape-pal buildy
+se společnými hodnotami 0, 1, 50, 99 a 100 prošly v obou větvích; hodnoty 1 a
+99 představují největší obecnou variantu a mají 1023 bajtů (`$3FF`), stále pod
+přísným limitem `$900` celé oblasti dashboardu.
+
 Níže uvedené hodnoty paměti byly znovu odečteny 2. září 2026 z compile.txt
 pro oba PAL buildy; starší tabulka již neodpovídala aktuálnímu zdrojovému kódu.
 
@@ -661,8 +803,8 @@ Naměřeno pro běžnou konfiguraci projektu uvedenou výše:
 
 | Větev | Konec LOCODE R% | Rozdíl do $4000 | Prakticky přidat | Konec HICODE F% | Rozdíl do $CE00 | Prakticky přidat |
 |---|---:|---:|---:|---:|---:|---:|
-| main | $3F11 | 239 B | 238 B | $CD23 | 221 B | 220 B |
-| flicker-free | $3F61 | 159 B | 158 B | $CD87 | 121 B | 120 B |
+| main | $3F51 | 175 B | 174 B | $CD7E | 130 B | 129 B |
+| flicker-free | $3FA1 | 95 B | 94 B | $CDE2 | 30 B | 29 B |
 
 Praktická hodnota je o jeden bajt nižší kvůli assemblerovým podmínkám:
 

@@ -166,6 +166,43 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
                         ; when the player has a scrambled ID and is a fugitive.
                         ; 128 gives an even 50% gameplay test split.
 
+ PIRATE_COMM_CHANCE_PERCENT = 50
+                        ; Percentage chance that one hostile pirate encounter
+                        ; sends its communication. The roll is made once for a
+                        ; whole pack or once for a separately spawned pirate.
+
+ PIRATE_COMM_CHANCE_THRESHOLD = (PIRATE_COMM_CHANCE_PERCENT * 256 + 50) / 100
+
+ ASSERT PIRATE_COMM_CHANCE_PERCENT >= 0
+ ASSERT PIRATE_COMM_CHANCE_PERCENT <= 100
+
+ TRADER_COMM_CHANCE_PERCENT = 50
+                        ; Percentage chance that a successfully spawned trader
+                        ; sends one communication.
+
+ TRADER_COMM_CHANCE_THRESHOLD = (TRADER_COMM_CHANCE_PERCENT * 256 + 50) / 100
+
+ ASSERT TRADER_COMM_CHANCE_PERCENT >= 0
+ ASSERT TRADER_COMM_CHANCE_PERCENT <= 100
+
+ BOUNTY_HUNTER_COMM_CHANCE_PERCENT = 50
+                        ; Percentage chance that a successfully spawned hostile
+                        ; bounty hunter sends one communication.
+
+ BOUNTY_HUNTER_COMM_CHANCE_THRESHOLD = (BOUNTY_HUNTER_COMM_CHANCE_PERCENT * 256 + 50) / 100
+
+ ASSERT BOUNTY_HUNTER_COMM_CHANCE_PERCENT >= 0
+ ASSERT BOUNTY_HUNTER_COMM_CHANCE_PERCENT <= 100
+
+ POLICE_COMM_CHANCE_PERCENT = 50
+                        ; Percentage chance that a successfully spawned hostile
+                        ; police Viper sends one communication.
+
+ POLICE_COMM_CHANCE_THRESHOLD = (POLICE_COMM_CHANCE_PERCENT * 256 + 50) / 100
+
+ ASSERT POLICE_COMM_CHANCE_PERCENT >= 0
+ ASSERT POLICE_COMM_CHANCE_PERCENT <= 100
+
 ENDIF                  ; ELITE: Unbound build option (end)
 
  POW = 15               ; Pulse laser power
@@ -4620,7 +4657,17 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
 
+IF _UNBOUND            ; The scanner-marker helper is part of Elite: Unbound
+
  JSR IFFAngryCurrentShip ; Keep the scanner marker in sync while making it hostile
+
+ELSE
+
+ LDA TYPE               ; Call ANGRY to make the target ship or station hostile,
+ JSR ANGRY              ; and if this is a ship, wake up its AI and give it a
+                        ; kick of speed
+
+ENDIF
 
 ELSE
 
@@ -12460,17 +12507,26 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  JSR UnboundStationLaunchClear
  BCS tn6Launch          ; If the corridor is clear, launch the ship
 
- LDA #2                 ; Otherwise show the private station warning message
- JMP MESS               ; and cancel this launch attempt
+ JMP CommMessageSend    ; Otherwise send the private station warning message
+                        ; and cancel this launch attempt
 
 .tn6Launch
 
-ENDIF                  ; ELITE: Unbound build option (end)
+ ENDIF                  ; ELITE: Unbound build option (end)
  LDA #%11110001         ; Set the AI flag to give the ship E.C.M., enable AI and
                         ; make it very aggressive (56 out of 63)
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JMP UnboundStationChildSpawn
+                        ; Spawn the child and let hostile police communicate
+
+ELSE                   ; ELITE: Unbound build option (else)
+
  JMP SFS1               ; Jump to SFS1 to spawn the ship, returning from the
                         ; subroutine using a tail call
+
+ENDIF                  ; ELITE: Unbound build option (end)
 
 .TA13
 
@@ -14221,8 +14277,20 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 IF _IFF_UNIT            ; ATARIBABY I.F.F. unit replaces Energy Bomb
 
+IF _UNBOUND            ; The scanner-marker helper is part of Elite: Unbound
+
  JSR IFFAngryMissileTarget
                         ; Keep the target's scanner marker in sync with hostility
+
+ELSE
+
+ LDA FRIN,X             ; Fetch the ship type of the missile's target into A
+
+ JSR ANGRY              ; Call ANGRY to make the target ship or station hostile,
+                        ; and if this is a ship, wake up its AI and give it a
+                        ; kick of speed
+
+ENDIF
 
 ELSE
 
@@ -25633,7 +25701,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.53"
+ EQUS "v0.60"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -33393,6 +33461,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
  STA dontclip           ; routine, as we only disable this for the Short-range
                         ; Chart
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ STA CommMessagePending ; Discard communication when the flight state is reset
+ENDIF                  ; ELITE: Unbound build option (end)
+
  LDA #2*Y-1             ; Set Yx2M1 to the number of pixel lines in the space
  STA Yx2M1              ; view
 
@@ -33895,6 +33967,12 @@ ENDIF                   ; Elite-A random spawn positions (end)
  JSR NWSHP              ; Add a new ship of type A to the local bubble and fall
                         ; through into the main game loop again
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR TraderSpawnComplete ; A successfully spawned trader may send one message
+
+ENDIF                  ; ELITE: Unbound build option (end)
+
 ; ******************************************************************************
 ;
 ;       Name: Main game loop (Part 2 of 6)
@@ -34179,6 +34257,13 @@ ENDIF                   ; Elite-A random spawn positions (end)
  LDA #COPS              ; Add a new police ship to the local bubble
  JSR NWSHP
 
+ IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR RandomPoliceSpawnComplete
+                        ; A successfully spawned hostile Viper may transmit
+
+ ENDIF                  ; ELITE: Unbound build option (end)
+
  LDA MANY+COPS          ; If we now have at least one cop in the local bubble,
  BNE MLOOPS             ; jump down to MLOOPS to stop spawning, otherwise fall
                         ; through into the next part to look at spawning
@@ -34383,6 +34468,12 @@ ENDIF                   ; Elite-A random spawn positions (end)
  JSR NWSHP              ; Spawn the new ship, whether it's a pirate, Thargoid,
                         ; Cougar or Constrictor
 
+ IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR HostileSingleSpawnComplete ; A hostile pirate or bounty hunter may transmit
+
+ ENDIF                  ; ELITE: Unbound build option (end)
+
 .mj1
 
  JMP MLOOP              ; Jump down to MLOOP, as we are done spawning ships
@@ -34433,6 +34524,12 @@ ENDIF                   ; Elite-A random spawn positions (end)
 
  STA XX13               ; Store the number in XX13, the pirate counter
 
+ IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR PiratePackBegin    ; Start tracking one hostile sender for this pack
+
+ ENDIF                  ; ELITE: Unbound build option (end)
+
 .mt3
 
  JSR DORND              ; Set A and X to random numbers
@@ -34470,7 +34567,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR NWSHP              ; Try adding a new ship of type A to the local bubble
 
+ IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JSR PiratePackMemberComplete ; Track hostile members and send one pack message
+
+ ELSE
+
  DEC XX13               ; Decrement the pirate counter
+
+ ENDIF                  ; ELITE: Unbound build option (end)
 
  BPL mt3                ; If we need more pirates, loop back up to mt3,
                         ; otherwise we are done spawning, so fall through into
@@ -39959,7 +40064,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  PLA                    ; Restore A from the stack
 
-IF _UNBOUND            ; Select 60 only for the blocked station warning
+IF _UNBOUND            ; Select a longer delay for private communications
  JSR FlightMessageDelay
 ELSE
  LDY #20                ; Set Y = 20 for setting the message delay below
@@ -47061,8 +47166,16 @@ ENDIF
 
  JSR SIGHT              ; Draw the laser crosshairs
 
+ IF _UNBOUND            ; ELITE: Unbound build option (begin)
+
+ JMP CommFinishSpaceView ; Set up stardust and show any queued communication
+
+ ELSE
+
  JMP NWSTARS            ; Set up a new stardust field and return from the
                         ; subroutine using a tail call
+
+ ENDIF                  ; ELITE: Unbound build option (end)
 
 .LOOK1
 
@@ -56775,8 +56888,8 @@ ENDIF                  ; Registration display requires the I.F.F. build option
 ; FlightMessageToken
 ;
 ; Print a normal in-flight token, except for private token 1, which prints the
-; most recently awarded bounty, and private token 2, which prints a station
-; warning. With I.F.F. enabled, private token 3 prints the last
+; most recently awarded bounty, and private token 2, which prints a ship or
+; station communication. With I.F.F. enabled, private token 3 prints the last
 ; targeted AI ship registration.
 ; BountyMessageValue must remain intact while the EOR message is on-screen so
 ; the same text can be drawn again to erase it.
@@ -56792,7 +56905,7 @@ ENDIF                  ; Registration display requires the I.F.F. build option
 
  CMP #2
  BNE flightMessageToken3
- JMP StationLaunchMessagePrint
+ JMP CommMessagePrint
 
 .flightMessageToken3
 
@@ -56903,53 +57016,61 @@ ENDIF
  LDA #$FF               ; The second registration belongs to the player
  STA StationLaunchBlocker
 
-.scrambleRegistrationPirateRandom
-
- JSR DORND              ; Uniformly select one of the three pirate warnings
- AND #3
- CMP #3
- BEQ scrambleRegistrationPirateRandom
+ JSR CommMessageRandomThree ; Uniformly select one of the three pirate warnings
  CLC
  ADC #1                 ; Message kinds 1 to 3 are the pirate warnings
- STA StationLaunchMessageRequestedKind
- LDA #0
- STA StationLaunchMessagePrepared
- LDA #2                 ; Private token 2 uses DLY = 100
- JMP MESS
+ STA CommMessageRequestedKind
+ JMP CommMessageSend    ; Beep and show or queue private token 2
 
-.StationLaunchMessagePrint
+.CommMessagePrint
 
  LDA DLY                ; DLY = 0 while MESS erases the previous EOR message,
- BEQ stationLaunchMessageReady ; so retain the fields used to draw that text
- LDA StationLaunchMessagePrepared
- BNE stationLaunchMessageReady
- JSR StationLaunchPrepareMessage ; Build new fields after the old text is gone
+ BEQ commMessageReady   ; so retain the fields used to draw that text
+ LDA CommMessagePrepared
+ BNE commMessageReady
+ JSR CommMessagePrepareRequested ; Build new fields after the old text is gone
  LDA #$FF
- STA StationLaunchMessagePrepared
+ STA CommMessagePrepared
 
-.stationLaunchMessageReady
+.commMessageReady
 
- LDA StationLaunchStationLetter1
+ LDA CommMessageSenderLetter1
  JSR DASC
- LDA StationLaunchStationLetter2
+ LDA CommMessageSenderLetter2
  JSR DASC
  LDA #'-'
  JSR DASC
- LDX StationLaunchStationNumber
+
+ LDA CommMessageSenderHidden
+ BEQ commMessageSenderNumber
+
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ LDA #'?'
+ JSR DASC
+ JMP commMessageRecipient
+
+.commMessageSenderNumber
+
+ LDX CommMessageSenderNumber
  JSR RegistrationNumberPrint
+
+.commMessageRecipient
 
  LDA #':'
  JSR DASC
 
- LDA StationLaunchBlockerLetter1
+ LDA CommMessageRecipientLetter1
  JSR DASC
- LDA StationLaunchBlockerLetter2
+ LDA CommMessageRecipientLetter2
  JSR DASC
  LDA #'-'
  JSR DASC
 
- LDA StationLaunchBlockerHidden
- BEQ stationLaunchMessageNumber
+ LDA CommMessageRecipientHidden
+ BEQ commMessageRecipientNumber
 
  LDA #'?'
  JSR DASC
@@ -56957,52 +57078,250 @@ ENDIF
  JSR DASC
  LDA #'?'
  JSR DASC
- JMP stationLaunchMessagePrintTail
+ JMP commMessagePrintTail
 
-.stationLaunchMessageNumber
+.commMessageRecipientNumber
 
- LDX StationLaunchBlockerNumber
+ LDX CommMessageRecipientNumber
  JSR RegistrationNumberPrint
 
-.stationLaunchMessagePrintTail
+.commMessagePrintTail
 
- LDX StationLaunchMessageKind
- LDA StationLaunchMessageOffsets,X
+ LDA #','
+ JSR DASC
+ LDA #' '
+ JSR DASC               ; Every communication tail starts with comma and space
+
+ LDX CommMessageKind
+ CPX #10
+ BCS commMessageBountyHunter
+ LDA CommMessageOffsets,X
  TAX
 
-.stationLaunchMessageLoop
+.commMessageLoop
 
- LDA StationLaunchMessageText,X
- BEQ stationLaunchMessageDone
+ LDA CommMessageText,X
+ BEQ commMessageDone
  JSR DASC               ; DASC also supports MESS's justified-buffer pass
  INX
- BNE stationLaunchMessageLoop
+ BNE commMessageLoop
 
-.stationLaunchMessageDone
+ BEQ commMessageDone
+
+.commMessageBountyHunter
+
+ CPX #13
+ BCS commMessagePolice
+ LDA BountyHunterMessageOffsets-10,X
+ TAX
+
+.commMessageBountyHunterLoop
+
+ LDA BountyHunterMessageText,X
+ BEQ commMessageDone
+ JSR DASC               ; DASC also supports MESS's justified-buffer pass
+ INX
+ BNE commMessageBountyHunterLoop
+
+.commMessagePolice
+
+ LDA PoliceMessageOffsets-13,X
+ TAX
+
+.commMessagePoliceLoop
+
+ LDA PoliceMessageText,X
+ BEQ commMessageDone
+ JSR DASC               ; DASC also supports MESS's justified-buffer pass
+ INX
+ BNE commMessagePoliceLoop
+
+.commMessageDone
 
  RTS
 
-.StationLaunchMessageText
- EQUS ", DOCK OR LEAVE"
- EQUB 0
+; Clear the saved sender before building a pirate pack. This small routine is
+; kept in HICODE so the final communication text block fits behind the hangar.
 
-.ScrambleRegistrationPirateText
- EQUS ", SCRAM PIRATE!"
- EQUB 0
+.PiratePackBegin
 
-.RunRegistrationPirateText
- EQUS ", RUN PIRATE!"
- EQUB 0
+ LDA #0
+ STA CommMessageSourceSlot
+ RTS
 
-.DieRegistrationPirateText
- EQUS ", DIE PIRATE!"
- EQUB 0
+; ------------------------------------------------------------------------------
+; TraderSpawnComplete
+;
+; A successful NWSHP call from the dedicated MTT4 trader path may send one of
+; three trader greetings. The sender is the new ship in the final occupied
+; FRIN slot. The percentage chance is independent of pirate communications.
+; ------------------------------------------------------------------------------
 
-.StationLaunchMessageOffsets
+.TraderSpawnComplete
+
+IF TRADER_COMM_CHANCE_PERCENT <= 0
+
+ RTS
+
+ELSE
+
+ BCC traderCommDone    ; NWSHP could not create the trader
+
+ JSR CommMessageRememberLastSlot
+
+IF TRADER_COMM_CHANCE_PERCENT = 50
+
+ JSR DORND
+ BMI traderCommDone     ; The high half of A gives an exact 50% rejection
+
+ELIF TRADER_COMM_CHANCE_PERCENT < 100
+
+ JSR DORND
+ CMP #TRADER_COMM_CHANCE_THRESHOLD
+ BCS traderCommDone
+
+ENDIF
+
+ JSR CommMessageRandomThree ; Choose one of the three trader greetings
+ ADC #7                 ; Message kinds 7 to 9 are trader greetings
+ STA CommMessageRequestedKind
+ JMP CommMessageSend
+
+.traderCommDone
+
+ RTS
+
+ENDIF
+
+; ------------------------------------------------------------------------------
+; BountyHunterCommTrySend
+;
+; Apply the bounty-hunter communication chance once to a successfully spawned
+; hostile bounty hunter, then select one of its three messages uniformly.
+; ------------------------------------------------------------------------------
+
+.BountyHunterCommTrySend
+
+IF BOUNTY_HUNTER_COMM_CHANCE_PERCENT <= 0
+
+ RTS
+
+ELSE
+
+IF BOUNTY_HUNTER_COMM_CHANCE_PERCENT = 50
+
+ JSR DORND
+ BMI bountyHunterCommDone ; The high half of A gives an exact 50% rejection
+
+ELIF BOUNTY_HUNTER_COMM_CHANCE_PERCENT < 100
+
+ JSR DORND
+ CMP #BOUNTY_HUNTER_COMM_CHANCE_THRESHOLD
+ BCS bountyHunterCommDone
+
+ENDIF
+
+ JSR CommMessageRandomThree ; Choose one of the three bounty-hunter messages
+ ADC #10                ; Message kinds 10 to 12 are bounty-hunter messages
+ STA CommMessageRequestedKind
+ JMP CommMessageSend
+
+IF BOUNTY_HUNTER_COMM_CHANCE_PERCENT < 100
+
+.bountyHunterCommDone
+
+ RTS
+
+ENDIF
+
+ENDIF
+
+; Spawn a station child through SFS1. Non-police children retain the original
+; tail-call path. A police Viper launched by a hostile station may communicate.
+
+.UnboundStationChildSpawn
+
+ CPX #COPS
+ BEQ unboundStationSpawnPolice
+ JMP SFS1
+
+.unboundStationSpawnPolice
+
+ JSR SFS1
+ BCC unboundStationSpawnDone
+ JSR PoliceSpawnSuccessful
+ LDX #COPS              ; Preserve SFS1's documented X return value
+
+.unboundStationSpawnDone
+
+ RTS
+
+; The random police path creates a Viper without its hostile bit. It becomes
+; hostile in TACTICS only when FIST is at least 40, so apply the same test here
+; before announcing it as hostile.
+
+.RandomPoliceSpawnComplete
+
+ BCC randomPoliceSpawnDone
+ LDA FIST
+ CMP #40
+ BCC randomPoliceSpawnDone
+
+.PoliceSpawnSuccessful
+
+IF POLICE_COMM_CHANCE_PERCENT <= 0
+
+ RTS
+
+ELSE
+
+ JSR CommMessageRememberLastSlot
+
+IF POLICE_COMM_CHANCE_PERCENT = 50
+
+ JSR DORND
+ BMI randomPoliceSpawnDone ; The high half of A gives an exact 50% rejection
+
+ELIF POLICE_COMM_CHANCE_PERCENT < 100
+
+ JSR DORND
+ CMP #POLICE_COMM_CHANCE_THRESHOLD
+ BCS randomPoliceSpawnDone
+
+ENDIF
+
+ JSR CommMessageRandomThree ; Choose one of the three hostile-police messages
+ ADC #13                ; Message kinds 13 to 15 are police messages
+ STA CommMessageRequestedKind
+ JMP CommMessageSend
+
+ENDIF
+
+.randomPoliceSpawnDone
+
+ RTS
+
+.CommMessageOffsets
  EQUB 0
- EQUB ScrambleRegistrationPirateText - StationLaunchMessageText
- EQUB RunRegistrationPirateText - StationLaunchMessageText
- EQUB DieRegistrationPirateText - StationLaunchMessageText
+ EQUB ScrambleRegistrationPirateText - CommMessageText
+ EQUB RunRegistrationPirateText - CommMessageText
+ EQUB DieRegistrationPirateText - CommMessageText
+ EQUB SpawnedPirateTauntText - CommMessageText
+ EQUB SpawnedPiratePrepareDieText - CommMessageText
+ EQUB SpawnedPirateScumbagText - CommMessageText
+ EQUB TraderHaveNiceTripText - CommMessageText
+ EQUB TraderHelloText - CommMessageText
+ EQUB TraderJustPassingText - CommMessageText
+
+.BountyHunterMessageOffsets
+ EQUB BountyHunterWrongPlaceText - BountyHunterMessageText
+ EQUB BountyHunterHereWeGoText - BountyHunterMessageText
+ EQUB BountyHunterMyBountyText - BountyHunterMessageText
+
+.PoliceMessageOffsets
+ EQUB PoliceStopNowText - PoliceMessageText
+ EQUB PoliceWeFoundYouText - PoliceMessageText
+ EQUB PoliceSurrenderText - PoliceMessageText
 
 ; Build the dynamic station warning using the exact player or AI slot found by
 ; UnboundStationLaunchClear. Dedicated fields keep the message stable for its
@@ -57013,8 +57332,8 @@ ENDIF
  TXA
  PHA                    ; Preserve the type the station wanted to launch
 
- LDA StationLaunchMessageRequestedKind
- STA StationLaunchMessageKind ; Keep the selected tail stable for EOR redraw
+ LDA CommMessageRequestedKind
+ STA CommMessageKind      ; Keep the selected tail stable for EOR redraw
 
  LDA tek                ; NWSPS uses tech level 10 as the Dodecahedron threshold
  CMP #10
@@ -57028,16 +57347,18 @@ ENDIF
 
 .stationLaunchPrepareStationLetter
 
- STA StationLaunchStationLetter1
+ STA CommMessageSenderLetter1
 
  LDA GCNT
  AND #7
  CLC
  ADC #'1'
- STA StationLaunchStationLetter2
+ STA CommMessageSenderLetter2
 
  JSR StationRegistrationSystemNumber
- STA StationLaunchStationNumber
+ STA CommMessageSenderNumber
+ LDA #0                 ; Station registrations are always visible
+ STA CommMessageSenderHidden
 
  LDX StationLaunchBlocker
  BMI stationLaunchPreparePlayer
@@ -57059,49 +57380,30 @@ ENDIF
 
  LDX StationLaunchBlocker
  LDA REGSEED,X
- STA StationLaunchBlockerNumber
+ STA CommMessageRecipientNumber
  JSR AIRegistrationHidden
  BCS stationLaunchPrepareHidden
 
- LDA StationLaunchBlockerNumber
+ LDA CommMessageRecipientNumber
  JSR AIRegistrationLetters
- STX StationLaunchBlockerLetter1
- STA StationLaunchBlockerLetter2
+ STX CommMessageRecipientLetter1
+ STA CommMessageRecipientLetter2
  LDA #0
- STA StationLaunchBlockerHidden
+ STA CommMessageRecipientHidden
  BEQ stationLaunchPrepareDone ; This BEQ is effectively a JMP
 
 .stationLaunchPrepareHidden
 
  LDA #'?'
- STA StationLaunchBlockerLetter1
- STA StationLaunchBlockerLetter2
+ STA CommMessageRecipientLetter1
+ STA CommMessageRecipientLetter2
  LDA #$FF
- STA StationLaunchBlockerHidden
+ STA CommMessageRecipientHidden
  BNE stationLaunchPrepareDone ; This BNE is effectively a JMP
 
 .stationLaunchPreparePlayer
 
- LDA regplate_scrambled
- BNE stationLaunchPreparePlayerHidden
-
- LDA regplate_1
- STA StationLaunchBlockerLetter1
- LDA regplate_2
- STA StationLaunchBlockerLetter2
- LDA regplate_3
- STA StationLaunchBlockerNumber
- LDA #0
- STA StationLaunchBlockerHidden
- BEQ stationLaunchPrepareDone ; This BEQ is effectively a JMP
-
-.stationLaunchPreparePlayerHidden
-
- LDA #'?'
- STA StationLaunchBlockerLetter1
- STA StationLaunchBlockerLetter2
- LDA #$FF
- STA StationLaunchBlockerHidden
+ JSR CommMessagePreparePlayerRecipient
 
 .stationLaunchPrepareDone
 
@@ -57112,34 +57414,43 @@ ENDIF
 .StationLaunchBlocker
  EQUB $FF
 
-.StationLaunchStationLetter1
+.CommMessageSenderLetter1
  EQUB 'C'
 
-.StationLaunchStationLetter2
+.CommMessageSenderLetter2
  EQUB '1'
 
-.StationLaunchStationNumber
+.CommMessageSenderNumber
  EQUB 0
 
-.StationLaunchBlockerLetter1
+.CommMessageSenderHidden
+ EQUB 0
+
+.CommMessageRecipientLetter1
  EQUB 'A'
 
-.StationLaunchBlockerLetter2
+.CommMessageRecipientLetter2
  EQUB 'A'
 
-.StationLaunchBlockerNumber
+.CommMessageRecipientNumber
  EQUB 1
 
-.StationLaunchBlockerHidden
+.CommMessageRecipientHidden
  EQUB 0
 
-.StationLaunchMessagePrepared
+.CommMessagePrepared
  EQUB 0
 
-.StationLaunchMessageKind
+.CommMessageKind
  EQUB 0
 
-.StationLaunchMessageRequestedKind
+.CommMessageRequestedKind
+ EQUB 0
+
+.CommMessagePending
+ EQUB 0
+
+.CommMessageSourceSlot
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -57192,8 +57503,6 @@ ENDIF
 
  LDA #$FF               ; $FF identifies the player as the blocker
  STA StationLaunchBlocker
- LDA #0
- STA StationLaunchMessagePrepared
  BCS unboundLaunchBlocked ; This BCS is effectively a JMP
 
 .unboundLaunchPlayerClear
@@ -57230,8 +57539,6 @@ ENDIF
 
  LDA XX3+12             ; Remember the exact AI slot that blocked the launch
  STA StationLaunchBlocker
- LDA #0
- STA StationLaunchMessagePrepared
  BCS unboundLaunchBlocked ; This BCS is effectively a JMP
 
 .unboundLaunchNextShip
@@ -57249,7 +57556,7 @@ ENDIF
 .unboundLaunchBlocked
 
  LDA #0                 ; A blocked launch always uses ", DOCK OR LEAVE"
- STA StationLaunchMessageRequestedKind
+ STA CommMessageRequestedKind
  CLC                    ; A ship blocks the launch corridor
 
 .unboundLaunchRestore
