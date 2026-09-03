@@ -364,18 +364,14 @@ ENDIF                  ; White cockpit missile-bar frame colour (end)
 
  sfxelas2 = 15          ; Sound 15 = Being hit by lasers 2
 
- NRU% = 0               ; The number of planetary systems with extended system
+ NRU% = 26              ; The number of planetary systems with extended system
                         ; description overrides in the RUTOK table
                         ;
-                        ; NRU% is set to 0 in the original source, but this is a
-                        ; bug, as it should match the number of entries in the
-                        ; RUGAL table
-                        ;
-                        ; This bug causes the Data on System screen to crash the
-                        ; game for a small number of systems - for example, the
-                        ; game will freeze if you bring up the Data on System
-                        ; screen after docking at Biarge in the first galaxy
-                        ; during the Constrictor mission
+                        ; Upstream bug fix (Mark Moxon, commit d796cbadb3d3):
+                        ; match the 26 entries in RUPLA and RUGAL. The original
+                        ; value of 0 lets the PDESC loop wrap around and read
+                        ; beyond these tables, which can freeze Data on System
+                        ; at Biarge during the Constrictor mission.
 
  RE = $23               ; The obfuscation byte used to hide the recursive tokens
                         ; table from crackers viewing the binary code
@@ -424,17 +420,13 @@ ENDIF                  ; White cockpit missile-bar frame colour (end)
 
  FONT = $0B00           ; The address of the game's text font
 
- TKN1 = $0E00           ; The address of the extended token table, as set in
-                        ; elite-data.asm
+                        ; Read TKN1, RUPLA, RUGAL and RUTOK from the actual data
+                        ; build. Unbound text changes move the override tables,
+                        ; so the original fixed offsets are no longer valid.
+ INCLUDE "3-assembled-output/elite-token-layout.asm"
 
- RUPLA = TKN1 + $C28    ; The address of the extended system description system
-                        ; number table, as set in elite-data.asm
-
- RUGAL = TKN1 + $C42    ; The address of the extended system description galaxy
-                        ; number table, as set in elite-data.asm
-
- RUTOK = TKN1 + $C5C    ; The address of the extended system description token
-                        ; table, as set in elite-data.asm
+ ASSERT RUGAL - RUPLA = NRU%
+ ASSERT RUTOK - RUGAL = NRU%
 
  SCBASE = $4000         ; The address of the screen bitmap
 
@@ -25805,7 +25797,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.71"
+ EQUS "v0.72"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -26604,36 +26596,82 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB $00, $02, $CA, $D8       ; Krait          18300.0 Cr
  EQUB $00, $03, $6E, $E8       ; Mamba          22500.0 Cr
 
+; Derive offsets from labels so name edits keep later entries correctly indexed.
+; Keep the table in cmdr_type order, as used by ShipPrintName.
 .ShipNameOffsets
- EQUB 0, 13, 19, 25, 31, 42, 55, 62, 66, 75, 85, 96, 102
+ EQUB ShipNameCobraMkIII - ShipNames
+ EQUB ShipNameAdder - ShipNames
+ EQUB ShipNameGecko - ShipNames
+ EQUB ShipNameMoray - ShipNames
+ EQUB ShipNameCobraMkI - ShipNames
+ EQUB ShipNameFerDeLance - ShipNames
+ EQUB ShipNamePython - ShipNames
+ EQUB ShipNameBoa - ShipNames
+ EQUB ShipNameAnaconda - ShipNames
+ EQUB ShipNameAspMkII - ShipNames
+ EQUB ShipNameSidewinder - ShipNames
+ EQUB ShipNameKrait - ShipNames
+ EQUB ShipNameMamba - ShipNames
 
 .ShipNames
+
+.ShipNameCobraMkIII
  EQUS "COBRA MK III"
  EQUB 0
+
+.ShipNameAdder
  EQUS "ADDER"
  EQUB 0
+
+.ShipNameGecko
  EQUS "GECKO"
  EQUB 0
+
+.ShipNameMoray
  EQUS "MORAY"
  EQUB 0
+
+.ShipNameCobraMkI
  EQUS "COBRA MK I"
  EQUB 0
+
+.ShipNameFerDeLance
  EQUS "FER-DE-LANCE"
  EQUB 0
+
+.ShipNamePython
  EQUS "PYTHON"
  EQUB 0
+
+.ShipNameBoa
  EQUS "BOA"
  EQUB 0
+
+.ShipNameAnaconda
  EQUS "ANACONDA"
  EQUB 0
+
+.ShipNameAspMkII
  EQUS "ASP MK II"
  EQUB 0
+
+.ShipNameSidewinder
  EQUS "SIDEWINDER"
  EQUB 0
+
+.ShipNameKrait
  EQUS "KRAIT"
  EQUB 0
+
+.ShipNameMamba
  EQUS "MAMBA"
  EQUB 0
+
+.ShipNamesEnd
+
+ ASSERT ShipNames - ShipNameOffsets = 13
+ ASSERT ShipNamesEnd - ShipNames <= $100
+                        ; ShipPrintName uses an 8-bit index for the whole table
 
 ENDIF                  ; ELITE: Unbound build option (end)
 ; ******************************************************************************
@@ -34360,8 +34398,14 @@ ENDIF                   ; Elite-A random spawn positions (end)
                         ; to a totally random location
 
  CMP #136               ; If the random number in A = 136 (0.4% chance), jump
+IF _UNBOUND             ; ELITE: Unbound Moray spawn fix (begin)
+ BNE randomPoliceCheck  ; The expanded spawn path exceeds a branch's reach,
+ JMP fothg              ; so use an absolute jump for the rare encounter
+.randomPoliceCheck
+ELSE                    ; ELITE: Unbound Moray spawn fix (else)
  BEQ fothg              ; to fothg in part 4 to spawn either a Thargoid or, very
                         ; rarely, a Cougar
+ENDIF                   ; ELITE: Unbound Moray spawn fix (end)
 
  CMP T                  ; If the random value in A >= our badness level, which
  BCS randomPoliceDone   ; will be the case unless we have been really, really
@@ -34480,44 +34524,27 @@ ENDIF                   ; Elite-A random spawn positions (end)
  INC EV                 ; Increase the extra vessels spawning counter, to
                         ; prevent the next attempt to spawn extra vessels
 
- AND #3                 ; Set A = random number in the range 0-3, which we
-                        ; will now use to determine the type of ship
+IF _UNBOUND            ; ELITE: Unbound Moray spawn fix (begin)
+ LSR A                  ; Keep the low random bit in C BEFORE masking A, so the
+                        ; following AND chooses 0-3 without losing that carry
+ENDIF                  ; ELITE: Unbound Moray spawn fix (end)
 
- ADC #CYL2              ; Add A to #CYL2 (we know the C flag is clear as we
-                        ; passed through the BCS above), so A is now one of the
-                        ; lone bounty hunter ships, i.e. Cobra Mk III (pirate),
-                        ; Asp Mk II, Python (pirate) or Fer-de-lance
+ AND #3                 ; Choose a base offset in the range 0-3
+
+ ADC #CYL2              ; Add the offset and carry to the first lone hunter type
                         ;
-                        ; Interestingly, this logic means that the Moray, which
-                        ; is the ship after the Fer-de-lance in the XX21 table,
-                        ; never spawns, as the above logic chooses a blueprint
-                        ; number in the range CYL2 to CYL2+3 (i.e. 24 to 27),
-                        ; and the Moray is blueprint 28
+                        ; Original Elite reaches here with C clear after the
+                        ; BCS above, so it selects types 24-27: Cobra Mk III
+                        ; (pirate), Asp Mk II, Python (pirate) or Fer-de-lance.
+                        ; Moray (28) is therefore never selected by this path.
                         ;
-                        ; No other code spawns the ship with blueprint 28, so
-                        ; this means the Moray is never seen in Elite
+                        ; In Unbound, LSR before AND supplies a random carry
+                        ; and uses the next two bits for the offset. The lowest
+                        ; three input bits select 24, 25, 25, 26, 26, 27, 27, 28.
+                        ; This includes Moray while keeping all four old types.
                         ;
-                        ; This is presumably a bug, which could be very easily
-                        ; fixed by inserting one of the following instructions
-                        ; before the ADC #CYL2 instruction above:
-                        ;
-                        ;   * SEC would change the range to 25 to 28, which
-                        ;     would cover the Asp Mk II, Python (pirate),
-                        ;     Fer-de-lance and Moray
-                        ;
-                        ;   * LSR A would set the C flag to a random number to
-                        ;     give a range of 24 to 28, which would cover the
-                        ;     Cobra Mk III (pirate), Asp Mk II, Python (pirate),
-                        ;     Fer-de-lance and Moray
-                        ;
-                        ; It's hard to know what the authors' original intent
-                        ; was, but the second approach makes the Moray and Cobra
-                        ; Mk III the rarest choices, with the Asp Mk II, Python
-                        ; and Fer-de-Lance being more likely, and as the Moray
-                        ; is described in the literature as a rare ship, and the
-                        ; Cobra can already be spawned as part of a group of
-                        ; pirates (see mt1 below), I tend to favour the LSR A
-                        ; solution over the SEC approach
+                        ; Do not move LSR after AND: that would halve the masked
+                        ; offset and restrict the result to types 24-26.
 
  TAY                    ; Copy the new ship type to Y
 
@@ -39442,6 +39469,8 @@ ENDIF
 ;
 ; ******************************************************************************
 
+IF NOT(_UNBOUND)       ; Original-only: this routine has no callers
+
 .DKS2
 
  LDA KTRAN+7,X          ; Fetch either the joystick X value or joystick Y value
@@ -39455,6 +39484,8 @@ ENDIF
                         ; the current settings say)
 
  RTS                    ; Return from the subroutine
+
+ENDIF                  ; ELITE: Unbound omits unused code
 
 ; ******************************************************************************
 ;
@@ -46615,8 +46646,10 @@ ENDIF
                         ;
                         ; nosev_y = nosev_y - alpha * nosev_x_hi
 
+IF NOT(_UNBOUND)       ; Keep the redundant store only in original builds
  STX P                  ; This instruction has no effect as MAD overwrites P,
                         ; but it sets P = nosev_y_lo
+ENDIF                  ; ELITE: Unbound omits the store before MAD
 
  LDX INWK,Y             ; Set (S R) = nosev_x
  STX R
@@ -46632,8 +46665,10 @@ ENDIF
                         ;
                         ; nosev_x = nosev_x + alpha * nosev_y_hi
 
+IF NOT(_UNBOUND)       ; Keep the redundant store only in original builds
  STX P                  ; This instruction has no effect as MAD overwrites P,
                         ; but it sets P = nosev_x_lo
+ENDIF                  ; ELITE: Unbound omits the store before MAD
 
  LDA BETA               ; Set Q = beta (the pitch angle to rotate through)
  STA Q
@@ -46644,8 +46679,10 @@ ENDIF
  STX S
  LDX INWK+4,Y
 
+IF NOT(_UNBOUND)       ; Keep the redundant store only in original builds
  STX P                  ; This instruction has no effect as MAD overwrites P,
                         ; but it sets P = nosev_y
+ENDIF                  ; ELITE: Unbound omits the store before MAD
 
  LDA INWK+5,Y           ; Set A = -nosev_z_hi
  EOR #%10000000
@@ -46657,8 +46694,10 @@ ENDIF
                         ;
                         ; nosev_y = nosev_y - beta * nosev_z_hi
 
+IF NOT(_UNBOUND)       ; Keep the redundant store only in original builds
  STX P                  ; This instruction has no effect as MAD overwrites P,
                         ; but it sets P = nosev_y_lo
+ENDIF                  ; ELITE: Unbound omits the store before MAD
 
  LDX INWK+4,Y           ; Set (S R) = nosev_z
  STX R
@@ -47047,9 +47086,11 @@ ENDIF
 ; ------------------------------------------------------------------------------
 ;
 ; This routine is not used in this version of Elite. It is left over from the
-; 650s Second Processor version.
+; 6502 Second Processor version.
 ;
 ; ******************************************************************************
+
+IF NOT(_UNBOUND)       ; Original-only: this routine has no callers
 
 .Checksum
 
@@ -47097,6 +47138,8 @@ ENDIF
                         ; an infinite loop, which crashes the game
 
  RTS                    ; Return from the subroutine
+
+ENDIF                  ; ELITE: Unbound omits unused code
 
 ; ******************************************************************************
 ;
@@ -50531,8 +50574,10 @@ ENDIF
                         ;
                         ;   Q2 = |delta_y| / |delta_x|
 
+IF NOT(_UNBOUND)       ; Original-only: the following CPY replaces the carry flag
  CLC                    ; This instruction has no effect as the value of the C
                         ; flag is overridden by the CPY in the following
+ENDIF                  ; ELITE: Unbound omits unused code
 
  LDY Y1                 ; If Y2 < Y1 then skip the following instruction
  CPY Y2
@@ -50649,6 +50694,8 @@ ENDIF
  LDA #%10000000         ; Set a mask in A to the first pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI81
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -50688,6 +50735,8 @@ ENDIF
 
  LDA #%01000000         ; Set a mask in A to the second pixel in the eight-pixel
                         ; byte
+
+.HANGAR_LI82
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -50729,6 +50778,8 @@ ENDIF
  LDA #%00100000         ; Set a mask in A to the third pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI83
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -50768,6 +50819,8 @@ ENDIF
 
  LDA #%00010000         ; Set a mask in A to the fourth pixel in the eight-pixel
                         ; byte
+
+.HANGAR_LI84
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -50809,6 +50862,8 @@ ENDIF
  LDA #%00001000         ; Set a mask in A to the fifth pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI85
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -50849,6 +50904,8 @@ ENDIF
  LDA #%00000100         ; Set a mask in A to the sixth pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI86
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -50888,6 +50945,8 @@ ENDIF
 
  LDA #%00000010         ; Set a mask in A to the seventh pixel in the
                         ; eight-pixel byte
+
+.HANGAR_LI87
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -50930,6 +50989,8 @@ ENDIF
 
  LDA #%00000001         ; Set a mask in A to the eighth pixel in the eight-pixel
                         ; byte
+
+.HANGAR_LI88
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -51130,6 +51191,8 @@ ENDIF
  LDA #%10000000         ; Set a mask in A to the first pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI21
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -51170,6 +51233,8 @@ ENDIF
 
  LDA #%01000000         ; Set a mask in A to the second pixel in the eight-pixel
                         ; byte
+
+.HANGAR_LI22
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -51212,6 +51277,8 @@ ENDIF
  LDA #%00100000         ; Set a mask in A to the third pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI23
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -51252,6 +51319,8 @@ ENDIF
 
  LDA #%00010000         ; Set a mask in A to the fourth pixel in the eight-pixel
                         ; byte
+
+.HANGAR_LI24
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -51294,6 +51363,8 @@ ENDIF
  LDA #%00001000         ; Set a mask in A to the fifth pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI25
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -51335,6 +51406,8 @@ ENDIF
  LDA #%00000100         ; Set a mask in A to the sixth pixel in the eight-pixel
                         ; byte
 
+.HANGAR_LI26
+
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -51375,6 +51448,8 @@ ENDIF
 
  LDA #%00000010         ; Set a mask in A to the seventh pixel in the
                         ; eight-pixel
+
+.HANGAR_LI27
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -51418,6 +51493,8 @@ ENDIF
 
  LDA #%00000001         ; Set a mask in A to the eighth pixel in the eight-pixel
                         ; byte
+
+.HANGAR_LI28
 
  EOR (SC),Y             ; Store A into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -51677,6 +51754,8 @@ ENDIF
 
  LDA R2                 ; Fetch the pixel byte from R2
 
+.HANGAR_LIL5
+
  EOR (SC),Y             ; Store R into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -51786,6 +51865,8 @@ ENDIF
 .LIL6
 
  LDA R2                 ; Fetch the pixel byte from R2
+
+.HANGAR_LIL6
 
  EOR (SC),Y             ; Store R into screen memory at SC(1 0), using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
@@ -51982,6 +52063,8 @@ ENDIF
 .HLL1
 
  LDA #%11111111         ; Store a full-width eight-pixel horizontal line in
+.HANGAR_HLL1
+
  EOR (SC),Y             ; SC(1 0) so that it draws the line on-screen, using EOR
  STA (SC),Y             ; logic so it merges with whatever is already on-screen
 
@@ -52406,9 +52489,11 @@ ENDIF
 ; ------------------------------------------------------------------------------
 ;
 ; This routine is not used in this version of Elite. It is left over from the
-; 650s Second Processor version.
+; 6502 Second Processor version.
 ;
 ; ******************************************************************************
+
+IF NOT(_UNBOUND)       ; Original-only: this routine has no callers
 
 .newosrdch
 
@@ -52453,6 +52538,8 @@ ENDIF
  CLC                    ; Clear the C flag
 
  RTS                    ; Return from the subroutine
+
+ENDIF                  ; ELITE: Unbound omits unused code
 
 ; ******************************************************************************
 ;
@@ -52955,6 +53042,7 @@ ENDIF
                         ; the cursor so it's in the right position following
                         ; the print
 
+IF NOT(_UNBOUND)       ; Original-only: the skipped store has no effect
  EQUB $2C               ; Skip the next instruction by turning it into
                         ; $2C $85 $08, or BIT $0885, which does nothing apart
                         ; from affect the flags
@@ -52962,6 +53050,7 @@ ENDIF
  STA SC+1               ; This instruction has no effect, as it is always
                         ; skipped, so perhaps this was accidentally left behind
                         ; from development
+ENDIF                  ; ELITE: Unbound omits unused code
 
  LDY #7                 ; We want to print the 8 bytes of character data to the
                         ; screen (one byte per row), so set up a counter in Y
@@ -56004,8 +56093,10 @@ ENDIF
 
  RTS                    ; Return from the subroutine
 
+IF NOT(_UNBOUND)       ; Original-only: the preceding RTS already returned
  RTS                    ; This instruction has no effect as we have already
                         ; returned from the subroutine
+ENDIF                  ; ELITE: Unbound omits unused code
 
 ; ******************************************************************************
 ;
@@ -58112,6 +58203,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
  PRINT "B% = ", ~CODE%
  PRINT "G% = ", ~G%
  PRINT "NA2% = ", ~NA2%
+
+ PRINT "GAME_ENTRY = ", ~S%  ; Export the actual LOCODE entry for all loaders
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  INCLUDE "1-source-files/main-sources/elite-hangar.asm"

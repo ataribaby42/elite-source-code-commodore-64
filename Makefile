@@ -385,7 +385,11 @@ c64-build:
 	echo _WHITE_COCKPIT=$(whitecockpit-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _SCANNER_COLOR_FIX=$(scannercolorfix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	$(BEEBASM) -i 1-source-files/main-sources/elite-data.asm -v > 3-assembled-output/compile.txt
+	$(PYTHON) 2-build-files/elite-token-layout.py
 	$(BEEBASM) -i 1-source-files/main-sources/elite-sprites.asm -v >> 3-assembled-output/compile.txt
+	$(BEEBASM) -i 1-source-files/main-sources/elite-source.asm -v >> 3-assembled-output/compile.txt
+	$(BEEBASM) -i 1-source-files/main-sources/elite-loader.asm -v >> 3-assembled-output/compile.txt
+	$(PYTHON) 2-build-files/elite-loader-layout.py
 ifeq ($(variant-number), 1)
 	$(BEEBASM) -i 1-source-files/main-sources/elite-firebird.asm -v >> 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-gma1.asm -v >> 3-assembled-output/compile.txt
@@ -397,8 +401,6 @@ else ifeq ($(variant-number), 2)
 	$(BEEBASM) -i 1-source-files/main-sources/elite-gma2.asm -v >> 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-gma3.asm -v >> 3-assembled-output/compile.txt
 endif
-	$(BEEBASM) -i 1-source-files/main-sources/elite-source.asm -v >> 3-assembled-output/compile.txt
-	$(BEEBASM) -i 1-source-files/main-sources/elite-loader.asm -v >> 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-send.asm -v >> 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/elite-readme.asm -v >> 3-assembled-output/compile.txt
 	$(PYTHON) 2-build-files/elite-checksum.py $(unencrypt) -rel$(variant-number)

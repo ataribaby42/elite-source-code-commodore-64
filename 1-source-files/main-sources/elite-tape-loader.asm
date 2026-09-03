@@ -12,14 +12,14 @@
 ;
 ;   load COMLOD
 ;   patch $CE0E
-;   JMP $7596
+;   JMP COMLOD_ENTRY
 ;   COMLOD returns via $CE0E
 ;   save $0002-$00FF to $CE02-$CEFF
 ;   load LOCODE
 ;   load HICODE
 ;   restore zero page
 ;   RESTOR / CLALL
-;   JMP $1D22
+;   JMP GAME_ENTRY
 ;
 ; V11 keeps the proven V8B/V10A tape rules:
 ;
@@ -65,8 +65,8 @@ KERNAL_CLALL  = $FFE7
 TPTR = $FB
 TLEN = $FD
 
-COMLOD_ENTRY = $7596
-GAME_ENTRY   = $1D22
+; Generated from the current COMLOD and LOCODE assembly, for this build.
+INCLUDE "3-assembled-output/elite-loader-layout.asm"
 
 CODE% = $0334
 ORG CODE%

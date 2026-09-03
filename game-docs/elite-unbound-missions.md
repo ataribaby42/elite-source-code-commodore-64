@@ -98,6 +98,8 @@ Despite the briefing saying `SHOULD YOU DECIDE TO ACCEPT IT`, there is no yes/no
 
 There is no saved clue index or route position. While mission 1 is active, static `RUPLA`, `RUGAL`, and `RUTOK` tables replace the normal descriptions of specific systems with mission text. The descriptions form a logical trail, but the game does not enforce its order and reading a clue does not modify `TP`.
 
+The lookup is limited to the 26 entries by `NRU% = 26`, fixing the original zero-counter overflow. Table addresses are exported from the current data build by `elite-token-layout.py`, because the Unbound text changes move the tables away from their original fixed offsets. This prevents invalid description lookups without changing mission state or trigger conditions.
+
 `PDESC` shows a mission description only when all of these conditions are true:
 
 - the player is docked;
