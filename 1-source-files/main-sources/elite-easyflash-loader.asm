@@ -29,8 +29,8 @@ EF_OFF = $04
 KERNAL_RESTOR = $FF8A
 KERNAL_CLALL = $FFE7
 
-COMLOD_ENTRY = $7596
-GAME_ENTRY = $1D22
+; Generated from the current COMLOD and LOCODE assembly, for this build.
+INCLUDE "3-assembled-output/elite-loader-layout.asm"
 
 CODE% = $0334
 ORG CODE%

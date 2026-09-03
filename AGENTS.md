@@ -92,8 +92,20 @@ nepožaduje.
   whitecockpit=yes má vždy přednost a používá vlastní opravenou paletu.
 - Při unbound=no musí zůstat původní chování. Pokud je to součástí zadání,
   ověřte také shodu původních binárek.
-- Upřednostňujte hodnoty odvozené z aktuálního buildu před pevnými adresami,
-  velikostmi a sektory.
+- Adresy rutin a dat, offsety položek tabulek a délky bloků vždy nechte
+  počítat assemblerem z návěští a výrazů (`Label`, `Item - Table`,
+  `End - Start`). Nepoužívejte ručně vypočítané číselné hodnoty závislé
+  na rozložení kódu nebo délce textů, ani když právě odpovídají buildu.
+- Pokud se části sestavují odděleně, přenášejte potřebné symboly
+  automaticky z aktuálního výstupu assembleru nebo pomocí sdílených
+  definic. Adresy mezi ASM soubory ani build skripty nepřepisujte ručně.
+- Rozsah indexů, velikosti tabulek a meze paměťových oblastí hlídejte
+  pomocí `ASSERT`, aby změna textů nebo kódu nemohla potichu způsobit
+  chybné adresování či přetečení.
+- Toto pravidlo se týká hodnot závislých na buildu. Pevné adresy
+  hardwarových registrů a předepsané hranice paměťové mapy používejte
+  jako pojmenované konstanty; sektorové tabulky odvozujte ze skutečného
+  vytvořeného obrazu disku.
 - Automaticky generovaný soubor
   1-source-files/main-sources/elite-build-options.asm neupravujte ručně.
 - Při přesunu nebo přidání kódu sledujte zvlášť limity LOCODE a HICODE.

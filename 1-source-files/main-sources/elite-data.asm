@@ -6315,6 +6315,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .endian
 
+ ASSERT endian <= $1D00 ; The loader copies tokens only through $1CFF;
+                        ; LOCODE starts at $1D00, so all token text must fit
+
 IF _GMA_RELEASE OR _SOURCE_DISK_FILES
 
  EQUB $3A, $4C, $44, $41, $58, $58, $31, $2B    ; These bytes appear to be

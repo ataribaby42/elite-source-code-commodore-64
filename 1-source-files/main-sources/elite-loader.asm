@@ -1762,3 +1762,5 @@ ENDIF                  ; ELITE: Unbound build option (end)
  PRINT "X% = ", ~X%
  PRINT "U% = ", ~U%
  PRINT "V% = ", ~V%
+
+ PRINT "COMLOD_ENTRY = ", ~ENTRY ; Export the actual entry for all media loaders

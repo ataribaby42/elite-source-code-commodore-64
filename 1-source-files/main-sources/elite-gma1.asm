@@ -53,19 +53,11 @@
 
  LOAD% = $0334          ; The address where the code will be loaded
 
-IF _GMA_RELEASE
+ INCLUDE "3-assembled-output/elite-loader-layout.asm"
 
- ENTRY = $7596          ; The entry point in the COMLOD file (GMA4)
+ ENTRY = COMLOD_ENTRY   ; Actual entry in the current COMLOD file (GMA4)
 
- S% = $1D22             ; The entry point in the LOCODE file (GMA5)
-
-ELIF _SOURCE_DISK
-
- ENTRY = $7607          ; The entry point in the COMLOD file (GMA4)
-
- S% = $1D1F             ; The entry point in the LOCODE file (GMA5)
-
-ENDIF
+ S% = GAME_ENTRY        ; Actual entry in the current LOCODE file (GMA5)
 
  L1 = $0001             ; The 6510 input/output port register, which we can use
                         ; to configure the Commodore 64 memory layout (see page

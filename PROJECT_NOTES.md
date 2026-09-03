@@ -1,6 +1,6 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 2. září 2026.
+Stav poznámek: 3. září 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
@@ -803,7 +803,7 @@ se společnými hodnotami 0, 1, 50, 99 a 100 prošly v obou větvích; hodnoty 1
 99 představují největší obecnou variantu a mají 1023 bajtů (`$3FF`), stále pod
 přísným limitem `$900` celé oblasti dashboardu.
 
-Níže uvedené hodnoty paměti byly znovu odečteny 2. září 2026 z compile.txt
+Níže uvedené hodnoty paměti byly znovu odečteny 3. září 2026 z compile.txt
 pro oba PAL buildy; starší tabulka již neodpovídala aktuálnímu zdrojovému kódu.
 
 ## Poškození při kolizi podle velikosti lodí
@@ -892,3 +892,450 @@ konfigurací Elite: Unbound včetně `renderspeedups=yes`. Všechny čtyři CRT 
 prošly `cartconv -c` a ve VICE se v odpovídajícím PAL nebo NTSC režimu dostaly
 na titulní obrazovku. Uživatel před integrací ověřil stejnou opravenou bootovací
 architekturu při skutečném načítání i ukládání commanderů na kazetu a disk.
+
+## Oprava Data on System a adresování popisů systémů
+
+Dne 3. září 2026 byla do obou větví přenesena oprava Marka Moxona z commitu
+`d796cbadb3d336b8ef02db6dc902216dac9b3945`:
+
+https://github.com/markmoxon/elite-source-code-commodore-64/commit/d796cbadb3d336b8ef02db6dc902216dac9b3945
+
+`NRU%` je nyní 26 místo 0. Smyčka `PDESC` tak prochází pouze platné
+záznamy tabulek `RUPLA` a `RUGAL`; původní nulový čítač podtekl a dovolil
+čtení mimo tabulky, například se zamrznutím na Biarge během mise Constrictor.
+Jde o opravu společné chyby původní hry, proto platí i při `unbound=no`.
+
+Kontrola skutečného buildu odhalila také starší související chybu Unbound:
+upravené tokenizované texty posunuly všechny tři tabulky o 12 bajtů, zatímco
+herní kód stále používal původní pevné adresy. Pouhá změna `NRU%` proto
+nestačila. Aktuální rozložení je:
+
+| Režim | RUPLA | RUGAL | RUTOK |
+|---|---:|---:|---:|
+| unbound=no | $1A28 | $1A42 | $1A5C |
+| unbound=yes | $1A1C | $1A36 | $1A50 |
+
+Makefile nyní bezprostředně po sestavení `elite-data.asm` spouští
+`2-build-files/elite-token-layout.py`. Ten přečte skutečné symboly z právě
+vytvořeného `compile.txt` a zapíše `3-assembled-output/elite-token-layout.asm`.
+Hlavní ASM tento generovaný soubor načte místo pevných adres. Generátor
+kontroluje úplnost a platnost rozložení; assembler navíc ověřuje, že obě
+tabulky mají přesně `NRU%` položek. Generovaný soubor se neupravuje ručně
+a je spolu s ostatními build výstupy ignorován Gitem.
+
+Oprava nezvětšuje herní kód ani data. Pro běžný Unbound PAL tape build se
+oproti stavu před opravou změnilo přesně pět bajtů LOCODE: hodnota čítače,
+tři dolní bajty adres ve vyhledávání a dolní bajt adresy tokenů v `DETOK3`.
+HICODE a COMLOD zůstaly bitově shodné. V původním režimu generované adresy
+odpovídají původním konstantám; výsledné bloky jsou shodné se samostatně
+přenesenou upstream opravou. Stav, podmínky spuštění a odměny misí se nemění.
+
+### Ověření
+
+V každé větvi samostatně prošlo všech devět následujících příkazů
+(celkem 18 finálních buildů):
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+make variant=gma86-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma85-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+```
+
+TAP buildy prošly kontrolou ROM + COMLOD + LOCODE + HICODE round-trip.
+GMA86 buildy včetně šifrované varianty ověřily automatickou sektorovou
+tabulku. Pro všechny buildy byly zkontrolovány skutečně vygenerované volby
+a adresy tabulek.
+
+Izolovaná kontrola sestavených 6502 instrukcí `PDESC` prověřila všech
+256 systémů ve všech osmi galaxiích, mission byte 0, 1 a 3, a přeskakování
+override tabulek za letu nebo při zobrazení vzdáleného systému. Celkem
+šlo o 10 240 případů na build, tedy 184 320 případů. Čtení zůstala v mezích
+tabulek, smyčka prošla nejvýše 26 položek a výsledné tokeny odpovídaly
+skutečným datům. Tiskové rutiny byly při této kontrole nahrazeny kontrolními
+body; nejde o vizuální test celé obrazovky ve VICE.
+
+Pro šest distribučních variant s `renderspeedups=yes` zůstává rezerva
+beze změny: main 95 B LOCODE a 112 B HICODE, flicker-free 15 B LOCODE
+a 12 B HICODE. RLE oblast má v obou větvích oddělené mezery 39 + 6 + 3 B
+(fyzicky 48 B); kvůli přísné koncové podmínce lze z poslední mezery využít
+jen 2 B, tedy dohromady prakticky 47 B v nesouvislých blocích.
+
+## Automatické offsety názvů lodí a meze textových oblastí
+
+Dne 3. září 2026 byly v obou větvích nahrazeny ruční hodnoty
+`ShipNameOffsets` rozdíly návěští jednotlivých názvů vůči `ShipNames`.
+Po změně délky názvu tak assembler sám přepočítá následující offsety.
+Pořadí 13 lodí, jejich názvy i výsledné bajty tabulky zůstávají stejné.
+
+Assembler navíc hlídá:
+
+- `ShipNames - ShipNameOffsets = 13`: počet offsetů odpovídá typům lodí;
+- `ShipNamesEnd - ShipNames <= $100`: celá tabulka včetně nulových
+  zakončení se vejde do rozsahu 8bitového indexu v `ShipPrintName`;
+- `endian <= $1D00` v `elite-data.asm`: všechny tokenové texty včetně
+  posledního zakončení leží nejvýše na `$1CFF`, kam sahá kopírování
+  nízkých dat loaderem. Na `$1D00` už začíná LOCODE. Kontrola se vztahuje
+  na skutečná tokenová data před původními nepoužívanými bajty.
+
+Tyto změny přidávají pouze návěští, výrazy a kontroly při sestavení.
+Nezabírají žádné další bajty RAM ani nemění chování původní hry.
+
+Znovu prošlo všech devět přesných build příkazů uvedených v předchozí sekci,
+samostatně v každé větvi (18 buildů celkem): běžný PAL tape, šifrovaný
+GMA86 PAL, původní PAL tape s `unbound=no` a všech šest distribučních
+PAL/NTSC variant s `renderspeedups=yes`. Bloky LOCODE, HICODE a COMLOD
+v nešifrované podobě, IANTOK a ELTC jsou u každé konfigurace bitově shodné
+se stavem bez těchto preventivních úprav; ověřeny byly i skutečné build volby.
+Přesné příkazy se oproti předchozí sekci nezměnily.
+
+V dočasných oddělených sestaveních bylo navíc ověřeno, že prodloužení
+názvu ADDER správně posune offsety všech dalších lodí, velikost názvů
+256 bajtů projde a 257 bajtů vyvolá ASSERT. Konec tokenů přesně na `$1D00`
+(exkluzivní konec) projde, `$1D01` vyvolá ASSERT. Všech 12 těchto kontrol
+v obou větvích dopadlo podle očekávání; testovací názvy ani výplně
+nebyly přeneseny do projektu.
+
+Pro distribuční konfigurace zůstává skutečná rezerva main 95 B LOCODE
+a 112 B HICODE, flicker-free 15 B LOCODE a 12 B HICODE. RLE mezery
+zůstávají 39 + 6 + 3 B fyzicky, z nichž poslední dovoluje využít jen 2 B.
+
+## Automatické vstupy COMLOD/LOCODE a adresy patchů hangáru
+
+Dne 3. září 2026 byly v obou větvích opraveny další adresy závislé
+na rozložení kódu:
+
+- COMLOD a hlavní hra exportují skutečná návěští `ENTRY` a `S%` jako
+  `COMLOD_ENTRY` a `GAME_ENTRY` do aktuálního výpisu assembleru.
+- Nový `2-build-files/elite-loader-layout.py` z nich vytvoří ignorovaný
+  `3-assembled-output/elite-loader-layout.asm`. Kontroluje jednoznačnost
+  exportů, rozsah adres, umístění v čerstvě sestavených binárkách a vstupní
+  instrukci `CLD`. Chybějící či neplatný export zastaví build.
+- GMA, TAP a EasyFlash loadery načítají tento společný výstup místo
+  ručních vstupních adres. Makefile proto sestavuje hlavní hru a COMLOD
+  před GMA loaderem. Generovaný soubor se nikdy neupravuje ručně.
+- Hangár používá návěští přímo na všech 22 přepisovaných instrukcích.
+  Dřívější výrazy jako `LI81+2` tak nejsou závislé na délce předchozí
+  instrukce. Počet položek smyčky se odvozuje z tabulky; `ASSERT` hlídá
+  její neprázdnost, 8bitový rozsah a stejnou délku dolních i horních bajtů.
+  Oba skoky `P%+4` jsou nahrazeny pojmenovanými návěštími.
+
+V aktuálních Unbound buildech je vstup COMLOD na `$758A`, zatímco původní
+ručně zadané `$7596` ukazovalo dovnitř instrukce. Nejde o nahrazení jedné
+pevné adresy jinou: každý build nyní získá vlastní skutečné adresy.
+Úprava hangáru je preventivní; jeho dosavadní výsledné adresy byly správné.
+
+Změněné soubory této opravy v každé větvi: `Makefile`,
+`2-build-files/elite-loader-layout.py`, `PROJECT_NOTES.md` a soubory
+`elite-source.asm`, `elite-loader.asm`, `elite-gma1.asm`,
+`elite-tape-loader.asm`, `elite-easyflash-loader.asm` a `elite-hangar.asm`
+v `1-source-files/main-sources/`. Dřívější úpravy tokenových tabulek,
+názvů lodí a projektových pokynů zůstaly zachovány.
+
+### Ověření opravy COMLOD a hangáru
+
+Každý následující příkaz prošel samostatně v main i flicker-free:
+16 konfigurací na větev, celkem 32 úspěšných finálních sestavení.
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma85-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+make variant=tape-ntsc encrypt=no match=no verify=no unbound=no
+make variant=gma86-pal encrypt=no match=no verify=no unbound=no
+make variant=gma85-ntsc encrypt=no match=no verify=no unbound=no
+make variant=easyflash-pal encrypt=no match=no verify=no unbound=no
+make variant=easyflash-ntsc encrypt=no match=no verify=no unbound=no
+make variant=source-disk-build encrypt=no match=no verify=no unbound=no
+make variant=source-disk-files encrypt=no match=no verify=no unbound=no
+```
+
+U všech 32 konfigurací jsou herní bloky `LOCODE.unprot.bin`,
+`HICODE.unprot.bin`, `COMLOD.unprot.bin`, `ELTC.bin` a `IANTOK.bin`
+bitově shodné se stavem před touto opravou; beze změny jsou také build
+volby. Porovnané původní obrazy TAP, D64 a CRT s `unbound=no` jsou rovněž
+bitově shodné. U Unbound se opravují operandy skoků v mediálních loaderech,
+nikoli herní obsah. TAP kontroly round-trip a GMA86 kontrola skutečné
+sektorové tabulky včetně šifrované varianty prošly.
+
+Ve všech sestaveních byly ověřeny exportované vstupy a operandy skoků.
+V 16 Unbound konfiguracích bylo zkontrolováno všech 352 adres patchů
+hangáru: každá míří na správný opcode. V izolovaných sestaveních pro obě
+větve bylo ověřeno automatické sledování posunutých vstupů, odmítnutí
+neplatných exportů, posun adresy patchované instrukce po vložení bajtu
+a selhání assembleru při rozdílné délce obou částí tabulky.
+Testovací výplně ani úmyslné chyby nejsou součástí projektu.
+
+VICE ověřil načtení všech šesti distribučních Unbound PAL/NTSC obrazů
+a šifrovaného GMA86 PAL v každé větvi: celkem 14 úspěšných startů až
+na skutečný vstup hlavní hry. Diskové testy odpovídají `Y` na otázku
+fast loaderu; čekání na tuto otázku samo o sobě není selhání loaderu.
+Jde o test načítání, nikoli o úplný herní nebo vizuální test hangáru.
+
+### Paměť po opravě COMLOD a hangáru
+
+Oprava nepřidává žádné bajty do herních bloků ani RLE oblasti.
+
+| Konfigurace | Větev | LOCODE volné | HICODE volné |
+|---|---|---:|---:|
+| Šest distribučních variant, renderspeedups=yes | main | 95 B | 112 B |
+| Šest distribučních variant, renderspeedups=yes | flicker-free | 15 B | 12 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | main | 161 B | 125 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | flicker-free | 81 B | 25 B |
+
+RLE oblast má stále oddělené mezery 39 + 6 + 3 B, fyzicky 48 B.
+Kvůli přísné koncové podmínce lze v poslední mezeře přidat pouze 2 B;
+prakticky je tedy využitelných 47 B v nesouvislých blocích. Rezervy
+LOCODE a HICODE již zohledňují přísné nerovnosti koncových kontrol.
+
+## Odstranění čtyř zbytečných zápisů v MVS4
+
+Dne 3. září 2026 byla v obou větvích převzata optimalizace z upstream commitu:
+
+https://github.com/markmoxon/elite-source-code-commodore-64/commit/7aedfeb6f45af3b9ae71d90e6fcaf8fd1826f371
+
+Při `unbound=yes` se vynechávají přesně čtyři instrukce `STX P`
+v rutině `MVS4`, které odstraňuje tento commit. Každý z těchto zápisů
+je přepsán voláním `MAD -> MULT1` dříve, než se jeho hodnota použije.
+První dvojice `LDX INWK,Y / STX P` ani další instrukce se nemění.
+
+Zápisy jsou zachovány pod `IF NOT(_UNBOUND)`, takže `unbound=no`
+zůstává binárně beze změny. Optimalizace šetří 8 B HICODE a 12 CPU cyklů
+na jedno volání `MVS4`, tedy 36 cyklů při rotaci všech tří orientačních
+vektorů lodi. Nejde o opravu chybného výsledku výpočtu.
+
+Změněny byly pouze `1-source-files/main-sources/elite-source.asm`
+a `PROJECT_NOTES.md` v obou větvích. Dřívější necommitované změny
+zůstaly zachovány.
+
+### Ověření optimalizace MVS4
+
+V každé větvi prošlo všech devět následujících příkazů, celkem 18 buildů:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma85-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+```
+
+Skutečně sestavená rutina je v každém Unbound buildu kratší přesně o osm
+bajtů a liší se pouze vynecháním uvedených čtyř instrukcí. Po přesunu
+následujícího kódu byly ověřeny vstupy loaderů a všech 352 adres patchů
+hangáru v 16 Unbound sestaveních. Změny COMLOD odpovídají výhradně novým
+adresám uvnitř vloženého bloku hangáru; jeho velikost se nemění.
+TAP round-trip i kontroly GMA86 sektorové tabulky včetně šifrované varianty
+prošly.
+
+V emulátoru instrukcí 6502 byly porovnány skutečné sestavené rutiny před
+a po úpravě: 3 840 případů v každé větvi, celkem 7 680 porovnání.
+Test zahrnoval krajní i náhodné úhly, náhodná data vektorů, všechny tři
+volby vektoru a různé počáteční registry a příznaky při vypnutém
+desítkovém režimu. Výsledné registry, příznaky a celá zero page byly
+vždy shodné; každý průchod ušetřil přesně 12 CPU cyklů. Jde o izolovaný
+test rutiny, nikoli o nové úplné herní testování ve VICE.
+
+Původní PAL tape buildy s `unbound=no` mají stejné herní bloky i celý
+výsledný TAP jako před úpravou.
+
+### Paměť po optimalizaci MVS4
+
+| Konfigurace | Větev | LOCODE volné | HICODE volné |
+|---|---|---:|---:|
+| Šest distribučních variant, renderspeedups=yes | main | 95 B | 120 B |
+| Šest distribučních variant, renderspeedups=yes | flicker-free | 15 B | 20 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | main | 161 B | 133 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | flicker-free | 81 B | 33 B |
+
+LOCODE ani RLE oblast se velikostí nemění. RLE mezery zůstávají fyzicky
+39 + 6 + 3 B (48 B), prakticky využitelných je kvůli přísné koncové
+podmínce 47 B v nesouvislých blocích.
+
+## Další nepoužívaný kód: DKS2, Checksum a newosrdch
+
+Dne 3. září 2026 byla v obou větvích převzata optimalizace z upstream commitu:
+
+https://github.com/markmoxon/elite-source-code-commodore-64/commit/aac5bcaebd95cba7a724e6c0338fb6fe91b8adad
+
+Všech šest změn platí pouze pro `unbound=yes`. Původní instrukce a
+návěští jsou zachovány pod `IF NOT(_UNBOUND)`; při `unbound=no`
+se sestavují jako před úpravou. Opraveny byly také dva překlepy
+`650s` na `6502` v komentářích.
+
+| Vynechaný kód | Úspora HICODE |
+|---|---:|
+| Nepoužívaná joysticková rutina DKS2 | 7 B |
+| Nepoužívaná rutina Checksum včetně CHKLoop | 34 B |
+| Nepoužívaná rutina newosrdch včetně badkey a coolkey | 25 B |
+| Zbytečné CLC před LDY/CPY v LIlog6 | 1 B |
+| BIT vzniklé z EQUB $2C a přeskočeného STA SC+1 v RR2 | 3 B |
+| Druhé, nedosažitelné RTS za BDexitirq | 1 B |
+| Celkem | 71 B |
+
+Ve zdrojích nejsou aktivní volání odstraněných rutin ani odkazy na jejich
+vnitřní návěští zvenčí. Před těmito bloky jsou návraty nebo nepodmíněný
+skok, takže do nich řízení nepropadá. `Checksum` je starý nepoužívaný
+kód z verze pro 6502 Second Processor; není to kontrola commander dat
+ani současný build skript pro checksumy a šifrování. Ty zůstávají zachovány.
+
+Změněny byly pouze `1-source-files/main-sources/elite-source.asm`
+a `PROJECT_NOTES.md` v main i flicker-free. Ostatní rozpracované změny
+zůstaly zachovány.
+
+### Ověření odstranění nepoužívaného kódu
+
+V každé větvi prošlo všech devět následujících příkazů, celkem 18 konfigurací:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma85-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+```
+
+Assembler potvrdil nepřítomnost všech šesti vynechaných návěští v Unbound,
+nezměněný konec LOCODE a zkrácení HICODE přesně o 71 B. Velikost RLE
+payloadu se nemění; změny vloženého hangáru odpovídají novým adresám
+přesunutého kódu. Ověřeny byly skutečné vstupy loaderů a všech 352 adres
+patchů hangáru v 16 Unbound sestaveních. TAP round-trip a GMA86 kontroly
+sektorové tabulky včetně šifrované varianty prošly.
+
+U původních PAL tape buildů s `unbound=no` byly porovnány herní bloky
+i kompletní výsledné TAP soubory; jsou bitově shodné s předchozím stavem.
+
+Na emulovaném 6502 byly porovnány skutečné instrukce obou změněných
+aktivních částí před a po úpravě:
+
+- Úsek `LIlog6` do první větve za `CPY`: všech 65 536 kombinací
+  Y1/Y2 s oběma vstupními hodnotami carry, 131 072 případů na větev,
+  262 144 celkem. Stav registrů, příznaků a zero page je shodný;
+  úsek potřebuje o 2 CPU cykly méně.
+- Tiskový úsek `RR2` až do návratu: všechny řádky 0–23 a sloupce
+  0–30, různé vstupní bitmapy a čtyři kombinace bitů N/V v paměti čtené
+  původní instrukcí `BIT`. Celkem 2 976 případů na větev, 5 952 celkem.
+  Výsledné pixely, barvy, zero page a návratové registry jsou shodné,
+  carry zůstává vynulované a úsek ušetří 4 CPU cykly.
+
+V příznaku V po tiskové rutině může být rozdíl: odstraněné `BIT` ho
+dříve přepisovalo. V není součástí návratového kontraktu `CHPR`;
+jeho použití v okolním kódu si stav nastavuje samostatně. Test tisku
+proto ověřuje návratový kontrakt a ostatní příznaky, nikoli shodu V.
+Jde o izolované regresní kontroly, nikoli o nové úplné hraní ve VICE.
+
+### Paměť po odstranění nepoužívaného kódu
+
+| Konfigurace | Větev | LOCODE volné | HICODE volné |
+|---|---|---:|---:|
+| Šest distribučních variant, renderspeedups=yes | main | 95 B | 191 B |
+| Šest distribučních variant, renderspeedups=yes | flicker-free | 15 B | 91 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | main | 161 B | 204 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | flicker-free | 81 B | 104 B |
+
+RLE mezery se nemění: fyzicky 39 + 6 + 3 B (48 B), prakticky využitelných
+47 B v nesouvislých blocích. Rezervy LOCODE a HICODE již zohledňují
+přísné nerovnosti koncových kontrol.
+
+## Oprava náhodného výběru Moraye
+
+Dne 3. září 2026 byla v obou větvích opravena nabídka typů při spawnu
+samostatného bounty huntera/piráta, pouze pro `unbound=yes`.
+Podnětem byl upstream commit:
+
+https://github.com/markmoxon/elite-source-code-commodore-64/commit/0a76066b9866611c14fd28e9c6338dab616aa9ee
+
+Upstream vložil `LSR A` až za `AND #3`. Takové pořadí však po
+`ADC #CYL2` dává jen typy 24–26: Moray by se stále nespawnoval
+a z tohoto výběru by navíc vypadl Fer-de-Lance. Proto není patch převzat
+doslova: u nás je `LSR A` před maskováním. Carry dostane původní bit 0
+a maskovaný posunutý registr dodá offset 0–3. Tři nejnižší vstupní bity
+pak vybírají typy 24, 25, 25, 26, 26, 27, 27, 28.
+
+Výběr tedy zahrnuje Cobra Mk III (pirate), Asp Mk II, Python (pirate),
+Fer-de-Lance a Moray. Nejde o rovnoměrný výběr pěti typů.
+Podmínka `A < 100` pro tuto větev, odbočka na pirátský pack,
+odklad dalšího spawnu a případné nahrazení Constrictorem se nemění.
+
+Přidaný bajt překročil dosah existujícího `BEQ fothg` o jeden bajt.
+Pro Unbound je proto nahrazen dvojicí `BNE randomPoliceCheck` /
+`JMP fothg`. Vzácné setkání stále nastává při stejné hodnotě 136;
+vlastní volba Thargoida/Cougara je zachována. Všechny cíle skoků
+počítá assembler z návěští.
+
+Celkový náklad je 4 B HICODE: 1 B za `LSR A` a 3 B za delší skok.
+Při `unbound=no` zůstávají původní instrukce. Změněny byly pouze
+`1-source-files/main-sources/elite-source.asm` a `PROJECT_NOTES.md`
+v každé větvi; ostatní rozpracované soubory zůstaly zachovány.
+
+### Ověření opravy spawnu Moraye
+
+V každé větvi úspěšně prošlo všech devět příkazů, celkem 18 buildů:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma85-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+```
+
+Původní PAL tape buildy s `unbound=no` mají bitově shodné herní
+bloky i celý TAP proti stavu před touto opravou. Kontroly TAP round-trip
+a sektorů GMA86 včetně šifrované varianty prošly. Ověřeny byly vstupy
+loaderů ve všech 18 sestaveních a 352 adres patchů vloženého hangáru
+v 16 Unbound sestaveních. Velikost hangáru a komunikačních dat se nemění.
+
+Skutečně sestavené instrukce byly prověřeny v emulátoru 6502:
+
+- 36 864 průchodů výběrem: všech 256 vstupních hodnot, obě hodnoty carry
+  a čtyři počáteční hodnoty odkladu EV v každém buildu. Moray je dostupný,
+  všechny dosavadní typy zůstávají dostupné a odbočka pro pack je zachována.
+- 9 216 porovnání původní a nové odbočky na vzácné setkání: všechny
+  vstupní hodnoty a obě carry. Cíl větve, registry i příznaky jsou shodné.
+- 57 600 porovnání podmínky pro Constrictora před a po úpravě: skutečná
+  rutina THERE, platná i chybná galaxie/souřadnice, všechny čtyři stavy
+  mise 1, horní bity TP, přítomný/nepřítomný Constrictor a všech 100
+  vstupních hodnot pro samostatnou loď. Podmínky mise se nemění.
+- Samostatně bylo emulací potvrzeno, že upstream pořadí pro 100 hodnot
+  této větve vybírá pouze typy 24–26, zatímco opravené pořadí dává
+  četnosti 13, 26, 25, 24 a 12 pro typy 24–28. Jde o četnosti při
+  rovnoměrném vyčerpání vstupů 0–99, nikoli o naměřené četnosti ve hře.
+
+Jde o izolované testy sestaveného kódu, nikoli o nové hraní ve VICE.
+
+### Paměť po opravě spawnu Moraye
+
+| Konfigurace | Větev | LOCODE volné | HICODE volné |
+|---|---|---:|---:|
+| Šest distribučních variant, renderspeedups=yes | main | 95 B | 187 B |
+| Šest distribučních variant, renderspeedups=yes | flicker-free | 15 B | 87 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | main | 161 B | 200 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | flicker-free | 81 B | 100 B |
+
+RLE mezery se nemění: fyzicky 39 + 6 + 3 B (48 B), prakticky využitelných
+47 B v nesouvislých blocích. Rezervy LOCODE a HICODE zohledňují přísné
+nerovnosti koncových kontrol. Commit ani push nebyl proveden.
