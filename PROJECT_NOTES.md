@@ -1424,3 +1424,192 @@ Herní paměťové rezervy se nezměnily:
 RLE mezery zůstávají fyzicky 39 + 6 + 3 B (48 B), prakticky
 47 B v nesouvislých blocích. Rezervy zohledňují přísné nerovnosti
 assemblerových kontrol. Commit ani push nebyl proveden.
+
+## Samostatné příznaky členů pirátského packu
+
+Dne 3. září 2026 bylo v obou větvích odstraněno dědění příznaků
+`NEWB` mezi postupně vytvářenými členy náhodného pirátského packu,
+pouze pro `unbound=yes`.
+
+Ve smyčce `mt3` se po vynulování rychlosti nyní stejnou nulovou
+hodnotou nastaví také `NEWB`. Každé následující volání `NWSHP`
+proto vychází z vlastních výchozích příznaků daného typu. Například
+Worm již nepředává příznak trader následující Mambě či Kraitu a sám
+nepřebírá pirate bit od předchozího člena.
+
+Wormovy výchozí příznaky `$05` (hostile + trader) zůstávají stejné.
+Stále se může v packu objevit, má vlastní pomalejší rozhodování AI
+a není záměrně přeřazen mezi piráty. Sdílené rutiny `NWSHP`,
+`SFS1`, doprovod Anacondy, trosky, stanice, mise ani tabulka `E%`
+se nemění. Výběr typů, společná poloha packu, rozestupy, agresivita,
+vybavení a pravidla neutralizace jednotlivých pirátů zůstávají stejné.
+Úprava platí pro `randomspawns=yes` i `randomspawns=no`.
+
+Změněné soubory v každé větvi:
+
+- `1-source-files/main-sources/elite-source.asm`;
+- `PROJECT_NOTES.md`.
+
+### Ověření příznaků packu
+
+Před úpravou byl v každé větvi sestaven referenční původní TAP:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+```
+
+Po úpravě prošlo v každé větvi těchto sedm buildů:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+make variant=tape-pal encrypt=no randomspawns=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal randomspawns=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no randomspawns=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal encrypt=no randomspawns=yes renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-pal encrypt=no randomspawns=yes renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no randomspawns=yes renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+```
+
+Celkem 14 buildů po změně a 2 referenční buildy před ní. Kontroly
+sestavení, TAP round-trip a automatických sektorů šifrovaného
+i nešifrovaného GMA86 prošly. Při `unbound=no` zůstaly porovnávané
+herní binárky a výsledný PAL TAP bitově shodné s referencí.
+
+Ve VICE 3.9 byly samostatně spuštěny opravené PAL CRT obou větví.
+Pro každou větev prošly čtyři scénáře s reálným provedením smyčky
+packu, `NWSHP`, neutralizace a komunikačního hooku:
+
+| Scénář | Typy v pořadí | Výsledné NEWB | Počáteční rychlosti |
+|---|---|---|---|
+| Worm jako první | Worm, Mamba, Krait | 05, 0C, 0C | 0, 0, 0 |
+| Worm po pirátovi | Sidewinder, Worm, Krait | 0C, 05, 0C | 0, 0, 0 |
+| Scrambled Fugitive, neutralizace uspěje | Sidewinder, Worm, Krait | 08, 05, 08 | 31, 0, 31 |
+| Scrambled Fugitive, neutralizace neuspěje | Worm, Mamba, Krait | 05, 0C, 0C | 0, 0, 0 |
+
+Příznaky byly ověřeny v uložených datových blocích lodí i pracovním
+`NEWB`. Kontrolována byla také zachovaná společná hrubá poloha
+a hodnota AI a správný výběr prvního skutečně hostile piráta jako
+odesílatele zprávy. Ve scénáři s pasivními piráty Worm se svým
+hostile + trader není považován za pirátského odesílatele, takže
+samotný pack pirátskou zprávu neodešle.
+
+Testovací monitor pouze nastavoval zvolené typy ve výběrovém místě,
+hráčovy podmínky a v příslušných scénářích stav RNG před neutralizací.
+Spouštěl skutečné binárky a nepřepisoval testovaný herní kód.
+Jde o cílené regresní ověření, nikoli úplný průchod hrou.
+
+Při ručním ověření spustit opravený build a nechat vzniknout nový pack.
+Starý VICE snapshot obnovuje také původní kód a již existující příznaky
+lodí; oprava neprovádí zpětnou úpravu již vytvořených packů.
+
+### Paměť po odstranění dědění
+
+Přibyla jediná dvoubajtová instrukce `STA NEWB` v HICODE.
+LOCODE a velikosti rezidentních RLE bloků se nezměnily.
+
+| Konfigurace z výše uvedených buildů | Větev | LOCODE volné | HICODE volné |
+|---|---|---:|---:|
+| TAP/GMA86/EasyFlash, renderspeedups=yes, randomspawns=yes | main | 95 B | 185 B |
+| TAP/GMA86/EasyFlash, renderspeedups=yes, randomspawns=yes | flicker-free | 15 B | 85 B |
+| Běžný TAP a šifrovaný GMA86 bez renderspeedups | main | 161 B | 198 B |
+| Běžný TAP a šifrovaný GMA86 bez renderspeedups | flicker-free | 81 B | 98 B |
+| TAP, renderspeedups=yes, randomspawns=no | main | 95 B | 169 B |
+| TAP, renderspeedups=yes, randomspawns=no | flicker-free | 15 B | 69 B |
+
+Pro aktuální TAP s renderspeedups=yes končí LOCODE na `$3FA0`
+v main a `$3FF0` ve flicker-free; HICODE na `$CD46`, respektive
+`$CDAA`. Rezervy výše zohledňují přísné nerovnosti assembleru.
+RLE mezery zůstávají fyzicky 39 + 6 + 3 B (48 B), prakticky
+47 B v nesouvislých blocích.
+
+Generovaný sledovaný `3-assembled-output/README.txt` byl po testech
+obnoven ze zálohy před buildy. Commit ani push nebyl proveden.
+
+## Koridor omezený na starty ze stanice
+
+Dne 3. září 2026 byl v obou větvích opraven společný vstup `TN6`,
+pouze pro `unbound=yes`. Před kontrolou koridoru nyní porovná typ
+rodiče `TYPE` s `SST`. Registr X obsahuje typ vypouštěné lodi,
+nikoli rodiče. Anaconda a rock hermit proto již nekontrolují koridor
+stanice a neodesílají nesouvisející zprávu DOCK OR LEAVE.
+
+Stanice nadále blokuje civilní start při obsazeném koridoru;
+policejní Viper může startovat i tehdy. Thargoid vypouští Thargony
+přímo přes `SFS1`, takže touto chybou nebyl postižen a jeho cesta
+se nemění. Oprava nemění výběr typů, pravděpodobnosti, příznaky
+ani vlastní vytvoření potomka. Dřívější oprava dědění `NEWB`
+mezi členy pirátského packu je zachována.
+
+Změněny byly `1-source-files/main-sources/elite-source.asm`
+a tyto poznámky v obou pracovních kopiích.
+
+### Buildy a regresní ověření koridoru
+
+V každé větvi úspěšně proběhlo těchto šest přesných příkazů:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no unbound=no
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes scannercolorfix=no
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes scannercolorfix=no
+make variant=gma86-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes scannercolorfix=no
+make variant=easyflash-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes scannercolorfix=no
+make variant=tape-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes scannercolorfix=no
+```
+
+Celkem 12 úspěšných buildů. Ve třetím příkazu je `encrypt=no`
+záměrně vynecháno: byl ověřen i šifrovaný GMA86 PAL podle AGENTS.md.
+Kontroly TAP round-trip a automatických sektorů GMA86 prošly.
+Při `unbound=no` zůstaly LOCODE, HICODE, COMLOD, SHIPS, WORDS,
+IANTOK a výsledný TAP bitově shodné s archivovanou referencí.
+
+Ve VICE 3.9 prošlo 30 cílených scénářů, samostatně v obou větvích:
+
+- Před opravou: při obsazeném koridoru se zablokuje vypuštění
+  Wormu z Anacondy a Mamby z hermita; objeví se varování stanice.
+  Thargoid svůj Thargon vypustí již před opravou.
+- Po opravě: Anaconda vypustí Worm i Sidewinder a hermit Mambu
+  bez ohledu na obsazený koridor. Thargoid vypouští Thargon dál.
+- Volný koridor: Anaconda/Worm, hermit/Mamba a Thargoid/Thargon
+  projdou bez falešného varování stanice.
+- Stanice: Shuttle i Transporter při obsazení čekají, při volném
+  koridoru startují; policejní Viper startuje i při obsazení.
+
+Monitor nastavoval kontrolované počáteční podmínky a výsledky RNG
+v příslušných rozhodovacích místech skutečného `TACTICS`. Samotné
+vypuštění provedl neupravený běžící herní kód. Kontrolovány byly
+`TYPE`, rodičovský blok, počty `MANY`, typ potomka v `FRIN`, aktivní
+AI, varování, spotřeba Thargonu i jednorázová deaktivace AI hermita.
+Žádné pravděpodobnosti ani jiné testovací zásahy nezůstaly ve zdrojích.
+
+Pro obrázky navíc prošly tři scénáře ve flicker-free: 192 snímků
+přirozeného letu po vypuštění Wormu, Mamby a Thargonu. Následné
+rozhodování AI již nebylo vynucováno. Snímky jsou přímo z VICE,
+bez úprav obrazových dat. U Thargoidu byl po 128 snímcích přesunut
+pozorovatel společným posunem všech objektů, aby byly obě lodě
+vidět; jejich vzájemné polohy, rychlosti a AI zůstaly zachovány.
+Jde o cílené regresní testy, nikoli úplný průchod hrou.
+
+Skripty, build logy, výpisy assembleru, výpisy RAM, výsledky a PNG
+jsou v ignorovaném adresáři `3-assembled-output/corridor-parent-check/`
+pracovní kopie main. Vybrané obrázky a jejich přehled jsou v
+`3-assembled-output/corridor-parent-check/screenshots/index.html`.
+
+### Paměť po opravě koridoru
+
+Přibylo 6 B v LOCODE; HICODE a velikosti RLE bloků se nezměnily.
+
+| Testovaná konfigurace | Větev | LOCODE volné | HICODE volné |
+|---|---|---:|---:|
+| TAP/GMA86/EasyFlash, renderspeedups=yes | main | 89 B | 185 B |
+| TAP/GMA86/EasyFlash, renderspeedups=yes | flicker-free | 9 B | 85 B |
+| Běžný TAP a šifrovaný GMA86 bez renderspeedups | main | 155 B | 198 B |
+| Běžný TAP a šifrovaný GMA86 bez renderspeedups | flicker-free | 75 B | 98 B |
+
+Pro konfiguraci s renderspeedups=yes: R% = $3FA6 / $3FF6,
+F% = $CD46 / $CDAA (main / flicker-free). Rezervy zohledňují
+přísné nerovnosti assemblerových kontrol. RLE mezery mají stále
+39 + 6 + 3 B, tedy fyzicky 48 B, prakticky 47 B v oddělených blocích.
+
+Generovaný sledovaný `3-assembled-output/README.txt` byl obnoven
+ze zálohy před testy. Pracovní kopie obsahují uvedené změny a dřívější
+necommitovanou opravu packu. Commit ani push nebyl proveden.
