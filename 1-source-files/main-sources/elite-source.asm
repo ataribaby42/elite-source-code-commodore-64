@@ -1439,7 +1439,6 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ;   * Non-zero if we are inside the space station's safe
                         ;     zone
                         ;
-                        ;
                         ; This flag is at MANY+SST, which is no coincidence, as
                         ; MANY+SST is a count of how many space stations there
                         ; are in our local bubble, which is the same as saying
@@ -12627,6 +12626,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
 .TN6
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ LDA TYPE               ; TYPE is the parent; X is the ship being launched
+ CMP #SST               ; Only stations use the docking-slot launch corridor
+ BNE tn6Launch          ; Anacondas and rock hermits launch without this check
+
  CPX #COPS              ; Police Vipers may always launch, even when another
  BEQ tn6Launch          ; ship is in the station's launch corridor
 
@@ -26055,7 +26058,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.72"
+ EQUS "v0.73"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -34851,20 +34854,41 @@ ENDIF                  ; ELITE: Unbound Moray spawn fix (end)
 
  AND #3                 ; Choose a base offset in the range 0-3
 
- ADC #CYL2              ; Add the offset and carry to the first lone hunter type
+ ADC #CYL2              ; Add A to #CYL2 (we know the C flag is clear as we
+                        ; passed through the BCS above), so A is now one of the
+                        ; lone bounty hunter ships, i.e. Cobra Mk III (pirate),
+                        ; Asp Mk II, Python (pirate) or Fer-de-lance
                         ;
-                        ; Original Elite reaches here with C clear after the
-                        ; BCS above, so it selects types 24-27: Cobra Mk III
-                        ; (pirate), Asp Mk II, Python (pirate) or Fer-de-lance.
-                        ; Moray (28) is therefore never selected by this path.
+                        ; Interestingly, this logic means that the Moray, which
+                        ; is the ship after the Fer-de-lance in the XX21 table,
+                        ; never spawns, as the above logic chooses a blueprint
+                        ; number in the range CYL2 to CYL2+3 (i.e. 24 to 27),
+                        ; and the Moray is blueprint 28
                         ;
-                        ; In Unbound, LSR before AND supplies a random carry
-                        ; and uses the next two bits for the offset. The lowest
-                        ; three input bits select 24, 25, 25, 26, 26, 27, 27, 28.
-                        ; This includes Moray while keeping all four old types.
+                        ; No other code spawns the ship with blueprint 28, so
+                        ; this means the Moray is never seen in Elite
                         ;
-                        ; Do not move LSR after AND: that would halve the masked
-                        ; offset and restrict the result to types 24-26.
+                        ; This is presumably a bug, which could be very easily
+                        ; fixed by inserting one of the following instructions
+                        ; before the AND #3 instruction above:
+                        ;
+                        ;   * SEC would change the range to 25 to 28, which
+                        ;     would cover the Asp Mk II, Python (pirate),
+                        ;     Fer-de-lance and Moray
+                        ;
+                        ;   * LSR A would set the C flag to a random number to
+                        ;     give a range of 24 to 28, which would cover the
+                        ;     Cobra Mk III (pirate), Asp Mk II, Python (pirate),
+                        ;     Fer-de-lance and Moray
+                        ;
+                        ; It's hard to know what the authors' original intent
+                        ; was, but the second approach makes the Moray and Cobra
+                        ; Mk III the rarest choices, with the Asp Mk II, Python
+                        ; and Fer-de-Lance being more likely, and as the Moray
+                        ; is described in the literature as a rare ship, and the
+                        ; Cobra can already be spawned as part of a group of
+                        ; pirates (see mt1 below), I tend to favour the LSR A
+                        ; solution over the SEC approach
 
  TAY                    ; Copy the new ship type to Y
 
@@ -35019,6 +35043,8 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  LDA #0                 ; Clear any speed inherited from the previous member;
  STA INWK+27            ; MaybeSpawnNeutralPirate assigns neutral cruising speed
+ STA NEWB               ; Start this member with its own default role flags;
+                        ; do not inherit another member's trader or pirate bits
 
  PLA                    ; Restore the pirate type for NWSHP
 
@@ -37592,7 +37618,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
  PLP                    ; Retrieve the processor flags that we stashed after the
                         ; call to KERNALSVE above
 
- CLI                    ; Enable interrupts to make sure the PHP doesn't disable
+ CLI                    ; Enable interrupts to make sure the PLP doesn't disable
                         ; interrupts (which it could feasibly do by restoring a
                         ; set I flag)
 
@@ -37945,7 +37971,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
  PLP                    ; Retrieve the processor flags that we stashed after the
                         ; call to KERNALLOAD above
 
- CLI                    ; Enable interrupts to make sure the PHP doesn't disable
+ CLI                    ; Enable interrupts to make sure the PLP doesn't disable
                         ; interrupts (which it could feasibly do by restoring a
                         ; set I flag)
 
