@@ -243,7 +243,8 @@ public sealed class CommanderSave
     {
         if (Format == CommanderFormat.OriginalElite)
         {
-            return HasLargeCargoBay ? 37 : 22;
+            // CRGO stores capacity + 2 (22/37); expose the actual tonnes here.
+            return HasLargeCargoBay ? 35 : 20;
         }
 
         var ship = GameData.Ship(ShipType);

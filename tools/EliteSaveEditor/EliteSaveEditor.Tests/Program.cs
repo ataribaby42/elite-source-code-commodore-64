@@ -3,6 +3,7 @@ using EliteSaveEditor.Core;
 var tests = new (string Name, Action Run)[]
 {
     ("Original JAMESON checksum", TestOriginalJamesonChecksum),
+    ("Original cargo capacity and TAP encoding", TestOriginalCargoCapacity),
     ("Galaxy catalog mission systems", TestGalaxyCatalog),
     ("C64 market prices", TestMarketPrices),
     ("Combat rating boundaries", TestCombatRatings),
@@ -44,6 +45,46 @@ static void TestOriginalJamesonChecksum()
     Equal((byte)0x03, data[76], "CHK");
     True(CommanderChecksums.IsValid(data), "Default checksum validation failed.");
     Equal<CommanderFormat?>(CommanderFormat.OriginalElite, CommanderSave.DetectFormat(data), "Format detection");
+}
+
+static void TestOriginalCargoCapacity()
+{
+    foreach (var (largeBay, capacity, storedValue) in new[]
+    {
+        (false, 20, (byte)22),
+        (true, 35, (byte)37)
+    })
+    {
+        var commander = CommanderSave.CreateOriginalJameson();
+        commander.HasLargeCargoBay = largeBay;
+        commander.HasEcm = true;
+        Equal(capacity, commander.CargoCapacity(), "Original hold capacity");
+        Equal(0, commander.EquipmentWeightTonnes(), "Original equipment weight");
+
+        commander.SetCargo(0, (byte)capacity);
+        Equal(0, commander.Validate().Count, "A full original hold must be valid");
+        var data = commander.ExportData();
+        Equal(storedValue, data[22], "CRGO must retain the on-tape capacity + 2 encoding");
+        True(CommanderChecksums.IsValid(data), "Full-hold save checksum validation failed.");
+
+        var tap = TapCodec.Write([new TapCommanderFile(commander.Name, commander.LoadAddress, data)]);
+        var loaded = TapCodec.Read(tap).Single();
+        SequenceEqual(data, loaded.Data, "Full-hold commander TAP round trip");
+        Equal<CommanderFormat?>(CommanderFormat.OriginalElite, CommanderSave.DetectFormat(loaded.Data), "Loaded format");
+        var restored = new CommanderSave(loaded.Name, loaded.Data, CommanderFormat.OriginalElite, loaded.LoadAddress);
+        Equal(capacity, restored.CargoCapacity(), "Loaded original hold capacity");
+        Equal(0, restored.Validate().Count, "Loaded full hold must be valid");
+
+        commander.SetCargo(0, (byte)(capacity + 1));
+        True(commander.Validate().Any(error => error.Contains("hold capacity")),
+            "An original hold overloaded by one tonne must be rejected.");
+
+        commander.ChangeFormat(CommanderFormat.EliteUnbound);
+        Equal(largeBay ? 35 : 25, commander.CargoCapacity(), "Unbound Cobra Mk III capacity must be unchanged");
+        Equal(storedValue, commander.ExportData()[22], "Format conversion must preserve CRGO");
+        commander.ChangeFormat(CommanderFormat.OriginalElite);
+        Equal(capacity, commander.CargoCapacity(), "Capacity after returning to Original Elite");
+    }
 }
 
 static void TestGalaxyCatalog()

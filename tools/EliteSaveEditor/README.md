@@ -76,6 +76,11 @@ retained but clamped to the new hull's capacity. Cargo and installed-equipment
 weight, laser mounts, missile capacity and fuel capacity are validated against
 the current source-code tables.
 
+For original *Elite*, the Cobra Mk III holds 20 tonnes, or 35 tonnes with
+Large Cargo Bay. These actual capacities are used in the interface and cargo
+validation; the corresponding CRGO values stored in TAP files remain 22 and
+37. *Elite: Unbound* uses its separate per-ship capacity tables.
+
 ## Mission presets
 
 - **Mission 1 - Constrictor, Galaxy 1:** places the commander at Xeer in
@@ -115,8 +120,9 @@ dotnet build .\EliteSaveEditor.sln -c Release
 dotnet run --project .\EliteSaveEditor.Tests\EliteSaveEditor.Tests.csproj -c Release
 ```
 
-The tests cover original commander checksums, galaxy mission systems, C64
-market prices, mission presets, ship-change clearing, single- and
+The tests cover original cargo limits and TAP encoding, commander checksums,
+galaxy mission systems, C64 market prices, mission presets, ship-change
+clearing, single- and
 multi-position TAP round trips, recovery from a damaged primary tape copy,
 and the supplied FLINT TAP when it is available at its original path. Set
 `ELITE_TEST_TAP` to test another copy of that file. The supplied two-position
