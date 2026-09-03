@@ -59028,6 +59028,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
  PRINT "NA2% = ", ~NA2%
 
  PRINT "GAME_ENTRY = ", ~S%  ; Export the actual LOCODE entry for all loaders
+ PRINT "GAME_RAND = ", ~RAND ; Export the game's RNG workspace for the CRT loader
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  INCLUDE "1-source-files/main-sources/elite-hangar.asm"

@@ -16,6 +16,8 @@
 ;
 ; ******************************************************************************
 
+INCLUDE "1-source-files/main-sources/elite-build-options.asm"
+
 CPU_PORT = $01
 VIC_D011 = $D011
 VIC_BORDER = $D020
@@ -29,7 +31,7 @@ EF_OFF = $04
 KERNAL_RESTOR = $FF8A
 KERNAL_CLALL = $FFE7
 
-; Generated from the current COMLOD and LOCODE assembly, for this build.
+; Entry points and RNG workspace exported from this build's actual assembly.
 INCLUDE "3-assembled-output/elite-loader-layout.asm"
 
 CODE% = $0334
@@ -221,6 +223,29 @@ ORG CODE%
 
  JSR KERNAL_RESTOR
  JSR KERNAL_CLALL
+
+IF _UNBOUND             ; ELITE: Unbound CRT stardust fix (begin)
+
+.SeedGameRandom
+
+ ; Native cartridge boot leaves RAND zeroed, unlike the normal tape/disk
+ ; loading path. This makes the initial stars coincide and cancel via XOR.
+ ; Use the working seed observed after tape/disk boot, before any game code
+ ; consumes it. Only the live game workspace changes: leave the saved KERNAL
+ ; zero page at $CE00 untouched for subsequent commander tape/disk I/O.
+ ASSERT GAME_RAND > CPU_PORT
+ ASSERT GAME_RAND + 3 < $100
+
+ LDA #$00
+ STA GAME_RAND
+ LDA #$AA
+ STA GAME_RAND+1
+ LDA #$B1
+ STA GAME_RAND+2
+ LDA #$91
+ STA GAME_RAND+3
+
+ENDIF                   ; ELITE: Unbound CRT stardust fix (end)
 
  JMP GAME_ENTRY
 

@@ -1339,3 +1339,88 @@ Jde o izolované testy sestaveného kódu, nikoli o nové hraní ve VICE.
 RLE mezery se nemění: fyzicky 39 + 6 + 3 B (48 B), prakticky využitelných
 47 B v nesouvislých blocích. Rezervy LOCODE a HICODE zohledňují přísné
 nerovnosti koncových kontrol. Commit ani push nebyl proveden.
+
+## Oprava chybějících hvězd po startu z CRT
+
+Dne 3. září 2026 byla v obou větvích opravena inicializace generátoru
+náhodných čísel při startu EasyFlash, pouze pro `unbound=yes`.
+Při nativním startu z cartridge zůstával čtyřbajtový `RAND` nulový.
+Po prvním výletu proto vzniklo všech 12 hvězd ve stejném bodě a jejich
+XOR vykreslení se navzájem vyrušilo. Teprve další běh hry a obnovení
+hvězd je postupně rozptýlily. U běžného TAP a diskového startu byl
+naměřen funkční počáteční stav `00 AA B1 91`.
+
+EasyFlash loader nyní nastaví tento stav bezprostředně před předáním
+řízení hře, až po obnovení KERNAL zero page, vektorů a uzavření kanálů.
+Mění pouze živý herní `RAND`; záloha KERNAL zero page pro pozdější
+načítání a ukládání commander dat zůstává nedotčená.
+
+Adresu generátoru exportuje assembler jako `GAME_RAND` z návěští
+`RAND`. Skript `elite-loader-layout.py` ji načítá z aktuálního
+`compile.txt`, ověřuje jednoznačný export a uložení všech čtyř bajtů
+v zero page mimo CPU port. Loader také obsahuje assemblerové kontroly.
+Adresa není ručně zapsaná v loaderu ani v build skriptu.
+
+Změněné soubory v každé větvi:
+
+- `1-source-files/main-sources/elite-easyflash-loader.asm`;
+- `1-source-files/main-sources/elite-source.asm` (pouze export symbolu);
+- `2-build-files/elite-loader-layout.py`;
+- `PROJECT_NOTES.md`.
+
+### Ověření opravy CRT hvězd
+
+V každé větvi prošlo následujících osm buildů před i po změně:
+16 ověřovacích buildů a dalších 16 sestavení srovnávacího výchozího stavu.
+
+```text
+make variant=easyflash-pal encrypt=no match=no verify=no unbound=no
+make variant=easyflash-ntsc encrypt=no match=no verify=no unbound=no
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=gma86-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=tape-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-ntsc encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+make variant=easyflash-pal encrypt=no renderspeedups=yes match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes unbound=yes
+```
+
+Herní bloky LOCODE, HICODE, COMLOD, ELTA, IANTOK, vložený hangár
+a komunikační data jsou bitově shodné s výchozím stavem.
+Všechny porovnávané TAP a D64 obrazy zůstaly bitově shodné.
+Pro `unbound=no` jsou bitově shodné také celé PAL/NTSC CRT obrazy
+a jejich tři loaderové binárky. Kontroly TAP round-trip a sektorové
+tabulky GMA86 včetně šifrovaného sestavení prošly.
+
+Ve VICE 3.9 byly samostatně spuštěny PAL a NTSC CRT v obou větvích,
+plus kontrolní PAL TAP a GMA86 D64 v obou větvích (osm spuštění).
+Před spuštěním hry byl ve všech případech seed `00 AA B1 91`;
+po inicializaci hvězd i prvním letovém snímku mělo všech 12 hvězd
+různé souřadnice. Čtyři snímky z CRT byly také vizuálně zkontrolovány:
+hvězdy jsou viditelné ihned po výletu. Testované CRT před a po
+inicializaci zachovaly beze změny zálohu KERNAL zero page i ostatní
+živé bajty zero page mimo RAND.
+
+Automatizovaný test ve VICE simuloval odpovědi na úvodní otázky
+a klávesu pro výlet přes návratové registry klávesové rutiny.
+Nepřepisoval herní kód, RNG ani data hvězd. Nejde o úplný herní
+test ani o nové ověření všech operací ukládání a načítání.
+
+Při ručním testování spustit nový CRT od resetu. Načtení starého
+VICE snapshotu obnoví starý obsah RAM a obejde opravený boot loader.
+
+### Paměť po opravě CRT hvězd
+
+Oprava přidává pouze 16 B do rezidentního EasyFlash loaderu
+(544 -> 560 B), mimo LOCODE, HICODE a RLE mezery.
+Herní paměťové rezervy se nezměnily:
+
+| Konfigurace | Větev | LOCODE volné | HICODE volné |
+|---|---|---:|---:|
+| Testované Unbound CRT/TAP/D64, renderspeedups=yes | main | 95 B | 187 B |
+| Testované Unbound CRT/TAP/D64, renderspeedups=yes | flicker-free | 15 B | 87 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | main | 161 B | 200 B |
+| Běžný tape-pal a šifrovaný gma86-pal výše, bez renderspeedups | flicker-free | 81 B | 100 B |
+
+RLE mezery zůstávají fyzicky 39 + 6 + 3 B (48 B), prakticky
+47 B v nesouvislých blocích. Rezervy zohledňují přísné nerovnosti
+assemblerových kontrol. Commit ani push nebyl proveden.
