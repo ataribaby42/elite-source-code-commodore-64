@@ -11,12 +11,12 @@ exit /b %ELITE_BUILD_RESULT%
 :build_all
 rem Remove only the six images rebuilt below; keep README files and other data.
 for %%F in (
-    "5-compiled-game-disks\elite-commodore-64-gma86-pal.d64"
-    "5-compiled-game-disks\elite-commodore-64-gma85-ntsc.d64"
-    "5-compiled-game-tapes\elite-commodore-64-pal.tap"
-    "5-compiled-game-tapes\elite-commodore-64-ntsc.tap"
-    "5-compiled-game-cartridges\elite-commodore-64-easyflash-pal.crt"
-    "5-compiled-game-cartridges\elite-commodore-64-easyflash-ntsc.crt"
+    "5-compiled-game-disks\elite-commodore-64-flicker-free-gma86-pal.d64"
+    "5-compiled-game-disks\elite-commodore-64-flicker-free-gma85-ntsc.d64"
+    "5-compiled-game-tapes\elite-commodore-64-flicker-free-pal.tap"
+    "5-compiled-game-tapes\elite-commodore-64-flicker-free-ntsc.tap"
+    "5-compiled-game-cartridges\elite-commodore-64-flicker-free-easyflash-pal.crt"
+    "5-compiled-game-cartridges\elite-commodore-64-flicker-free-easyflash-ntsc.crt"
 ) do (
     if exist "%%~F\" (
         echo ERROR: Expected a file, but found a directory: %%~F
