@@ -1613,3 +1613,112 @@ přísné nerovnosti assemblerových kontrol. RLE mezery mají stále
 Generovaný sledovaný `3-assembled-output/README.txt` byl obnoven
 ze zálohy před testy. Pracovní kopie obsahují uvedené změny a dřívější
 necommitovanou opravu packu. Commit ani push nebyl proveden.
+
+## 2026-09-04 — Neblokující stránkování údajů o planetách
+
+V obou větvích je nezávislá volba `planetdatafix=yes`, mapovaná
+Makefilem na `_PLANET_DATA_FIX`; výchozí stav je vypnuto. Funguje
+s původní hrou i plným Unbound, včetně renderspeedups, fpslimiter a inputfix.
+
+### Konečné chování
+
+Pouze přeplněná první stránka čeká na uvolnění otevírací klávesy,
+nový stisk libovolné herní klávesy a její uvolnění. Poté zobrazí pokračování.
+Poslední stránka zůstává otevřená jako běžná obrazovka 6 (QQ11 = 1):
+žádné automatické zavírání, návrat do kokpitu ani na Status.
+Krátké popisy rovnou používají původní obsluhu obrazovky 6.
+
+Původní pokus s PAUSE2/RDKEY v clss blokoval hlavní herní smyčku a byl
+nahrazen. Nyní TT25 dokončí render bez čekání; clss odloží přetékající
+znaky do TAP% (256bajtová staging oblast save/load před XX21). Počet a řádek
+používají dosud nevyužité bajty XP/YP, bez posunu workspace. ASSERT ověřuje
+velikost oblasti a runtime kontrola brání přetečení indexu do blueprintů.
+Save/load není v čekající stránce dostupný; po odstránkování buffer není potřeba.
+
+PlanetDataFrame je volán z TT102 jen pro dočasné stavy QQ11 = 17..19.
+Každý snímek se vrací do hlavní smyčky a volá TT107 pro živý hyperspace
+countdown. Dočasné letové zprávy MESS během čekání nemažou první stránku;
+poslední stránka má opět zcela běžné chování. Stisk i uvolnění potvrzovací
+klávesy se spotřebují, takže držená 6 okamžitě neotevře popis znovu.
+
+LOCODE nenarostl. Veškerý nový kód je v HICODE; jen při zapnuté volbě se
+vynechá původní assembly noise před log a nepoužité kopie pixelových masek
+DTWOS/TWOS2/TWFL/TWFR. Čistý přírůstek HICODE v GMA/TAP/EasyFlash je 56 B
+proti vypnuté volbě. Při vypnuté volbě se původní kód i nepoužívaná data zachovají.
+
+### Ověření ve VICE 3.9
+
+Samostatné instance načetly finální PAL TAP každé větve s plným Unbound.
+Adresy rutin a workspace byly získány z aktuálního compile.txt.
+
+- Ceused, galaxie 5, systém 98 (indexováno od nuly), souřadnice (202, 56):
+  jako vzdálený systém přetéká slovem `shyness.`.
+- Test probíhal v inicializované hře po odletu, mezi skutečnými průchody
+  TT102/hlavní smyčky. Klávesy byly řízeny monitorem na hranici vstupu.
+- Na první stránce proběhlo 10 herních snímků; na druhé 12. MCNT se změnil
+  o odpovídající počet, pohyb lodí pokračoval a QQ22+1 klesl 99 -> 97 -> 94.
+- Držená 6 neodstránkuje před uvolněním. Po uvolnění zůstává QQ11 = 1,
+  další obyčejná klávesa stránku nezavře a 8 normálně otevře Status.
+- Ve stanici pokračování rovněž zůstane běžnou obrazovkou 6.
+  Edreered, jehož popis se vejde, nemá dodatečné čekání.
+- Regresní průchod skutečným TT24/TT25 přes všech 2048 procedurálních planet
+  s nenulovou vzdáleností našel jen tyto pokračující popisy:
+  Ceused (G5/98, 8 znaků), Maesqua (G5/113, 12),
+  Tiregees (G7/225, 9), Laorlaza (G8/98, 9).
+  Nejdelší pokračování tedy využívá 12 bajtů. Capture kód se při následném
+  zjednodušení chování poslední stránky nezměnil.
+- Ověřeno také 25 dosažitelných systémových override položek RUPLA/RUGAL
+  (aktivní Constrictor, nulová vzdálenost, ve stanici); žádná nepřetekla.
+  Poslední položka tabulky patří nedosažitelné galaxii 16.
+
+### Přesné testované buildy
+
+Následující příkazy byly provedeny samostatně v main i flicker-free;
+všech deset konfigurací v každé větvi prošlo:
+
+```powershell
+$common = @('match=no', 'verify=no', 'laserbeam=line', 'font=zx',
+  'dials=new', 'sights=cross', 'warpjunk=yes', 'iffunit=yes',
+  'randomspawns=yes', 'whitecockpit=yes', 'unbound=yes',
+  'realmissiledamage=yes', 'fpslimiter=yes', 'inputfix=yes')
+
+make variant=tape-pal encrypt=no planetdatafix=no renderspeedups=yes @common
+make variant=tape-pal encrypt=no match=no verify=no planetdatafix=yes
+make variant=tape-pal encrypt=no planetdatafix=yes renderspeedups=no @common
+make variant=gma86-pal planetdatafix=yes renderspeedups=no @common
+make variant=tape-ntsc encrypt=no planetdatafix=yes renderspeedups=yes @common
+make variant=gma85-ntsc planetdatafix=yes renderspeedups=yes @common
+make variant=easyflash-pal encrypt=no planetdatafix=yes renderspeedups=yes @common
+make variant=easyflash-ntsc encrypt=no planetdatafix=yes renderspeedups=yes @common
+make variant=gma86-pal planetdatafix=yes renderspeedups=yes @common
+make variant=tape-pal encrypt=no planetdatafix=yes renderspeedups=yes @common
+```
+
+Použito `2-build-files/make.exe`, Python 3.13 a další proměnné make
+`BEEBASM=E:/Development/Elite-C64/beebasm/beebasm.exe`,
+`C1541=G:/Emulace/C64/GTK3VICE-3.9-win64/bin/c1541.exe`.
+TAP round-trip kontroly prošly; šifrované GMA86 disky prošly oběma průchody
+i kontrolou automatické sektorové tabulky. Finální distribuční TAP/D64/CRT
+obsahují plný Unbound a novou opravu.
+
+Při planetdatafix=no se všech 34 binárek v každé větvi shoduje s uloženým
+stavem před opravou po normalizaci samostatné změny titulní verze
+v0.73 -> v0.80. Bez normalizace se liší pouze tyto dva znaky v ELTD a jeho
+navazujících kontejnerech; změna titulní verze byla zachována, nikoli vrácena.
+
+### Aktuální paměť
+
+Skutečně přidatelné bajty respektují striktní limity R% < $4000 a F% < $CE00:
+
+| Konfigurace s planetdatafix=yes | Větev | R% | F% | LOCODE volné | HICODE volné |
+|---|---|---|---|---:|---:|
+| Plný Unbound, renderspeedups=yes, TAP/GMA/EasyFlash PAL/NTSC | main | $3FA6 | $CD7E | 89 B | 129 B |
+| Plný Unbound, renderspeedups=yes, TAP/GMA/EasyFlash PAL/NTSC | flicker-free | $3FF6 | $CDE2 | 9 B | 29 B |
+| Běžný Unbound TAP/GMA86 PAL, renderspeedups=no | main | $3F64 | $CD71 | 155 B | 142 B |
+| Běžný Unbound TAP/GMA86 PAL, renderspeedups=no | flicker-free | $3FB4 | $CDD5 | 75 B | 42 B |
+
+K celé volbě patří změny Makefile, elite-source.asm, README.md a tohoto
+souboru v obou větvích. V této navazující opravě se Makefile již neměnil.
+Generovaný elite-build-options.asm nebyl upravován ručně. Uživatelská změna
+build_tape.bat ve flicker-free zůstala zachována. Pracovní kopie nejsou čisté;
+commit ani push nebyl proveden.
