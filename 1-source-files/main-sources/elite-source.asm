@@ -19234,7 +19234,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .TT25
 
+IF _PLANET_DATA_FIX
+ LDA #0
+ STA XP                 ; Number of deferred characters (unused workspace)
+ LDA #24
+ STA YP                 ; Row of the first deferred character
+ LDA #20                ; Private view type used only while rendering
+ELSE
  LDA #1                 ; Clear the screen, draw a border box, and set up a
+ENDIF
  JSR TRADEMODE          ; trading screen with a view type in QQ11 of 1
 
  LDA #9                 ; Move the text cursor to column 9
@@ -19515,10 +19523,20 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; routine, which calls TT111 to populate ZZ before
                         ; calling TT25 (this routine)
 
+IF _PLANET_DATA_FIX
+ JSR PDESC              ; Finish rendering without waiting inside CHPR
+ LDA #1                 ; A complete description is an ordinary Data screen
+ LDX XP
+ BEQ planetDataRendered
+ LDA #17                ; Only an overflowing first page needs a live wait
+.planetDataRendered
+ STA QQ11
+ELSE
  JMP PDESC              ; Jump to PDESC to print the system's extended
                         ; description, returning from the subroutine using a
                         ; tail call
 
+ENDIF
  RTS                    ; Return from the subroutine (though this instruction
                         ; has no effect as we already returned using a tail
                         ; call)
@@ -25800,7 +25818,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.73"
+ EQUS "v0.80"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -35018,6 +35036,18 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .TT102
 
+IF _PLANET_DATA_FIX
+ PHA                    ; Preserve the key and both chart cursor deltas
+ LDA QQ11
+ CMP #17
+ BCC planetDataNormalInput
+ CMP #20
+ BCS planetDataNormalInput
+ PLA
+ JMP PlanetDataFrame
+.planetDataNormalInput
+ PLA
+ENDIF
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  PHA                    ; Preserve the key while checking the current view
  LDA QQ11               ; A dedicated view type marks the live jettison prompt
@@ -40206,6 +40236,16 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .MESS
 
+IF _PLANET_DATA_FIX
+ LDX QQ11               ; Do not erase the description with transient messages
+ CPX #17                ; while its pages are being read; flight itself is live
+ BCC planetDataMessage
+ CPX #20
+ BCS planetDataMessage
+.planetDataMessageReturn
+ RTS
+.planetDataMessage
+ENDIF
  PHA                    ; Store A on the stack so we can restore it after the
                         ; following
 
@@ -40362,13 +40402,21 @@ ENDIF                  ; ELITE: Unbound build option (end)
  BCS out                ; (as out contains an RTS)
 
  LDA QQ20,X             ; If we do not have any of item QQ20+X, return from the
+IF _PLANET_DATA_FIX
+ BEQ planetDataMessageReturn ; Use the nearer RTS when the message guard is built
+ELSE
  BEQ out                ; subroutine (as out contains an RTS). X is in the range
+ENDIF
                         ; 0-21, so this not only checks for cargo, but also for
                         ; E.C.M., fuel scoops, energy bomb, energy unit and
                         ; docking computer, all of which can be destroyed
 
  LDA DLY                ; If there is already an in-flight message on-screen,
+IF _PLANET_DATA_FIX
+ BNE planetDataMessageReturn
+ELSE
  BNE out                ; return from the subroutine (as out contains an RTS)
+ENDIF
 
  LDY #3                 ; Set bit 1 of de, the equipment destruction flag, so
  STY de                 ; that when we call MESS below, " DESTROYED" is appended
@@ -41351,6 +41399,7 @@ ENDIF
 
  LOAD_G% = LOAD% + P% - CODE%
 
+IF NOT(_PLANET_DATA_FIX) ; Reclaim assembly workspace noise, not executable code
 IF _GMA_RELEASE
 
  EQUB $A9, $05, $20, $7F, $82, $A9, $00, $8D    ; These bytes appear to be
@@ -41380,6 +41429,7 @@ ELIF _SOURCE_DISK
  EQUB $CB, $C9, $01, $D0, $F6, $8A, $0A, $A8
  EQUB $B9, $A1, $28, $85, $07, $B9, $A2
 
+ENDIF
 ENDIF
 
 ; ******************************************************************************
@@ -50170,6 +50220,7 @@ ENDIF
 
 .DTWOS
 
+IF NOT(_PLANET_DATA_FIX) ; Unreferenced double-pixel table and workspace noise
  EQUB %11000000
  EQUB %00110000
  EQUB %00001100
@@ -50178,6 +50229,7 @@ ENDIF
  EQUD $3060C0C0         ; These bytes appear to be unused; they contain a copy
  EQUD $03060C18         ; of the TWOS2 variable, and the original source has a
                         ; commented out label .TWOS2
+ENDIF
 
 ; ******************************************************************************
 ;
@@ -52180,6 +52232,7 @@ ENDIF                  ; ELITE: Unbound omits unused code
 
  RTS                    ; Return from the subroutine
 
+IF NOT(_PLANET_DATA_FIX) ; Unreferenced copies of the horizontal line masks
  EQUD $F0E0C080         ; These bytes appear to be unused; they contain a copy
  EQUW $FCF8             ; of the TWFL variable, and the original source has a
  EQUB $FE               ; commented out label .TWFL
@@ -52187,6 +52240,7 @@ ENDIF                  ; ELITE: Unbound omits unused code
  EQUD $1F3F7FFF         ; These bytes appear to be unused; they contain a copy
  EQUD $0103070F         ; of the TWFR variable, and the original source has a
                         ; commented out label .TWFR
+ENDIF
 
 ; ******************************************************************************
 ;
@@ -52683,6 +52737,34 @@ ENDIF                  ; ELITE: Unbound omits unused code
 
 .clss
 
+IF _PLANET_DATA_FIX     ; Planet data pagination build option (begin)
+
+ LDA QQ11               ; Capture only the synchronous TT25 render, never
+ CMP #20                ; messages or other screens printed between frames
+ BNE planetDataPageClear
+
+ LDY XP
+ CPY #(XX21 - TAP% - 2) ; Leave room for a line break and its character
+ BCS planetDataCaptured ; Never wrap into the ship blueprints at XX21
+ LDA YC
+ CMP YP
+ BEQ planetDataCharacter
+ STA YP
+ LDA #12
+ STA TAP%,Y             ; Save/load staging RAM is idle while this view is open
+ INY
+.planetDataCharacter
+ LDA K3
+ STA TAP%,Y
+ INY
+ STY XP
+.planetDataCaptured
+ JMP RR4                ; Preserve the first page and restore CHPR registers
+
+.planetDataPageClear
+
+ENDIF                  ; Planet data pagination build option (end)
+
  JSR TT66simp           ; Call TT66simp to clear the whole screen inside the box
                         ; border, and move the text cursor to the top-left
                         ; corner
@@ -52694,6 +52776,7 @@ ENDIF                  ; ELITE: Unbound omits unused code
 
  JMP RRafter            ; Jump back into the CHPR routine to print the character
                         ; in A
+
 
 ; ******************************************************************************
 ;
@@ -58201,6 +58284,51 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;    Summary: Denotes the end of the main game code, from ELITE A to ELITE K
 ;
 ; ******************************************************************************
+
+IF _PLANET_DATA_FIX
+
+ ASSERT XX21 - TAP% = 256
+
+; QQ11: 17 = release opening key, 18 = armed, 19 = release confirming key.
+; Only the first, overflowing page uses this handler. The final page is the
+; ordinary Data on System view (QQ11 = 1), with its original keyboard handling.
+.PlanetDataFrame
+ PHA
+ JSR TT107              ; Keep the hyperspace countdown live as well
+ PLA
+ LDX QQ11               ; A completed jump may have changed the view
+ CPX #17
+ BCC planetDataFrameDone
+ CPX #20
+ BCS planetDataFrameDone
+ CMP #0
+ BEQ planetDataReleased
+ CPX #18
+ BNE planetDataFrameDone
+ INC QQ11
+.planetDataFrameDone
+ RTS
+.planetDataReleased
+ CPX #18
+ BEQ planetDataFrameDone
+ CPX #19
+ BEQ planetDataAdvance
+ INC QQ11
+ RTS
+.planetDataAdvance
+ JSR TT66simp
+ LDY #0
+.planetDataReplay
+ LDA TAP%,Y
+ JSR CHPR
+ INY
+ CPY XP
+ BNE planetDataReplay
+ LDA #1                 ; Restore normal Data screen input, after key release
+ STA QQ11
+ RTS
+
+ENDIF
 
 .F%
 

@@ -81,6 +81,8 @@ endef
 #
 #   inputfix=yes        Enables parallel keyboard and joystick input
 #
+#   planetdatafix=yes   Waits for a fresh key press before paging planet data
+#
 #   renderspeedups=yes  Enables faster circle rendering using mirrored points
 #
 #   randomspawns=yes    Enables Elite-A-style random ship spawn positions
@@ -172,6 +174,10 @@ endef
 # _INPUT_FIX
 #   FALSE = Original mutually exclusive keyboard/joystick input (default)
 #   TRUE  = Scan the keyboard while the joystick is enabled, as in Elite 128
+#
+# _PLANET_DATA_FIX
+#   FALSE = Planet data pages advance immediately (default)
+#   TRUE  = Wait for a fresh key press and release before clearing a full page
 #
 # _RENDER_SPEEDUPS
 #   FALSE = Calculate every circle point separately (default)
@@ -336,6 +342,12 @@ else
   inputfix-enabled=FALSE
 endif
 
+ifeq ($(planetdatafix), yes)
+  planetdatafix-enabled=TRUE
+else
+  planetdatafix-enabled=FALSE
+endif
+
 ifeq ($(renderspeedups), yes)
   renderspeedups-enabled=TRUE
 else
@@ -380,6 +392,7 @@ c64-build:
 	echo _REAL_MISSILE_DAMAGE=$(realmissiledamage-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _FPS_LIMITER=$(fpslimiter-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _INPUT_FIX=$(inputfix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _PLANET_DATA_FIX=$(planetdatafix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _RENDER_SPEEDUPS=$(renderspeedups-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _RANDOM_SPAWNS=$(randomspawns-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _WHITE_COCKPIT=$(whitecockpit-enabled) >> 1-source-files/main-sources/elite-build-options.asm

@@ -272,6 +272,8 @@ By default the build process will create a typical Elite game disk with a standa
 
 * `inputfix=yes` - Enable the Elite 128-style parallel input handler independently of `unbound`. When joystick control is selected, the keyboard matrix is scanned after the joystick, so keyboard commands and joystick flight controls can be used at the same time. The option is disabled by default.
 
+* `planetdatafix=yes` - Keep an overflowing Data on System page visible until you release the opening key, then press and release any key to read the continuation. Flight and the hyperspace countdown continue while waiting. The final page stays open with normal Data on System (key 6) controls; descriptions that fit need no extra key press. This fixes cases such as Ceused in Galaxy 5 when viewed remotely. Disabled by default; works with original gameplay and full `unbound=yes`, without adding bytes to LOCODE.
+
 * `renderspeedups=yes` - Speed up circle rendering by calculating only the unique sine products and mirroring them through a 32-byte cache. Point order and the existing line renderer are unchanged. This option is disabled by default and works independently of `unbound`.
 
 * `whitecockpit=yes` - Draw the program-generated cockpit borders and screen-divider lines in white instead of yellow, and replace yellow with white throughout the dashboard frame, compass ring and entire scanner area, including all parts of scanner blips. The dashboard bitmap is not changed. This option is disabled by default.
