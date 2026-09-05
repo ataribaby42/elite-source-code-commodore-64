@@ -424,6 +424,7 @@ ENDIF                  ; White cockpit missile-bar frame colour (end)
                         ; build. Unbound text changes move the override tables,
                         ; so the original fixed offsets are no longer valid.
  INCLUDE "3-assembled-output/elite-token-layout.asm"
+ ASSERT FER_DE_LANCE_TYPE < NTY
 
  ASSERT RUGAL - RUPLA = NRU%
  ASSERT RUTOK - RUGAL = NRU%
@@ -1176,6 +1177,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
  SKIP 1                 ; This byte appears to be unused
 
 .BDdataptr1
+
+ ; Reserved in Unbound to preserve the zero-page workspace layout.
 
  SKIP 1                 ; The low byte of the address of the music data pointer
                         ; in BDdataptr1(1 0), which points to the end of the
@@ -2423,6 +2426,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ;     so the dot is green
 
 .MUTOKOLD
+
+ ; Music flags stay allocated in Unbound to preserve configuration addresses.
 
  SKIP 1                 ; Used to store the previous value of MUTOK, so we can
                         ; track whether the docking music configuration changes
@@ -3789,7 +3794,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
  LDA #0                 ; The "cancel docking computer" key is bring pressed,
  STA auto               ; so turn it off by setting auto to 0
 
+IF NOT(_UNBOUND)
  JSR stopbd             ; Stop playing the docking music (if it is playing)
+ENDIF
 
 .MA78
 
@@ -3857,7 +3864,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
  STA auto               ; Set auto to the non-zero value of A, so the docking
                         ; computer is activated
 
+IF NOT(_UNBOUND)
  JSR startbd            ; Start playing the docking music
+ENDIF
 
 .MA68
 
@@ -4393,7 +4402,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
                         ; If we arrive here, we just docked successfully
 
+IF NOT(_UNBOUND)
  JSR stopbd             ; Stop playing the docking music (if it is playing)
+ENDIF
 
  JMP DOENTRY            ; Go to the docking bay (i.e. show the Status Mode
                         ; screen)
@@ -18571,6 +18582,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;
 ; ******************************************************************************
 
+IF _BOUNTY_HUNTER_FIX AND NOT(_UNBOUND)
+ INCLUDE "1-source-files/main-sources/elite-bounty-hunter.asm"
+ENDIF
+
 .R%
 
  SKIP 0
@@ -25818,7 +25833,7 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.80"
+ EQUS "v0.90"
  EQUB 0
 
 ; ------------------------------------------------------------------------------
@@ -29790,6 +29805,16 @@ ENDIF                  ; ELITE: Unbound build option (end)
  STA NEWB               ; bits 0-3 and 5-6 in NEWB if they are set in the E%
                         ; byte
 
+IF _BOUNTY_HUNTER_FIX
+
+ CPY #FER_DE_LANCE_TYPE ; Y is still the actual ship type; A holds final NEWB
+ BNE bountyHunterSpawnUnchanged
+ JSR BountyHunterSpawnFix ; Also require the bounty-hunter flag before changing it
+
+.bountyHunterSpawnUnchanged
+
+ENDIF
+
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
 
  JSR MaybeSpawnNeutralPirate
@@ -33581,7 +33606,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .RES2
 
+IF NOT(_UNBOUND)
  JSR stopbd             ; Stop playing the docking music (if it is playing)
+ENDIF
 
  LDA BOMB               ; If the energy bomb has been set off, then BOMB will be
  BPL BOMBOK             ; negative, so this skips the following instructions if
@@ -35871,7 +35898,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 ;JSR FX200              ; This instruction is commented out in the original
                         ; source
 
-IF _GMA_RELEASE
+IF _GMA_RELEASE AND NOT(_UNBOUND)
 
  JSR startat            ; Start playing the title music
 
@@ -35886,7 +35913,7 @@ ENDIF
  CMP #YINT              ; Did we press "Y"? If not, jump to QU5, otherwise
  BNE QU5                ; continue on to load a new commander
 
-IF _GMA_RELEASE
+IF _GMA_RELEASE AND NOT(_UNBOUND)
 
  JSR stopat             ; Stop playing the title music
 
@@ -35898,7 +35925,7 @@ ENDIF
  JSR SVE                ; Call SVE to load a new commander into the last saved
                         ; commander data block
 
-IF _GMA_RELEASE
+IF _GMA_RELEASE AND NOT(_UNBOUND)
 
  JSR startat            ; Start playing the title music
 
@@ -35931,7 +35958,7 @@ ENDIF
  LDY #48                ; {cr}"), with the ship at a distance of 48, returning
  JSR TITLE              ; with the internal number of the key pressed in A
 
-IF _GMA_RELEASE
+IF _GMA_RELEASE AND NOT(_UNBOUND)
 
  JSR stopat             ; Stop playing the title music
 
@@ -37434,6 +37461,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; by Commodore
  LDA #0                 ; Clear bits 0-3 in VIC register $1A to disable the
  STA VIC+$1A            ; following interrupts:
+IF _UNBOUND
+ STA C128_SPEED         ; Raster IRQs cannot restore 1 MHz during KERNAL I/O
+ENDIF
                         ;
                         ;   * Bit 0 = raster interrupt
                         ;
@@ -40081,11 +40111,15 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .nosillytog
 
+IF NOT(_UNBOUND)
+
  LDA MUTOK              ; If the value of MUTOK has changed (i.e. it does not
  CMP MUTOKOLD           ; match the value in MUTOKOLD) then the docking music
  BEQ P%+5               ; has either been enabled or disabled, so call MUTOKCH
  JSR MUTOKCH            ; to process a change in the docking music configuration
                         ; setting
+
+ENDIF
 
  CPX #$33               ; If "S" is not being pressed, jump to DK7
  BNE DK7
@@ -41030,22 +41064,19 @@ ENDMACRO
 ;
 ; ******************************************************************************
 
+IF NOT(_UNBOUND)
+
+ ; Music controls are unused when the player and tunes are omitted.
+
 IF _GMA_RELEASE
 
 .startat
 
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
- ; Elite-A ships V1C: title music is intentionally omitted to free HICODE RAM
- ; for the ship ownership/buying implementation. Keep the entry point as a
- ; no-op because BR1 still calls it.
- RTS
-ELSE                   ; ELITE: Unbound build option (else)
  LDA #LO(THEME-1)       ; Set (A X) to THEME-1, which is the address before
  LDX #HI(THEME-1)       ; the start of the title music at THEME
 
  BNE startat2           ; Jump to startat2 to play the title music (this BNE is
                         ; effectively a JMP as X is never zero)
-ENDIF                  ; ELITE: Unbound build option (end)
 
 ENDIF
 
@@ -41070,13 +41101,6 @@ ENDIF
 
 .startbd
 
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
-
-.april16
-
- RTS                    ; Docking music is omitted in Elite: Unbound
-
-ELSE                   ; ELITE: Unbound build option (else)
 
 IF _GMA_RELEASE
 
@@ -41139,7 +41163,6 @@ ENDIF
                         ; and return from the subroutine (this BNE is
                         ; effectively a JMP as A is never zero)
 
-ENDIF                  ; ELITE: Unbound build option (end)
 
 ; ******************************************************************************
 ;
@@ -41280,6 +41303,8 @@ ENDIF
                         ; "Commodore 64 Programmer's Reference Guide", published
                         ; by Commodore
 						
+ENDIF                  ; Original-game music controls
+
 ; ******************************************************************************
 ;
 ;       Name: KTRAN
@@ -48577,9 +48602,27 @@ ENDIF                  ; Frame limiter build option (end)
 ;   Category: Drawing the screen
 ;    Summary: The current raster count, which flips between 0 and 1 on each call
 ;             to the COMIRQ1 interrupt handler (0 = space view, 1 = dashboard)
+;             Unbound adds $FF for the IRQ at the bottom border; this third
+;             phase returns to 0 and enables C128 turbo until raster line 40.
 ;  Deep dive: The split-screen mode in Commodore 64 Elite
 ;
 ; ******************************************************************************
+
+IF _UNBOUND            ; ELITE: Unbound C128 border turbo
+ C128_SPEED = VIC + $30 ; VIC-IIe clock register (ignored by the original C64)
+ C128_RASTER_TOP = 40   ; Restore 1 MHz before bitmap and sprite DMA
+ C128_RASTER_BOTTOM = 250 ; Start 2 MHz after the dashboard
+ ASSERT C128_RASTER_TOP < 51
+ ASSERT C128_RASTER_BOTTOM < 256
+.C128BorderDispatch
+IF _DIALS = 2
+ JMP C128BorderSetup   ; A nearby branch target keeps the visible IRQ path short
+ELSE
+ LDA #C128_RASTER_TOP   ; Old dials leave too little RLE space for this setup
+ STA VIC+$12
+ JMP C128Border
+ENDIF
+ENDIF
 
 .RASTCT
 
@@ -48644,7 +48687,11 @@ ENDIF                  ; Frame limiter build option (end)
 
  EQUB 1                 ; Lookup value to change 0 to 1
 
+IF _UNBOUND
+ EQUB $FF               ; Dashboard -> bottom-border IRQ -> top of screen
+ELSE
  EQUB 0                 ; Lookup value to change 1 to 0
+ENDIF
 
 ; ******************************************************************************
 ;
@@ -48661,7 +48708,11 @@ ENDIF                  ; Frame limiter build option (end)
 
  EQUB 51 + 143          ; The raster line at the top of the dashboard
 
+IF _UNBOUND
+ EQUB C128_RASTER_BOTTOM ; Third IRQ enables turbo in the bottom border
+ELSE
  EQUB 51                ; The raster line at the top of the visible screen
+ENDIF
 
 ; ******************************************************************************
 ;
@@ -48797,6 +48848,11 @@ ENDIF                  ; Frame limiter build option (end)
 
 .COMIRQ3
 
+IF _UNBOUND
+ LDA VIC+$19            ; Acknowledge after the split, before restoring the port
+ STA VIC+$19            ; Keep the entry path ahead of the dashboard badline
+ENDIF
+
                         ; If we get here then we want to return from the
                         ; interrupt, so we first have to restore the registers
                         ; we want to preserve, and restore the correct memory
@@ -48842,6 +48898,7 @@ ENDIF                  ; Frame limiter build option (end)
 						
 .iansint
 
+IF NOT(_UNBOUND)
  LDA VIC+$19            ; Set bit 7 of VIC register $19, to acknowledge any IRQ
  ORA #%10000000         ; interrupts that are pending
  STA VIC+$19            ;
@@ -48852,8 +48909,18 @@ ENDIF                  ; Frame limiter build option (end)
                         ; messing up the timing of the split screen and sound
                         ; interrupt routines
 
+ENDIF                  ; Unbound acknowledges in the common IRQ exit
+
  TXA                    ; Store X on the stack, so we can preserve it across
  PHA                    ; calls to the interrupt handler
+
+IF _UNBOUND
+
+ LDX RASTCT
+ BMI C128BorderDispatch ; Only the border IRQ takes the RLE detour; defer
+                        ; acknowledgement so D018/D016 precede the badline.
+
+ELSE
 
  LDX RASTCT             ; Set X to the current raster count
                         ;
@@ -48898,6 +48965,8 @@ ENDIF                  ; Frame limiter build option (end)
                         ;   * X = RASCT = 1 indicates that we are drawing the
                         ;                   lower part of the screen
 
+ENDIF                  ; ELITE: Unbound C128 border turbo
+
  LDA zebop,X            ; Set VIC register $18 to the value in zebop (when
  STA VIC+$18            ; X = 0, for the upper part of the screen) or abraxas
                         ; (when X = 1, for the lower part of the screen)
@@ -48925,6 +48994,11 @@ ENDIF                  ; Frame limiter build option (end)
                         ;
                         ; This enables us to colour the dashboard independently
                         ; from the corresponding lower part of the text view
+
+IF _UNBOUND
+ NOP                    ; Keep the right frame edge in hires before switching
+ NOP                    ; D016, while D018 is already ready for the badline
+ENDIF
 
  LDA moonflower,X       ; Set VIC register $16 to the value in moonflower (when
  STA VIC+$16            ; X = 0, for the upper part of the screen) or
@@ -49021,11 +49095,26 @@ ENDIF                  ; Frame limiter build option (end)
                         ; finished exploding, so this stops the background
                         ; colour from changing
 
+IF _UNBOUND
+IF _DIALS = 2
+ JSR C128Slow           ; Restore 1 MHz after the time-critical VIC writes.
+ELSE                   ; The top IRQ is still safely above the visible screen;
+ LDA #0                ; the dashboard IRQ already entered at 1 MHz.
+ STA C128_SPEED
+ENDIF
+ENDIF
+
  LDA innersec,X         ; Set RASCT to the X-th entry from innersec, so this
  STA RASTCT             ; flips the value of RASCT from 0 to 1 or from 1 to 0
 
+IF _UNBOUND
+ TXA                   ; Keep sound and FrameCounter on the dashboard IRQ;
+ BEQ COMIRQ3           ; the extra border IRQ must not tick either of them
+ELSE
  BNE COMIRQ3            ; If we just flipped RASCT from 0 to 1 then jump to
                         ; COMIRQ3 to return from the interrupt handler
+
+ENDIF                  ; ELITE: Unbound C128 border turbo
 
 IF _FPS_LIMITER        ; Frame limiter build option (begin)
 
@@ -49044,6 +49133,8 @@ ENDIF                  ; Frame limiter build option (end)
  TYA                    ; Store Y on the stack, so we can preserve it across
  PHA                    ; calls to the interrupt handler
 
+IF NOT(_UNBOUND)
+
  BIT MUPLA              ; If bit 7 of MUPLA is clear then there is no music
  BPL SOINT              ; currently playing, so jump to SOINT to make any sound
                         ; effects that are in progress
@@ -49059,6 +49150,8 @@ ENDIF                  ; Frame limiter build option (end)
                         ; music, and we know that music is playing, so jmp to
                         ; coffee to return from the interrupt handler without
                         ; making the sound effect
+
+ENDIF                  ; Unbound proceeds directly to sound effects
 
 ; ******************************************************************************
 ;
@@ -49881,6 +49974,11 @@ ENDIF                  ; Frame limiter build option (end)
 						
  SEI                    ; Disable interrupts while we configure the VIC-II, CIA
                         ; and SID chips and update the interrupt handlers
+
+IF _UNBOUND
+ LDA #0
+ STA C128_SPEED         ; A restart must not wait for the raster at 2 MHz
+ENDIF
 
 IF NOT(USA%)
 
@@ -52637,7 +52735,8 @@ ENDIF                  ; ELITE: Unbound omits unused code
 ; We do this by monitoring the value of RASTCT, which is updated by the
 ; interrupt routine at COMIRQ1 as it draws the two different parts of the screen
 ; (the upper part containing the space view, and the lower part containing the
-; dashboard).
+; dashboard). Unbound also has a bottom-border phase: its transition back
+; to zero occurs at line 250, still exactly once per video frame.
 ;
 ; ******************************************************************************
 
@@ -54926,6 +55025,10 @@ ENDIF
 ;
 ; ******************************************************************************
 
+IF NOT(_UNBOUND)
+
+ ; Unbound has no music. Omit the player, its tables and local variables.
+
 .value0
 
  EQUB 0                 ; An unused counter that increments every time we
@@ -56202,10 +56305,8 @@ ENDIF
 
  RTS                    ; Return from the subroutine
 
-IF NOT(_UNBOUND)       ; Original-only: the preceding RTS already returned
  RTS                    ; This instruction has no effect as we have already
                         ; returned from the subroutine
-ENDIF                  ; ELITE: Unbound omits unused code
 
 ; ******************************************************************************
 ;
@@ -56277,12 +56378,6 @@ ENDIF                  ; ELITE: Unbound omits unused code
 ;
 ; ******************************************************************************
 
-IF _UNBOUND            ; ELITE: Unbound build option (begin)
-
- ; Elite: Unbound omits the 2615-byte docking tune to free HICODE RAM. The
- ; startbd and april16 entry points are retained as no-ops.
-
-ELSE                   ; ELITE: Unbound build option (else)
 
 IF _GMA_RELEASE
 
@@ -56298,7 +56393,8 @@ ELIF _SOURCE_DISK_FILES
 
 ENDIF
 
-ENDIF                  ; ELITE: Unbound build option (end)
+
+ENDIF                  ; Original-game music player
 
 .THEME
 
@@ -56311,9 +56407,9 @@ ELIF _GMA_RELEASE
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  ; Elite-A ships V1C:
- ; The 2931-byte title theme is deliberately not included. The title-music
- ; entry point startat is a no-op. The docking tune above is omitted as well,
- ; leaving Elite: Unbound without background music and freeing HICODE RAM.
+ ; Unbound omits the 2931-byte title theme, the docking tune and their
+ ; player. Music entry points and their callers are omitted as well,
+ ; leaving this HICODE space available for the game.
 ELSE                   ; ELITE: Unbound build option (else)
  INCBIN "1-source-files/music/gma/C.THEME.bin"
 ENDIF                  ; ELITE: Unbound build option (end)
@@ -58328,6 +58424,10 @@ IF _PLANET_DATA_FIX
  STA QQ11
  RTS
 
+ENDIF
+
+IF _BOUNTY_HUNTER_FIX AND _UNBOUND AND (_DIALS <> 2)
+ INCLUDE "1-source-files/main-sources/elite-bounty-hunter.asm"
 ENDIF
 
 .F%

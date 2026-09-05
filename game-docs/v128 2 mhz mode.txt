@@ -1,0 +1,152 @@
+You can detect a Commodore 128 running in C64 mode by reading and writing to register $D030, which controls the 2 MHz CPU speed on the C128's VIC-IIe chip. [1] (https://github.com/dirkwhoffmann/virtualC64/issues/842), [2] (http://commodore128.mirkosoft.sk/herdware.html)How the $D030 Check WorksOn a standard Commodore 64, address $D030 is unused and typically reads back floating bus or open-collector values. On a Commodore 128 (including when it runs in C64 mode), $D030 controls CPU speed (bit 0 for 1 MHz or 2 MHz) and has readable/writable bits. [1] (https://github.com/dirkwhoffmann/virtualC64/issues/842), [2] (http://commodore128.mirkosoft.sk/herdware.html)Example Assembly CodeHere is a standard routine to check for a C128 from C64 mode: [1] (http://commodore128.mirkosoft.sk/herdware.html)assemblyLDA #$CC        ; Load test pattern into accumulator
+STA $D030       ; Write to $D030 register
+LDA $D030       ; Read back the value
+CMP #$FC        ; Compare with expected C128 value (1MHz mode)
+BEQ IS_C128     ; Branch if equal (It is a C128)
+CMP #$FD        ; Compare if it was running in 2MHz mode
+BEQ IS_C128     ; Branch if equal (It is a C128)
+
+; Otherwise, it is a real C64...
+
+To safely switch the Commodore 128 to 2 MHz mode while running a C64 program, you must only enable 2 MHz when the video chip (VIC-IIe) is not drawing the active screen area.If you turn on 2 MHz while the VIC is reading data for the background or sprites, the CPU will steal cycles from the VIC, resulting in a garbled screen or vertical lines of noise.The Raster StrategyWait for the Border: Monitor the raster line register ($D012). Wait until the raster beam enters the bottom or top screen border.Switch to 2 MHz: Set bit 0 of $D030 to 1. You now have double the CPU speed to execute heavy calculations (like 3D math, physics, or decompression).Switch back to 1 MHz: Before the raster beam reaches the first active line of the next frame, set bit 0 of $D030 back to 0 so the VIC can render safely.Safe 2 MHz Raster Timing CodeHere is a practical assembly routine using the bottom border (lines 251 to 29) to safely execute 2 MHz code:assembly; Constants
+RASTER  = $D012     ; VIC Raster line register
+VIC_CR1 = $D011     ; VIC Control Register 1 (Bit 7 is Raster Bit 8)
+CLKRATE = $D030     ; C128 Clock Rate Register
+
+MAIN_LOOP:
+    ; 1. Wait for a line safely inside the bottom border (e.g., line 252)
+WAIT_BORDER:
+    LDA RASTER
+    CMP #252
+    BNE WAIT_BORDER
+    LDA VIC_CR1     ; Double-check the 9th bit of the raster line
+    BPL WAIT_BORDER ; If bit 7 is clear, we are on line 252 of the top half (PAL)
+
+    ; 2. Enter 2 MHz Mode
+    LDA CLKRATE
+    ORA #$01        ; Set bit 0 (2 MHz)
+    STA CLKRATE
+
+    ; ---------------------------------------------------------
+    ; TIME-CRITICAL WORK GOES HERE
+    ; You now have roughly double the processing power!
+    ; Just ensure this code finishes before line 29 of the next frame.
+    ; ---------------------------------------------------------
+    JSR DO_HEAVY_CALCULATIONS
+
+    ; 3. Wait for the top border to arrive before the screen renders
+WAIT_TOP:
+    LDA RASTER
+    CMP #10         ; Choose a safe line early in the top border
+    BNE WAIT_TOP
+
+    ; 4. Drop back to 1 MHz before line 48 (where graphics/sprites start)
+    LDA CLKRATE
+    AND #$FE        ; Clear bit 0 (1 MHz)
+    STA CLKRATE
+
+    JMP MAIN_LOOP
+Při použití kódu buďte obezřetní.Key Considerations for C128 2 MHz ModePAL vs NTSC: Total raster lines vary. PAL has 312 lines (0-311), while NTSC has 262 (0-261). Bad lines (text/bitmap graphics data fetching) occur between lines 48 and 248.Turn off Sprites: If you need 2 MHz mode for the entire frame (e.g., a fast loading routine with a blanked screen), you must turn off the display entirely by clearing bit 4 of $D011. If the screen is blanked, you can leave 2 MHz enabled continuously.Stable Raster Interrupts: For precise timing, it is highly recommended to wrap this logic inside a stable raster interrupt handler rather than a BNE polling loop.
+
+Running a game loop with sprites while utilizing the 2 MHz mode requires strict discipline. Because sprites steal CPU cycles (DMA) and the VIC-IIe chip cannot fetch sprite graphics properly at 2 MHz, you must explicitly drop down to 1 MHz before any sprite DMA fetch happens, or you will get severely corrupted graphics.The Sprite Threat: DMA PointsThe VIC-IIe fetches sprite data during the right border of the screen (for the upcoming raster line) and immediately before the active display window.The Rule: You cannot safely be in 2 MHz mode on any raster line where a sprite is currently visible.The Exception: If sprites are only used in the middle of the screen, you can use 2 MHz in the top and bottom borders.Optimal Architecture for a 2 MHz Game LoopThe most stable way to handle this is using a Dual Raster Interrupt system.Line 000 +-------------------------------------------------+
+
+         |  TOP BORDER: Trigger IRQ 1                      |
+         |  -> Switch to 2 MHz                             | 
+         |  -> Run Game Logic / Physics / Controls         |
+Line 048 +-------------------------------------------------+
+
+         |  ACTIVE SCREEN: Trigger IRQ 2                    |
+         |  -> Switch to 1 MHz                             |
+         |  -> Draw Sprites, Multiplexing, Scroll, Music   |
+Line 248 +-------------------------------------------------+
+
+         |  BOTTOM BORDER                                  |
+         +-------------------------------------------------+
+Implementing the Double IRQ SchemeHere is the structured assembly framework to run your game logic at 2 MHz and your sprite/rendering logic safely at 1 MHz.assembly; Registers
+IRQ_VEC = $0314     ; Hardware IRQ vector
+VIC_IRR = $D019     ; VIC Interrupt Request Register
+VIC_IMR = $D01A     ; VIC Interrupt Mask Register
+RASTER  = $D012     ; Current raster line
+VIC_CR1 = $D011     ; Screen control register (Bit 7 is Raster Bit 8)
+CLKRATE = $D030     ; C128 Clock speed register
+
+INIT_IRQS:
+    SEI
+    LDA #$7F
+    STA $DC0D       ; Turn off CIA 1 Timer IRQs
+    LDA $DC0D       ; Acknowledge any pending CIA IRQs
+    
+    LDA VIC_CR1
+    AND #$7F        ; Clear 9th bit of raster target
+    STA VIC_CR1
+    
+    LDA #<IRQ_TOP_BORDER
+    STA IRQ_VEC
+    LDA #>IRQ_TOP_BORDER
+    STA IRQ_VEC+1
+    
+    LDA #10         ; Trigger first IRQ early in the top border
+    STA RASTER
+    
+    LDA #$01        ; Enable Raster IRQs
+    STA VIC_IMR
+    CLI
+    RTS
+
+; =====================================================================
+; IRQ 1: Top Border (Game Logic / 2 MHz)
+; =====================================================================
+IRQ_TOP_BORDER:
+    ; Standard register saving omitted for brevity (PHA, TXA, TYA...)
+    
+    ; 1. Kick into 2 MHz immediately
+    LDA CLKRATE
+    ORA #$01
+    STA CLKRATE
+    
+    ; 2. Run your heavy non-visual game tasks
+    JSR UPDATE_CONTROLS
+    JSR RUN_GAME_PHYSICS
+    JSR UPDATE_ENEMY_AI
+    
+    ; 3. Setup next IRQ for the active screen area
+    LDA #40         ; Trigger just before line 48 graphics rendering begins
+    STA RASTER
+    LDA #<IRQ_ACTIVE_SCREEN
+    STA IRQ_VEC
+    LDA #>IRQ_ACTIVE_SCREEN
+    STA IRQ_VEC+1
+    
+    LSR VIC_IRR     ; Acknowledge VIC interrupt
+    ; Restore registers here (PLA, TAX, TAY...)
+    RTI
+
+; =====================================================================
+; IRQ 2: Active Screen (Sprites & Music / 1 MHz)
+; =====================================================================
+IRQ_ACTIVE_SCREEN:
+    ; Standard register saving omitted
+    
+    ; 1. Safely drop back to 1 MHz so VIC can fetch sprite data
+    LDA CLKRATE
+    AND #$FE
+    STA CLKRATE
+    
+    ; 2. Run visual engine and sound (safe at 1 MHz)
+    JSR PLAY_MUSIC
+    JSR UPDATE_SPRITE_REGISTERS
+    JSR HANDEL_SCROLLING
+    
+    ; 3. Setup next IRQ back at the top border
+    LDA #10
+    STA RASTER
+    LDA #<IRQ_TOP_BORDER
+    STA IRQ_VEC
+    LDA #>IRQ_TOP_BORDER
+    STA IRQ_VEC+1
+    
+    LSR VIC_IRR     ; Acknowledge VIC interrupt
+    ; Restore registers here
+    RTI
+	
+Při použití kódu buďte obezřetní.Pro-Tips for Sprite-Heavy GamesSprite Multiplexers: If you are using a sprite multiplexer (displaying more than 8 sprites by sorting them by Y-coordinate), keep the sorting array calculations inside the 2 MHz Top Border code. Then, simply read the sorted array to feed the VIC registers during the 1 MHz Active Screen interrupts.The "Crash" Symptom: If you see horizontal lines of garbage graphics randomly tearing through your sprites, it means your IRQ_TOP_BORDER logic took too long and bled past raster line 48 while still set to 2 MHz.Do you need help calculating how many cycles you actually have available in that top border area, or are you looking to implement a sprite multiplexer?

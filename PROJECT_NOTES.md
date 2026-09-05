@@ -1722,3 +1722,447 @@ souboru v obou větvích. V této navazující opravě se Makefile již neměnil
 Generovaný elite-build-options.asm nebyl upravován ručně. Uživatelská změna
 build_tape.bat ve flicker-free zůstala zachována. Pracovní kopie nejsou čisté;
 commit ani push nebyl proveden.
+
+## C128 border turbo pro Unbound (2026-09-05)
+
+V obou větvích je pod `IF _UNBOUND` automatické přepínání C128 v režimu
+C64 mezi 1 a 2 MHz podle rasteru, inspirované Elite 128 v1.0. Nejde o novou
+volbu make: aktivuje se s `unbound=yes`. Není přidána detekce C128 ani
+uživatelský přepínač. Jako v Elite 128 se přímo zapisuje 0/1 do `$D030`;
+na původním C64 tento registr takt nemění. Jiné akcelerátory s vlastním
+významem `$D030` nebyly ověřeny.
+
+IRQ má stavy RASTCT 0 -> 1 -> $FF -> 0. Na řádku 40 nastaví horní část
+obrazu a 1 MHz, na 194 nastaví dashboard a ponechá 1 MHz, na 250 nastaví
+2 MHz a naplánuje další IRQ na 40. Třetí IRQ nemění vizuální tabulky,
+nezpracovává zvuk a nezvyšuje FrameCounter. Zvuk i frame limiter zůstávají
+na dashboard IRQ jednou za snímek. WSCAN nadále čeká na jeden přechod
+RASTCT do nuly za snímek, nově na řádku 250. KERNALSETUP při vypnutí
+rasterového IRQ vrací 1 MHz; COLD také vrací 1 MHz před čekáním na raster.
+Krátké sekce SEI při čtení vstupu a aktualizaci SID zůstávají beze změny.
+
+Pro PAL je nominální turbo okno 102/312 řádků (32,7 % snímku); číslo
+40 % z popisu Elite 128 není zárukou zrychlení hry. NTSC používá stejné
+přepínací řádky a má kratší okrajové okno. FPS limiter dál omezuje maximální
+frekvenci herní smyčky.
+
+### Uložení a paměť
+
+`elite-hangar.asm` odvodí začátek pomocného kódu z aktuální délky vybraného
+RLE dashboardu a vytvoří `C128-RASTER.bin`. Loader jej vloží přímo za
+stejný RLE stream. Šestibajtový návrat z border IRQ využívá mezeru za
+texty lovců odměn a je součástí `BOUNTY-HUNTER-COMMS.bin`; konec samotných
+textů má stále vlastní návěští. Adresy a meze hlídají assemblerové výrazy
+a ASSERT. Hangár ani jeho koncová adresa `$F88D` se neposouvají.
+
+S `dials=new` je 26 B před texty + 6 B za texty, celkem 32 B v RLE
+mezerách. HICODE naroste o 9 B, LOCODE o 0 B. S původními dials se
+větší část dispatcheru sestaví v HICODE: 24 B navíc v HICODE a 8 + 6 B
+v RLE. Tato větev dispatcheru je uspořádána tak, aby zůstaly v dosahu
+relativní skoky zvukové obsluhy.
+
+Pro přesně zadaný plný build s renderspeedups=yes a planetdatafix=yes:
+
+| Větev | R% | F% | Přidatelné LOCODE | Přidatelné HICODE | Přidatelné RLE |
+|---|---|---|---:|---:|---:|
+| main | $3FA6 | $CD87 | 89 B | 120 B | 15 B |
+| flicker-free | $3FF6 | $CDEB | 9 B | 20 B | 15 B |
+
+RLE fyzicky zbývá 13 B na `$F459-$F465` a 3 B na `$F88D-$F88F`;
+kvůli striktnímu limitu payloadu je z druhé mezery přidatelných jen 2 B.
+Jde o samostatné oblasti, součet není souvislý volný blok.
+Plný build s dials=old má F%=$CD96/$CDFA, tedy 105/5 přidatelných B
+HICODE; RLE má 2 + 2 přidatelné B. Běžný build bez renderspeedups a
+planetdatafix má R%=$3F64/$3FB4 a F%=$CD42/$CDA6.
+
+### Ověření
+
+Každý následující příkaz prošel samostatně v main i flicker-free.
+Použito `2-build-files/make.exe`, Python 3.13,
+`BEEBASM=E:/Development/Elite-C64/beebasm/beebasm.exe` a
+`C1541=G:/Emulace/C64/GTK3VICE-3.9-win64/bin/c1541.exe`.
+
+```text
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=no variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=old sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=tape-ntsc encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=gma85-ntsc
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=no planetdatafix=no unbound=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=no planetdatafix=no unbound=yes variant=gma86-pal
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=easyflash-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=easyflash-ntsc encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=gma86-pal
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=tape-pal encrypt=no
+```
+
+TAP round-trip kontroly prošly, šifrované GMA86 PAL disky prošly oběma
+průchody a kontrolou sektorové tabulky. EasyFlash sestavení prošla vlastními
+kontrolami. Finální compile.txt a TAP v obou větvích jsou plný tape-pal build
+s renderspeedups=yes, planetdatafix=yes a dials=new.
+
+Kontrolní unbound=no má LOCODE.bin, HICODE.bin a COMLOD.bin bitově shodné
+s výstupem uloženým před změnou. Funkční test přes py65 spustil skutečně
+sestavené IRQ a RLE payload vyčtený z COMLOD pro PAL nové/staré dials a
+NTSC nové dials v obou větvích. Ověřil 12 po sobě jdoucích IRQ, přechody
+0/1/$FF, zápisy 1/2 MHz, plánování 194/250/40, zachování A/X/Y/SP a
+paměťového portu, právě jeden audio/frame tick za snímek, zachování počtu
+změn pozadí při Energy Bomb a návrat na 1 MHz při KERNALSETUP.
+
+Doplňující běh ve VICE 3.9: skutečný PAL TAP start na x128 v režimu
+C64 v obou větvích a na x64sc (main). Trace zachytil 9070/9013/9088
+zápisů do `$D030`. Po počátečním pending IRQ jsou všechny návraty na
+1 MHz na řádku 40, dashboard na 194 a zapnutí 2 MHz na 250 nebo při
+zpoždění obsluhy na 251. Stavy se střídají bez vynechání; 2 MHz se
+neprotáhlo do viditelné části dalšího snímku. Vizuálně byl ověřen start
+na titulní obrazovku s dashboardem na C128 v obou větvích a na C64.
+Nejde o test na fyzickém C128 ani kompletní herní průchod.
+
+Změněny elite-source.asm, elite-hangar.asm, elite-loader.asm, README.md
+a PROJECT_NOTES.md v obou větvích. Původní uživatelská změna
+3-assembled-output/README.txt v obou kopiích i nesledovaný soubor
+main/game-docs/v128 2 mhz mode.txt zůstaly zachovány. Commit ani push
+nebyl proveden.
+
+## Oprava blikání dělicí čáry s C128 turbo (2026-09-05)
+
+Oprava platí pouze při `unbound=yes`, samostatně v obou větvích.
+Původní vložený dispatcher zdržoval zápisy D018/D016 i na obyčejném C64.
+Trace před opravou zachytil u flicker-free zápis D016 v řádku 195,
+cyklech 8 až 61 na C128 a 8 až 57 na C64. Při kolizi s badline se zápis
+odložil až za načtení první řádky dashboardu, což vysvětluje blikání čáry.
+V měřeném běhu šlo o 245/1982 přepnutí na C128 a 43/1987 na C64.
+
+Viditelná fáze IRQ nyní pokračuje přímo k obrazovým registrům. Do RLE
+odbočuje pouze třetí IRQ, které zapíná turbo ve spodním okraji. Návrat
+na 1 MHz se provádí až po citlivých obrazových zápisech (na horním IRQ
+stále bezpečně v horním okraji, dávno před řádkem 51). Potvrzení VIC IRQ
+je přesunuto do společného COMIRQ3 před obnovení paměťového portu, takže
+nezdržuje vstupní cestu. Dva NOP před D016 ponechávají čtyři cykly pro
+vykreslení pravého okraje rámečku v hires; D018 je již nastavený.
+
+Nemění se rasterové cíle 40/194/250, počet zvukových ani frame-limiter
+aktualizací, ochrana KERNAL I/O a restartu, ani chování unbound=no.
+Původní IRQ při unbound=no včetně jeho potvrzení přerušení zůstává celé
+v původní podobě. Staré i nové dials se sestavují a procházejí testem IRQ.
+
+### Aktuální paměť pro zadaný plný tape-pal build
+
+| Větev | R% | F% | Přidatelné LOCODE | Přidatelné HICODE | Přidatelné RLE |
+|---|---|---|---:|---:|---:|
+| main | $3FA6 | $CD8F | 89 B | 112 B | 22 B |
+| flicker-free | $3FF6 | $CDF3 | 9 B | 12 B | 22 B |
+
+Podpora turba nyní celkem používá 17 B HICODE a 25 B RLE (19 + 6), bez
+přírůstku LOCODE proti stavu před jejím zavedením. Proti první implementaci
+se uvolnilo 7 B RLE a přibylo 8 B HICODE. RLE mezery jsou nyní fyzicky
+20 B na $F452-$F465 a 3 B na $F88D-$F88F, z poslední mezery lze kvůli
+striktnímu ASSERT přidat jen 2 B. Rezervy nejsou souvislé.
+Plné dials=old: F%=$CD96/$CDFA, tedy 105/5 přidatelných B HICODE;
+RLE má 4 přidatelné B. Běžná konfigurace bez renderspeedups a planetdatafix:
+R%=$3F64/$3FB4, F%=$CD4A/$CDAE.
+
+### Ověřené buildy a běh
+
+Všechny následující příkazy znovu prošly v main i flicker-free. Použito
+`2-build-files/make.exe`, Python 3.13,
+`BEEBASM=E:/Development/Elite-C64/beebasm/beebasm.exe` a
+`C1541=G:/Emulace/C64/GTK3VICE-3.9-win64/bin/c1541.exe`.
+
+```text
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=no variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=old sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=tape-ntsc encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=gma85-ntsc
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=no planetdatafix=no unbound=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=no planetdatafix=no unbound=yes variant=gma86-pal
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=easyflash-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=easyflash-ntsc encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=gma86-pal
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes variant=tape-pal encrypt=no
+```
+
+TAP round-trip, šifrované GMA86 PAL dvouprůchodové sestavení s kontrolou
+sektorové tabulky, GMA85 NTSC i kontroly EasyFlash prošly. Test py65 znovu
+ověřil skutečné binární IRQ, vložený RLE payload, registry, přechody stavů,
+zvuk/frame counter a 1 MHz při KERNALSETUP. LOCODE/HICODE/COMLOD pro
+unbound=no jsou bitově shodné s uloženým stavem před přidáním turba.
+Finální compile.txt a PAL TAP odpovídají přesně zadanému plnému buildu.
+
+VICE 3.9, finální PAL TAP, 300 milionů emulovaných cyklů na každý běh:
+
+| Větev / stroj | Přepnutí dashboardu | Rozsah zápisů D016 (řádek:cyklus) | Pozdní zápisy |
+|---|---:|---|---:|
+| main / C128 v C64 režimu | 7088 | 194:53 až 195:2 | 0 |
+| main / C64 | 7092 | 194:53 až 195:11 | 0 |
+| flicker-free / C128 v C64 režimu | 7068 | 194:53 až 195:9 | 0 |
+| flicker-free / C64 | 7074 | 194:53 až 195:9 | 0 |
+
+Celkem 28322 přepnutí bez zdržení přes badline. Byly vizuálně zkontrolovány
+čtyři titulní obrazovky s dashboardem. Pixelové porovnání sedmi řádků
+kolem dělicí čáry na C64 potvrdilo shodu s korektně vykresleným rámečkem,
+včetně obou bílých pixelů pravého okraje. Nejde o kompletní herní průchod
+ani měření na fyzickém C128.
+
+V této opravě byly upraveny elite-source.asm, elite-hangar.asm a tento
+PROJECT_NOTES.md v obou větvích; dřívější změny elite-loader.asm a README.md
+z implementace turba zůstaly zachovány. Generovaný 3-assembled-output/README.txt
+byl po buildech vrácen do čistého stavu, ve kterém byl na začátku této opravy.
+Nesledovaný main/game-docs/v128 2 mhz mode.txt zůstal nedotčený.
+Commit ani push nebyl proveden.
+
+## Volitelná oprava bounty hunter Fer-de-Lance (2026-09-05)
+
+`bountyhunterfix=yes` je samostatná volba, nezávislá na `unbound=yes`;
+výchozí hodnota je vypnuto. V obou větvích upravuje `NWSHP` až po sloučení
+příznaků blueprintu s příznaky konkrétního spawnu. Změna vyžaduje současně
+typ Fer-de-Lance a bounty-hunter bit 1. Pouze při `FIST < 40` (dekadicky)
+vymaže hostile bit 2. Ostatní příznaky, AI, agrese a registrace se nemění.
+Při `FIST >= 40` zůstane běžný nepřátelský spawn nepřátelský.
+
+Viper se této větvi vyhne podle typu. Pozdější původní kontrola `FIST >= 40`
+v TACTICS i odveta přes ANGRY zůstávají platné. Neutrální Fer-de-Lance
+v Unbound neprojde filtrem hostile+bounty hunter před odesláním komunikace,
+takže při vytvoření neposílá WRONG PLACE / HERE WE GO / MY BOUNTY.
+Jde pouze o nové spawny: už nepřátelská loď v dříve uloženém VSF se tím
+zpětně nemění. Save formát, mise a jejich triggery zůstaly beze změny.
+
+Typ lodi se odvozuje z návěští FerDeLanceRole a začátku tabulky E% v
+aktuálním elite-data.asm. Assembler jej exportuje jako FER_DE_LANCE_TYPE
+přes existující generátor elite-token-layout.py; není duplikován ručně
+číselný index. Samotný helper je v elite-bounty-hunter.asm a jeho délku
+hlídá ASSERT. Paměťové hranice a RLE payload dále hlídá assembler i loader.
+
+### Velikost a umístění
+
+- Unbound + dials=new: +7 B HICODE a +18 B RLE, beze změny LOCODE.
+- Unbound + dials=old: +25 B HICODE, beze změny LOCODE a RLE.
+- Bez Unbound: +7 B HICODE a +18 B LOCODE. Původně zvažované uložení
+  celého helperu do HICODE se do plné main konfigurace nevešlo; konečné
+  umístění do LOCODE prošlo v obou větvích.
+
+Plná konfigurace obsahuje obě volby renderspeedups=yes a planetdatafix=yes,
+nové přístroje a ostatní volby z testů níže:
+
+| Větev | R% | F% | Přidatelné LOCODE | Přidatelné HICODE | Přidatelné RLE |
+|---|---:|---:|---:|---:|---:|
+| main | $3FA6 | $CD96 | 89 B | 105 B | 4 B |
+| flicker-free | $3FF6 | $CDFA | 9 B | 5 B | 4 B |
+
+RLE mezery jsou fyzicky 2 B na $F464-$F465 a 3 B na $F88D-$F88F.
+Z koncové mezery jsou kvůli striktní podmínce payload < $900 přidatelné
+jen 2 B, proto součet využitelných mezer je 4 B. Rezervy LOCODE a HICODE
+zohledňují striktní nerovnosti a nelze je vzájemně sčítat.
+U starých přístrojů se helper do mezery za jejich delším RLE nevejde;
+tato varianta potřebuje dostatečnou rezervu HICODE. Běžná konfigurace
+bez renderspeedups a planetdatafix prošla i se starými přístroji.
+
+### Provedené buildy
+
+Každý z následujících 13 příkazů prošel samostatně v main i flicker-free
+(26 úspěšných buildů konečného řešení). Použito 2-build-files/make.exe,
+BEEBASM=E:/Development/Elite-C64/beebasm/beebasm.exe a
+C1541=G:/Emulace/C64/GTK3VICE-3.9-win64/bin/c1541.exe.
+GMA varianty mají zapnuté šifrování, protože encrypt=no není zadáno.
+
+```text
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes bountyhunterfix=no variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=no bountyhunterfix=no variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=no bountyhunterfix=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=rays font=c64 dials=old sights=old warpjunk=no iffunit=no randomspawns=no whitecockpit=no fpslimiter=no inputfix=no scannercolorfix=no realmissiledamage=no renderspeedups=no planetdatafix=no unbound=no bountyhunterfix=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=no planetdatafix=no unbound=yes bountyhunterfix=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=old sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=no planetdatafix=no unbound=yes bountyhunterfix=yes variant=tape-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=no planetdatafix=no unbound=yes bountyhunterfix=yes variant=gma86-pal
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes bountyhunterfix=yes variant=tape-ntsc encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes bountyhunterfix=yes variant=gma85-ntsc
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes bountyhunterfix=yes variant=easyflash-pal encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes bountyhunterfix=yes variant=easyflash-ntsc encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes bountyhunterfix=yes variant=gma86-pal
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes unbound=yes bountyhunterfix=yes variant=tape-pal encrypt=no
+```
+
+Ve všech buildech se zapnutou opravou proběhlo spuštění skutečného NWSHP
+v py65 (testovací skript test-bounty-hunter.py v dočasném pracovním adresáři):
+
+- 1568 porovnání kompletního 37bajtového bloku nově vytvořené lodi proti
+  téže cestě s vynechanou opravou: 32 typů, 7 právních stavů a 7 kombinací
+  vstupních příznaků. Očekávanou odlišností je výhradně hostile bit u
+  Fer-de-Lance bounty huntera pod hranicí 40.
+- Všech 256 hodnot FIST pro běžný nepřátelský spawn Fer-de-Lance.
+- Fer-de-Lance bez bounty-hunter bitu se nezmění; Viper a piráti se nemění.
+- Neutrální piráti se scrambled registrací zachovávají původní chování.
+- Původní TACTICS při změně FIST 39 -> 40 aktivuje neutrálního huntera;
+  ANGRY jej nadále aktivuje při napadení i s Clean commanderem.
+- V Unbound skutečný filtr komunikace neutrálního huntera odmítne a
+  nepřátelského přijme; RLE helper se pro test načetl ze skutečného COMLOD.
+
+Při bountyhunterfix=no se LOCODE.bin, HICODE.bin a COMLOD.bin shodují
+bajt po bajtu s kontrolními buildy před touto změnou, samostatně s Unbound
+a bez něj. U Unbound se shodují také C128-RASTER.bin,
+BOUNTY-HUNTER-COMMS.bin a HANGAR.bin. Nešifrované Unbound buildy navíc
+prošly existujícím testem 12 IRQ, rastrů 40/194/250, zachování registrů,
+počtu zvukových/frame ticků a vynucení 1 MHz při KERNAL I/O.
+GMA86 ověřil automatickou sektorovou tabulku v binárce i finálním D64;
+TAP a EasyFlash prošly vlastními build kontrolami.
+
+Finální plný PAL TAP flicker-free byl spuštěn také ve VICE x64sc a x128
+(v režimu C64), každý do limitu 250 milionů CPU cyklů. Trace přepnutí D016
+na dashboard zaznamenal:
+
+| Emulovaný stroj | Přepnutí | Rozsah řádek:cyklus | Opožděné zápisy |
+|---|---:|---|---:|
+| C64 | 4527 | 194:53 až 195:9 | 0 |
+| C128 v C64 režimu | 4522 | 194:53 až 194:62 | 0 |
+
+Oba výsledné snímky titulní obrazovky byly vizuálně zkontrolovány, včetně
+celého horního rámu dashboardu. Jde o test v emulátoru, nikoli na fyzickém
+hardwaru. Herní spawn a následná AI byly ověřeny výše uvedeným testem
+skutečných sestavených rutin v py65.
+
+Pracovní kopie obsahují předchozí úpravy C128 turba i novou volbu.
+Uživatelský game-docs/v128 2 mhz mode.txt v main zůstal zachován.
+Commit ani push nebyl proveden.
+
+### Dodatečné ověření spawnu a útoků přímo ve VICE
+
+Finální plný PAL TAP s bountyhunterfix=yes byl samostatně v main i
+flicker-free ověřen ve VICE 3.9 x64sc. Herní ASM ani build výstupy se při
+tomto doplnění neměnily; nový build nebyl spuštěn. Použita byla poslední
+plná tape-pal konfigurace z příkazů výše, včetně unbound=yes,
+renderspeedups=yes a planetdatafix=yes.
+
+V každé větvi prošlo 38 cílených scénářů a dalších 66 diferenciálních
+porovnání úplného 37bajtového bloku všech 33 typů při FIST=0 a FIST=50.
+Jediným rozdílem proti téže cestě s vynechanou opravou v RAM emulátoru
+byl očekávaný hostile bit Fer-de-Lance bounty huntera při Clean.
+
+- Fer-de-Lance při FIST=0 nevystřelil během 1000 herních iterací; oba
+  štíty i energie zůstaly 255. Také FIST=39 zůstal bez útoku.
+- Při FIST=40 i Fugitive (FIST=50) nastalo 25 výstřelů a zásahů během
+  200 iterací. Přední štít klesl na 0 a energie na 134.
+- Neutrální Fer-de-Lance nereaguje bounty-hunter tauntem. Změna FIST
+  na 40 za letu i původní reakce ANGRY jej nadále aktivují k útoku.
+- Viper zachovává původní neutralitu pod 40 a útok od 40. Policejní
+  dítě nepřátelské stanice zůstává nepřátelské i při Clean.
+- Piráti Cobra Mk III, Asp, Python, Moray i čtyřčlenná pirátská skupina
+  se vytvářejí správně; jednotlivé nepřátelské lodě skutečně zasahují.
+- Constrictor vzniká při aktivní misi v Orarře a útočí. Negativní testy
+  ověřily neaktivní/zničenou/dokončenou misi, jinou galaxii i nesprávné
+  X nebo Y. Existující Constrictor blokuje druhý kus.
+- Cougar je pasivní do ANGRY, potom útočí. Vzácný Thargoid vzniká
+  s Thargonem a oba útočí. Mission spawn při převozu plánů funguje
+  při TP=$0A a nevzniká při TP=$02, $06 ani $0E.
+- Obchodník přes MTT4 zůstává neutrální. Funguje vypuštění Viperu,
+  Shuttlu a Transporteru ze stanice, Wormu z Anacondy, Mamby z hermita
+  i Thargonu z Thargoidu přes společné TN6/SFS1.
+- Fer-de-Lance bez bounty-hunter role se opravou nemění.
+
+Monitor nastavoval scénáře, výsledky RNG a výchozí geometrii lodí.
+Spawn provedl skutečný herní kód; po něm běžela běžná AI a byly sledovány
+výstřely v TA3, zásahy přes ShipShieldedDamage a reálné poškození hráče.
+ANGRY byl pro test odvety volán přímo, nikoli vyvolán stiskem spouště.
+Nejde o měření četnosti spawnů ani úplný průchod hrou. Silně vyzbrojené
+lodě byly sledovány 40 iterací, aby test neskončil smrtí stojícího hráče.
+
+Podrobný protokol, přesný použitý build příkaz, JSON výsledky, skripty,
+TAP obrazy a výpisy assembleru jsou v ignorovaném adresáři pracovní
+kopie main: 3-assembled-output/bountyhunterfix-vice-check/report.md.
+Paměť se nezměnila: main LOCODE 89 B / HICODE 105 B / RLE 4 B;
+flicker-free LOCODE 9 B / HICODE 5 B / RLE 4 B (skutečně přidatelné).
+
+Původní bounty hunter.vsf zůstal nezměněn, ověřeno SHA-256:
+fbbae612bc485cf8d8bd6b511f92fd56f22418deabcc8e91fd0ce8b805407713.
+Při tomto doplnění se změnil jen PROJECT_NOTES.md v obou větvích;
+předchozí uživatelské a implementační změny zůstaly zachovány.
+Commit ani push nebyl proveden.
+
+## Odebrání nepoužívaného hudebního přehrávače pro Unbound (2026-09-06)
+
+Změna je implementovaná samostatně v main i flicker-free. Při unbound=yes
+se už nesestavuje vlastní přehrávač BDENTRY/BDirqhere, jeho příkazy,
+hudební tabulky a lokální proměnné, start/stop rutiny, kontrola změny
+nastavení hudby ani hudební větev IRQ. Osm volání start/stop hudby
+je také pod IF NOT(_UNBOUND). Úvodní a dokovací skladby byly vynechané
+již před touto změnou; jejich velikost se do nové úspory nepočítá.
+
+Zvukové efekty NOISE/NOISE2/SOINT/SOFLUSH/NOISEOFF, uložení a obnovení
+registrů v IRQ, rastrové přepínání i C128 turbo zůstávají zachované.
+Proměnné v zero page a původním konfiguračním bloku jsou ponechané,
+aby se neposunuly adresy ostatních položek. Pro unbound=no je zachovaný
+původní přehrávač i všechny jeho vstupní body.
+
+Úspora proti bezprostředně předcházejícímu stavu je v obou větvích
+9 B LOCODE a 711 B HICODE. Z HICODE jde o 609 B přehrávače a jeho
+lokálních dat, 60 B řídicích rutin, 16 B hudební větve IRQ, 11 B kontroly
+nastavení a 15 B volání; další 3 volání uvolní 9 B LOCODE.
+
+Plná konfigurace s bountyhunterfix, renderspeedups a planetdatafix:
+
+| Větev | R% | F% | Přidatelné LOCODE | Přidatelné HICODE | Přidatelné RLE |
+|---|---|---|---:|---:|---:|
+| main | $3F9D | $CACF | 98 B | 816 B | 4 B |
+| flicker-free | $3FED | $CB33 | 18 B | 716 B | 4 B |
+
+Čísla již zohledňují striktní kontroly R% < $4000 a F% < $CE00.
+LOCODE a HICODE mají samostatné limity. RLE se velikostně nemění:
+2 B před texty + 2 skutečně přidatelné B na konci payloadu.
+Stejné rezervy má plná konfigurace tape-pal, tape-ntsc, gma86-pal,
+gma85-ntsc, easyflash-pal a easyflash-ntsc.
+
+### Provedené buildy a kontroly
+
+V každé pracovní kopii prošlo následujících 10 konfigurací (20 úspěšných
+buildů). Parametry BEEBASM a C1541 byly při každém spuštění:
+
+- BEEBASM=E:/Development/Elite-C64/beebasm/beebasm.exe
+- C1541=G:/Emulace/C64/GTK3VICE-3.9-win64/bin/c1541.exe
+
+Použito 2-build-files/make.exe a Python 3.13. Přesné přepínače:
+
+```text
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=easyflash-ntsc unbound=yes encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=easyflash-pal unbound=yes encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=gma85-ntsc unbound=yes
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=gma86-pal unbound=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=gma86-pal unbound=yes
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes realmissiledamage=yes variant=gma86-pal unbound=yes
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=tape-ntsc unbound=yes encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=tape-pal unbound=no encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes scannercolorfix=no realmissiledamage=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes variant=tape-pal unbound=yes encrypt=no
+make match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes fpslimiter=yes inputfix=yes realmissiledamage=yes variant=tape-pal unbound=yes encrypt=no
+```
+
+- Šifrované GMA86 disky prošly automatickou opravou a ověřením skutečné
+  sektorové tabulky; TAP a CRT prošly kontrolami příslušných build skriptů.
+- Pro unbound=no jsou hlavní binárky i odpovídající PAL TAP a šifrovaný
+  GMA86 D64 bitově shodné s předchozím stavem, v obou větvích.
+- Finální plné Unbound binárky jsou bitově shodné s dříve otestovaným
+  pokusným odstraněním hudby. Ověřeno pro čtyři tape/disk varianty,
+  včetně HANGAR, C128-RASTER a BOUNTY-HUNTER-COMMS.
+- Nový běh py65 nad finálními binárkami: 144 scénářů / 43 200 zvukových
+  kroků IRQ na každé straně porovnání. Všech 16 efektů, jejich sekvence
+  a překrývání, NOISEOFF i SOFLUSH. Shodné zápisy do SID a stav efektů.
+- Nový běh VICE 3.9: main PAL x64sc, flicker-free PAL a NTSC x64sc,
+  flicker-free PAL x128 v C64 režimu (-go64). Čerstvý TAP start,
+  nový commander, start ze stanice, 16 zvukových efektů při normálním
+  IRQ, 212 letových iterací a návrat přes DOENTRY do stanice: PASS.
+
+Monitor ve VICE zadával odpovědi na titulní otázky, vyvolával efekty
+přes NOISE a vybíral vstup do dokovací rutiny. Letová smyčka, efekty
+ani IRQ nebyly nahrazené. Nejde o nový úplný průchod misemi ani o
+vizuální kontrolu každého řádku obrazovky.
+
+Jeden první pokus běžného GMA86 buildu main nemohl otevřít generovaný
+README.txt k zápisu; opakování bez změny kódu prošlo. Jeden první start
+VICE main skončil ještě před spuštěním hry; opakování rovněž prošlo.
+Logy obou prvních pokusů jsou zachované v protokolu.
+
+Aktivní výstup v obou pracovních kopiích je plný tape-pal build s
+bountyhunterfix=yes a unbound=yes. Distribuční Unbound PAL/NTSC TAP,
+D64 a CRT byly aktualizované. Generované sledované README soubory
+byly zachované v původním znění.
+
+Při této změně byly upraveny pouze elite-source.asm a PROJECT_NOTES.md
+v obou větvích, plus běžné ignorované build výstupy. Předchozí uživatelské
+úpravy zůstávají zachované. Commit ani push nebyl proveden.
+Podrobný protokol, příkazy, patche a ověření jsou v pracovní kopii main:
+3-assembled-output/music-removal-implementation-20260906/report.md.
