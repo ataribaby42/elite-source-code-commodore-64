@@ -266,6 +266,10 @@ By default the build process will create a typical Elite game disk with a standa
 
   When this option is enabled, the bitmap selected by `dials` is kept in memory as PackBits data and unpacked directly into screen memory only when the dashboard is displayed. Builds with `unbound=no` retain the original uncompressed dashboard path.
 
+  Unbound also enables Elite 128-style C128 border turbo in C64 mode: 2 MHz between raster line 250 and line 40 of the next frame, with 1 MHz during the visible screen and KERNAL I/O. This uses spare RAM around the compressed dashboard. The original C64 ignores the clock-register writes. There is no machine-detection step or turbo toggle; the separate frame limiter still applies.
+
+* `bountyhunterfix=yes` - Spawn Fer-de-Lance bounty hunters neutral when legal status is below 40 (decimal). The fix requires both the Fer-de-Lance hull and the bounty-hunter role, and clears only hostility; Vipers, pirates, combat aggression and retaliation are unchanged. At legal status 40 or above, normal hostile encounters remain hostile. A later rise to 40 can also activate the existing bounty-hunter AI. Neutral spawns do not send hostile bounty-hunter messages in Unbound. Disabled by default and independent of `unbound`; with Unbound and `dials=new`, the helper uses spare dashboard RLE space. This changes new spawns only; existing hostile ships in old emulator snapshots are not reset.
+
 * `realmissiledamage=yes` - Make missile hits subtract 81 energy from AI ships instead of destroying them instantly. This Elite-A-style option is disabled by default, works independently of `unbound`, and leaves stations immune.
 
 * `fpslimiter=yes` - Enable the Elite 128-style frame limiter independently of `unbound`. The game loop and rotating title ship are limited to one update every four video frames, giving a maximum of 12.5 updates per second on PAL and 15 on NTSC. The option is disabled by default.
@@ -642,7 +646,7 @@ The `flicker-free` branch produces:
 5-compiled-game-tapes/elite-commodore-64-flicker-free-ntsc.tap
 ```
 
-Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns`, `unbound`, `realmissiledamage`, `renderspeedups` and `whitecockpit` can be used with the tape variants in the same way as with the GMA disk variants.
+Options such as `laserbeam`, `font`, `dials`, `sights`, `warpjunk`, `iffunit`, `randomspawns`, `unbound`, `realmissiledamage`, `bountyhunterfix`, `renderspeedups` and `whitecockpit` can be used with the tape variants in the same way as with the GMA disk variants.
 
 ### Notes about EasyFlash cartridge versions
 

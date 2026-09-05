@@ -8,6 +8,41 @@
 ;
 ; ******************************************************************************
 
+; Assemble the helper immediately after the actual selected PackBits stream.
+; The loader appends its binary at the same position; no address is duplicated.
+ ORG DSTORE%
+IF _DIALS = 2
+ INCBIN "1-source-files/images/C.CODIALSNEW.RLE.bin"
+ELSE
+ INCBIN "1-source-files/images/C.CODIALS.RLE.bin"
+ENDIF
+
+.C128RasterStart
+
+IF _DIALS = 2
+.C128Slow
+ LDA #0
+ STA C128_SPEED
+ RTS
+
+.C128BorderSetup
+ LDA #C128_RASTER_TOP
+ STA VIC+$12
+ENDIF
+
+.C128Border
+ LDA #1                ; Like Elite 128, writes are harmless on an original C64
+ STA C128_SPEED
+ JMP C128BorderReturn
+
+IF _BOUNTY_HUNTER_FIX AND (_DIALS = 2)
+ INCLUDE "1-source-files/main-sources/elite-bounty-hunter.asm"
+ENDIF
+
+.C128RasterEnd
+ ASSERT C128RasterEnd <= DSTORE% + $4D6
+ SAVE "3-assembled-output/C128-RASTER.bin", C128RasterStart, C128RasterEnd
+
  ORG DSTORE% + $4D6
 
 .BOUNTY_HUNTER_COMM_TEXT_CODE
@@ -28,9 +63,15 @@
 
 .BOUNTY_HUNTER_COMM_TEXT_END
 
- ASSERT BOUNTY_HUNTER_COMM_TEXT_END <= DSTORE% + $500
+; Use the six-byte gap after the text for the shared border IRQ exit.
+.C128BorderReturn
+ INC RASTCT            ; $FF -> 0, ready for the top-screen IRQ at line 40
+ JMP COMIRQ3           ; Restore interrupted registers; no extra audio tick
+.C128BorderReturnEnd
 
- SAVE "3-assembled-output/BOUNTY-HUNTER-COMMS.bin", BOUNTY_HUNTER_COMM_TEXT_CODE, BOUNTY_HUNTER_COMM_TEXT_END
+ ASSERT C128BorderReturnEnd <= DSTORE% + $500
+
+ SAVE "3-assembled-output/BOUNTY-HUNTER-COMMS.bin", BOUNTY_HUNTER_COMM_TEXT_CODE, C128BorderReturnEnd
 
  ORG DSTORE% + $500
 

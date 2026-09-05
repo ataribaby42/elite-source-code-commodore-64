@@ -6487,6 +6487,7 @@ ENDIF
  EQUB %10001100         ; Cobra Mk III (pirate)      Hostile, pirate, escape pod
  EQUB %10001100         ; Asp Mk II                  Hostile, pirate, escape pod
  EQUB %10001100         ; Python (pirate)            Hostile, pirate, escape pod
+.FerDeLanceRole
  EQUB %10000010         ; Fer-de-lance                 Bounty hunter, escape pod
  EQUB %00001100         ; Moray                                  Hostile, pirate
  EQUB %00001100         ; Thargoid                               Hostile, pirate
@@ -6495,6 +6496,10 @@ ENDIF
  EQUB %00100000         ; Cougar                                        Innocent
 
  EQUB 0                 ; This byte appears to be unused
+
+ ASSERT FerDeLanceRole >= E%
+ ASSERT FerDeLanceRole - E% < 255
+ PRINT "FER_DE_LANCE_TYPE = ", ~(FerDeLanceRole - E% + 1)
 
 ; ******************************************************************************
 ;

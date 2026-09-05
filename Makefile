@@ -73,6 +73,9 @@ endef
 #
 #   unbound=yes         Enables all ELITE: Unbound gameplay and UI changes
 #
+#   bountyhunterfix=yes Makes Fer-de-Lance bounty hunters neutral below FIST 40
+#                       Independently enabled; does not require unbound=yes
+#
 #   realmissiledamage=yes
 #                       Makes missiles subtract 81 energy from AI ships instead
 #                       of destroying them instantly
@@ -165,6 +168,10 @@ endef
 # _UNBOUND
 #   FALSE = Original flicker-free branch gameplay (default)
 #   TRUE  = ELITE: Unbound gameplay and UI changes
+#
+# _BOUNTY_HUNTER_FIX
+#   FALSE = Preserve hostile Fer-de-Lance spawns (default)
+#   TRUE  = Clear hostility only for Fer-de-Lance bounty hunters below FIST 40
 #
 # _REAL_MISSILE_DAMAGE
 #   FALSE = Missiles destroy AI ships instantly (default)
@@ -327,6 +334,12 @@ else
   unbound-enabled=FALSE
 endif
 
+ifeq ($(bountyhunterfix), yes)
+  bountyhunterfix-enabled=TRUE
+else
+  bountyhunterfix-enabled=FALSE
+endif
+
 ifeq ($(realmissiledamage), yes)
   realmissiledamage-enabled=TRUE
 else
@@ -392,6 +405,7 @@ c64-build:
 	echo _WARPJUNK=$(warpjunk-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _IFF_UNIT=$(iffunit-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _UNBOUND=$(unbound-enabled) >> 1-source-files/main-sources/elite-build-options.asm
+	echo _BOUNTY_HUNTER_FIX=$(bountyhunterfix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _REAL_MISSILE_DAMAGE=$(realmissiledamage-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _FPS_LIMITER=$(fpslimiter-enabled) >> 1-source-files/main-sources/elite-build-options.asm
 	echo _INPUT_FIX=$(inputfix-enabled) >> 1-source-files/main-sources/elite-build-options.asm
