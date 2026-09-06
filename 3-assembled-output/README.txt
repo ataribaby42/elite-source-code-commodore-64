@@ -1,1 +1,0 @@
----------------------------------------∆IREBIRD ≈LITE÷ERSION: √OMMODORE 64÷ARIANT: «Õ¡86 –¡Ã RELEASE–RODUCT: ∆IREBIRD «Õ¡86”EE WWW.BBCELITE.COM FOR DETAILS---------------------------------------
