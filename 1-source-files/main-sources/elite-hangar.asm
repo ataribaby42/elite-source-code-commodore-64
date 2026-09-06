@@ -863,7 +863,7 @@ ENDIF
  EQUB 0
 
 .SpawnedPirateTauntText
- EQUS "BOO YOU DEAD!"
+ EQUS "YOU ARE DEAD!"
  EQUB 0
 
 .SpawnedPiratePrepareDieText
