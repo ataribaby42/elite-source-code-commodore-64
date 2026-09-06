@@ -55,7 +55,6 @@
 
     <nav class="page-toc" aria-label="On this page">
       <a href="#new-keyboard-commands">New Keyboard Commands</a>
-      <a href="#special-cargo">Special Cargo Deliveries</a>
       <a href="#status-screen">Status Screen</a>
       <a href="#inventory-screen">Inventory Screen</a>
       <a href="#sell-equip-screen">Sell Equip Screen</a>
@@ -64,6 +63,7 @@
       <a href="#in-flight-cargo-jettison">In-Flight Cargo Jettison</a>
       <a href="#iff-transponder-and-interrogator-operations">I.F.F. Transponder and Interrogator Operations</a>
       <a href="#bounty-display">Bounty Display</a>
+      <a href="#special-cargo">Special Cargo Deliveries</a>
       <a href="#station-docking-procedure">Station Docking Procedure</a>
       <a href="#radio-communication">Radio Communication</a>
     </nav>
@@ -88,19 +88,16 @@
         <p><strong>While docked:</strong></p>
 
         <ul>
-          <li><code class="nowrap">Ctrl + 1</code> — Opens Special Cargo offers or the active delivery.</li>
+          <li><code class="nowrap">Ctrl + 1</code> — Opens the Special Cargo screen with available contracts or details of the active delivery.</li>
           <li><code class="nowrap">Ctrl + 2</code> — Opens the Sell Equip screen.</li>
           <li><code class="nowrap">Ctrl + 3</code> — Opens the Buy Ship screen.</li>
         </ul>
-      </section>
 
-      <section id="special-cargo">
-        <h2>Special Cargo Deliveries</h2>
-        <p>Press <code class="nowrap">Ctrl + 1</code> while docked to see up to fifteen delivery offers. The price beside each destination is the entry fee in credits. Enter an offer number and press Return to accept it, or press N to cancel. Only one delivery can be active at a time; Ctrl + 1 then shows its destination and remaining value.</p>
-        <p>Acceptance is confirmed by the equipment purchase tone. Inventory also shows the active destination and remaining reward on a <code>Cargo:</code> line above Fuel.</p>
-        <p>On either chart, press <code>W</code> to select the delivery destination and display its name and distance. A distant target may be outside the short-range chart.</p>
-        <p>Dock at the destination to receive the remaining reward. Each docking elsewhere halves its value; hyperspace jumps without docking do not. Galactic hyperspace cancels the contract. The entry fee is not refunded.</p>
-        <p>Like Elite-A, Special Cargo uses its own delivery record and does not occupy ordinary commodity tonnage. Some contracts can increase an existing criminal record. The contract is saved with your commander; Default JAMESON clears it.</p>
+        <p><strong>On either chart, while docked or in flight:</strong></p>
+
+        <ul>
+          <li><code class="nowrap">W</code> — Sets the navigation target to the active Special Cargo destination and displays its name and distance.</li>
+        </ul>
       </section>
 
       <section id="status-screen">
@@ -239,6 +236,36 @@
         <figure class="content-image">
           <img src="./assets/manual-bounty.png" width="486" height="399" alt="Upgraded bounty display showing the reward for a destroyed target">
         </figure>
+      </section>
+
+      <section id="special-cargo">
+        <h2>Special Cargo Deliveries</h2>
+
+        <p>These are unspecified low-bulk cargos which have to be delivered to their destination quickly. The Special Cargo label covers urgent documents, medical supplies, and, if the pilot’s status is not clean, all sorts of illegal packages, from designer drugs to illegally “donated” organs for transplantation.</p>
+
+        <p>Only one contract can be active at a time. These consignments do not occupy ordinary cargo space.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-special-cargo-offers.png" width="485" height="399" alt="Special Cargo screen showing delivery destinations and entry fees">
+        </figure>
+
+        <p>Press <code class="nowrap">Ctrl + 1</code> while docked to open the Special Cargo screen. Each available contract shows its destination and an entry fee in credits. Enter a contract number and press <code>Return</code> to accept it, or press <code>N</code> to cancel. The entry fee is deducted immediately, so sufficient funds are required. If no contracts are available, the screen displays <strong>NO CONTRACTS</strong>.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-special-cargo-active.png" width="485" height="399" alt="Special Cargo screen showing the active delivery destination and current payment">
+        </figure>
+
+        <p>After acceptance, the screen displays the destination and <strong>VALUE</strong>, the current payment due upon delivery. Press <code class="nowrap">Ctrl + 1</code> while docked to inspect the active contract again. The <strong>Inventory</strong> screen also lists the destination and current value on the <strong>Cargo:</strong> line above Fuel.</p>
+
+        <figure class="content-image">
+          <img src="./assets/manual-special-cargo-inventory.png" width="485" height="399" alt="Inventory screen showing the active Special Cargo destination and current value above Fuel">
+        </figure>
+
+        <p>On either the Galactic Chart or the Short Range Chart, press <code>W</code> to set the navigation target to the delivery destination and display its name and distance. This function is available both while docked and in flight. A distant destination may lie outside the visible area of the Short Range Chart.</p>
+
+        <p>Payment depends on prompt delivery. Each stop at another station delays the consignment and reduces its value. Plan your route carefully and keep intermediate stops to a minimum. Docking at the destination completes the contract automatically, and the remaining payment is credited to your account. The entry fee is not refunded; net earnings are the payment received minus the entry fee and travel expenses.</p>
+
+        <p>Some contracts may increase an existing criminal record. Contracts are valid only within the current galaxy; galactic hyperspace travel cancels the active delivery.</p>
       </section>
 
       <section id="station-docking-procedure">

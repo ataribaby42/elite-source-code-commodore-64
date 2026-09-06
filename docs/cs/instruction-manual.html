@@ -55,7 +55,6 @@
 
     <nav class="page-toc" aria-label="Obsah stránky">
       <a href="#new-keyboard-commands">Nové klávesové příkazy</a>
-      <a href="#special-cargo">Zakázky Special Cargo</a>
       <a href="#status-screen">Obrazovka Status</a>
       <a href="#inventory-screen">Obrazovka Inventory</a>
       <a href="#sell-equip-screen">Obrazovka Sell Equip</a>
@@ -64,6 +63,7 @@
       <a href="#in-flight-cargo-jettison">Odhazování nákladu za letu</a>
       <a href="#iff-transponder-and-interrogator-operations">Obsluha transpondéru a dotazovače I.F.F.</a>
       <a href="#bounty-display">Zobrazení odměny</a>
+      <a href="#special-cargo">Speciální přepravní zakázky</a>
       <a href="#station-docking-procedure">Postup při dokování u stanice</a>
       <a href="#radio-communication">Rádiová komunikace</a>
     </nav>
@@ -88,19 +88,16 @@
         <p><strong>Po přistání:</strong></p>
 
         <ul>
-          <li><code class="nowrap">Ctrl + 1</code> — Otevře nabídku Special Cargo nebo detail přijaté zakázky.</li>
+          <li><code class="nowrap">Ctrl + 1</code> — Otevře nabídku speciálních přepravních zakázek nebo detail přijaté zakázky.</li>
           <li><code class="nowrap">Ctrl + 2</code> — Otevře obrazovku Sell Equip.</li>
           <li><code class="nowrap">Ctrl + 3</code> — Otevře obrazovku Buy Ship.</li>
         </ul>
-      </section>
 
-      <section id="special-cargo">
-        <h2>Zakázky Special Cargo</h2>
-        <p>Po zadokování stiskněte <code class="nowrap">Ctrl + 1</code> a zobrazí se až patnáct přepravních zakázek. Cena u cílové planety je vstupní poplatek v kreditech. Zakázku přijmete zadáním jejího čísla a stisknutím Return; klávesou N výběr zrušíte. Současně můžete mít jen jednu zakázku. Ctrl + 1 pak zobrazí její cíl a zbývající hodnotu.</p>
-        <p>Přijetí potvrdí stejné pípnutí jako nákup vybavení. Inventory navíc ukazuje cíl aktivní zakázky a zbývající odměnu v řádku <code>Cargo:</code> nad údajem Fuel.</p>
-        <p>Na obou mapách klávesa <code>W</code> vybere cíl zakázky a zobrazí jeho název a vzdálenost. Vzdálený cíl může ležet mimo výřez místní mapy.</p>
-        <p>Zadokováním v cíli získáte zbývající odměnu. Každé zadokování jinde její hodnotu rozpůlí; samotné hyperprostorové skoky ji nesnižují. Galaktický hyperprostor zakázku zruší. Vstupní poplatek se nevrací.</p>
-        <p>Stejně jako v Elite-A se Special Cargo eviduje samostatně a nezabírá kapacitu běžného nákladového prostoru. Některé zakázky mohou zvýšit stávající trestní záznam. Zakázka se ukládá s commanderem; volba Default JAMESON ji vymaže.</p>
+        <p><strong>Na obou mapách, po zadokování i za letu:</strong></p>
+
+        <ul>
+          <li><code class="nowrap">W</code> — Nastaví navigační cíl na cílovou planetu aktivní speciální přepravní zakázky a zobrazí její název a vzdálenost.</li>
+        </ul>
       </section>
 
       <section id="status-screen">
@@ -239,6 +236,36 @@
         <figure class="content-image">
           <img src="../assets/manual-bounty.png" width="486" height="399" alt="Vylepšené zobrazení odměny za zničený cíl">
         </figure>
+      </section>
+
+      <section id="special-cargo">
+        <h2>Speciální přepravní zakázky</h2>
+
+        <p>Jde o blíže neurčené náklady malého objemu, které je nutné rychle doručit na místo určení. Speciální přepravní zakázky zahrnují naléhavé dokumenty, zdravotnické zásoby, a pokud pilot nemá čistý trestní rejstřík, také nejrůznější nelegální zásilky, od syntetických drog až po nezákonně „darované“ orgány k transplantaci.</p>
+
+        <p>Současně můžete mít pouze jednu aktivní zakázku. Tyto zásilky nezabírají místo v běžném nákladovém prostoru.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-special-cargo-offers.png" width="485" height="399" alt="Nabídka speciálních přepravních zakázek s cílovými planetami a vstupními poplatky">
+        </figure>
+
+        <p>Po zadokování stiskněte <code class="nowrap">Ctrl + 1</code> pro otevření obrazovky speciálních přepravních zakázek (Special Cargo). U každé dostupné zakázky je uveden cíl a vstupní poplatek v kreditech. Zakázku přijmete zadáním jejího čísla a stisknutím <code>Return</code>, klávesou <code>N</code> výběr zrušíte. Vstupní poplatek se odečte okamžitě, proto musíte mít dostatek kreditů. Pokud nejsou žádné zakázky dostupné, zobrazí se <strong>NO CONTRACTS</strong>.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-special-cargo-active.png" width="485" height="399" alt="Detail speciální přepravní zakázky s cílem a aktuální odměnou za doručení">
+        </figure>
+
+        <p>Po přijetí se zobrazí cíl a údaj <strong>VALUE</strong>, tedy aktuální odměna za doručení. Stisknutím <code class="nowrap">Ctrl + 1</code> po zadokování můžete znovu zobrazit detail aktivní zakázky. Cíl a aktuální hodnotu najdete také na obrazovce <strong>Inventory</strong> v řádku <strong>Cargo:</strong> nad údajem Fuel.</p>
+
+        <figure class="content-image">
+          <img src="../assets/manual-special-cargo-inventory.png" width="485" height="399" alt="Obrazovka Inventory s cílem a aktuální hodnotou speciální přepravní zakázky nad údajem Fuel">
+        </figure>
+
+        <p>Na galaktické mapě i mapě blízkého okolí stiskněte <code>W</code> pro nastavení navigačního cíle na planetu doručení a zobrazení jejího názvu a vzdálenosti. Tato funkce je dostupná po zadokování i za letu. Vzdálený cíl může ležet mimo viditelnou oblast mapy blízkého okolí.</p>
+
+        <p>Výše odměny závisí na rychlosti doručení. Každá zastávka na jiné stanici zásilku zdrží a sníží její hodnotu. Trasu proto plánujte pečlivě a omezte mezizastávky na minimum. Zadokováním v cíli se zakázka automaticky dokončí a zbývající odměna se připíše na váš účet. Vstupní poplatek se nevrací; čistý výdělek tvoří vyplacená odměna po odečtení vstupního poplatku a nákladů na cestu.</p>
+
+        <p>Některé zakázky mohou zhoršit již existující trestní záznam. Zakázky platí pouze v aktuální galaxii; galaktický hyperprostorový skok aktivní zakázku zruší.</p>
       </section>
 
       <section id="station-docking-procedure">
