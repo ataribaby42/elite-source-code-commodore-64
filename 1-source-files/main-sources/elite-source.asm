@@ -14490,6 +14490,11 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .ANGRY
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ STA TYPE               ; Use the target type passed in A, including missile
+                        ; launches outside the current-ship flight loop
+ENDIF                  ; ELITE: Unbound build option (end)
+
  CMP #SST               ; If this is the space station, jump to AN2 to make the
  BEQ AN2                ; space station hostile
 
@@ -25515,6 +25520,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  ; Keep cargo on ship exchange, but refuse a smaller ship if current cargo plus
  ; the allowed Naval Energy Unit weight will not fit. Large Cargo Bay must have
  ; been sold already, so the new hull is checked at its base cargo capacity.
+ LDA Q                  ; Restore the selected hull after equipment checks
  JSR ShipCargoFitsType
  BCS shipBuyCargoFits
 
@@ -26131,7 +26137,7 @@ ENDIF                  ; Energy Bomb HICODE relocation (end)
  EQUB 0
 
 .TitleScreenVersion
- EQUS "v0.90"
+ EQUS "v1.00"
  EQUB 0
 
 ; ------------------------------------------------------------------------------

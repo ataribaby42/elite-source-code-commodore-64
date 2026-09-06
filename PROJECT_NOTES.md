@@ -2250,3 +2250,59 @@ v obou větvích, plus běžné ignorované build výstupy. Předchozí uživate
 úpravy zůstávají zachované. Commit ani push nebyl proveden.
 Podrobný protokol, příkazy, patche a ověření jsou v pracovní kopii main:
 3-assembled-output/music-removal-implementation-20260906/report.md.
+
+
+## 2026-09-06: reakce neutrální lodě na hráčovu raketu
+
+ANGRY v Unbound ukládá předaný typ cíle z A do TYPE (+2 B LOCODE).
+Bez namontovaného I.F.F. mohl raketový fallback použít starý TYPE < CYL
+ a nenastavit hostile bit. Spawn bounty huntera / Fer-de-Lance a hranice
+FIST 40 se nemění. Původní chování unbound=no zůstává za ELSE/ENDIF,
+zde konkrétně přidané STA TYPE existuje pouze pod IF _UNBOUND.
+
+V obou větvích prošly běžné tape-pal a šifrovaný gma86-pal build,
+plný tape-pal s bountyhunterfix/renderspeedups/planetdatafix, jeho varianta
+iffunit=no a plný šifrovaný gma86-pal; nakonec znovu plný tape-pal.
+CPU testy ověřily reakci na útok a nezměněné spawn podmínky (FIST
+0/39/40/50/255). GMA86 prošel kontrolou skutečné sektorové tabulky.
+Aktuální skutečně přidatelná paměť plného tape-pal buildu:
+flicker-free: R%=$3FF2, F%=$CDEA; LOCODE 13 B, HICODE 21 B.
+
+V původním bug.vsf nebyla Fer-de-Lance hostile ($02), měla AI $F9 a
+energii 160. Celý simulovaný průchod po laserovém zásahu zachoval hostile
+$06 a pokračoval do bojové AI; samostatné hlášení úniku po laseru dosud
+není reprodukované ani prohlášené za opravené. Neproběhl interaktivní VICE test.
+
+Podrobný protokol, přesné build příkazy a testy jsou v main:
+3-assembled-output/retaliation-fix-20260906/report.md.
+Vnější kopie bug-asp.vsf mění pouze hráčův cmdr_type na 9 (Asp Mk II),
+obsahuje původní herní kód pro reprodukci; originál bug.vsf zachován.
+Uživatelské úpravy elite-hangar.asm a elite-source.asm zachovány.
+Generovaný README vrácen do původního znění. Commit ani push neproveden.
+
+
+## 2026-09-06: správný typ lodě při kontrole nákladu před nákupem
+
+Před JSR ShipCargoFitsType v shipBuyEquipmentOK je doplněno LDA Q.
+Kontrola vybavení vrací A=0 (bez vybavení) nebo A=2 (Naval Energy Unit),
+a proto se dříve omylem kontrolovala kapacita Cobry III nebo Gecka místo
+zvoleného typu uloženého v Q. Asp s 10t nyní neprojde, Python s 30t projde.
+Změna je uvnitř stávajícího IF _UNBOUND a přidává 2 B HICODE, 0 B LOCODE.
+Save formát, parametry lodí ani mise se nemění.
+
+V každé větvi prošly čtyři buildy: běžné tape-pal encrypt=no a šifrovaný
+gma86-pal; poté plný gma86-pal a plný tape-pal s bountyhunterfix=yes,
+renderspeedups=yes a planetdatafix=yes. Přesné příkazy a výsledky všech
+osmi buildů jsou v main:
+3-assembled-output/ship-purchase-fix-20260906/report.md.
+Každý build prošel 245 CPU testy skutečné návaznosti vybavení -> náklad
+(všech 13 lodí, s/bez Naval Energy Unit, hraniční kapacity a přetečení).
+Šifrované GMA86 disky prošly ověřením skutečné sektorové tabulky.
+Interaktivní VICE test neproběhl. Aktivní výstup je plný tape-pal.
+
+Aktuální paměť plného tape-pal / gma86-pal buildu:
+R%=$3FF2, F%=$CDEC; skutečně přidatelné LOCODE 13 B, HICODE 19 B.
+
+Změněny elite-source.asm a PROJECT_NOTES.md v obou větvích. Dřívější
+úpravy zachovány, včetně raketové opravy a elite-hangar.asm; .vs/ nedotčeno.
+Generovaný README zachován v předchozím znění. Commit ani push neproveden.
