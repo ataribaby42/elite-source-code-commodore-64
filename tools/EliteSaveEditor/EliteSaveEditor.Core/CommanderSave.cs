@@ -4,20 +4,34 @@ namespace EliteSaveEditor.Core;
 
 public sealed class CommanderSave
 {
-    public const int DataLength = 77;
+    public const int OriginalDataLength = 77;
+    public const int SpecialCargoRewardOffset = OriginalDataLength;
+    public const int SpecialCargoXOffset = SpecialCargoRewardOffset + sizeof(ushort);
+    public const int SpecialCargoYOffset = SpecialCargoXOffset + 1;
+    public const int UnboundDataLength = SpecialCargoYOffset + 1;
     public const ushort DefaultLoadAddress = 0x25D0;
 
-    private readonly byte[] _data;
+    private byte[] _data;
 
     public CommanderSave(string name, byte[] data, CommanderFormat format, ushort loadAddress = DefaultLoadAddress)
     {
-        if (data.Length != DataLength)
+        ArgumentNullException.ThrowIfNull(data);
+        if (!Enum.IsDefined(format))
         {
-            throw new ArgumentException("Commander data must contain exactly 77 bytes.", nameof(data));
+            throw new ArgumentOutOfRangeException(nameof(format));
+        }
+
+        if (data.Length != OriginalDataLength &&
+            !(format == CommanderFormat.EliteUnbound && data.Length == UnboundDataLength))
+        {
+            throw new ArgumentException(format == CommanderFormat.EliteUnbound
+                ? "Unbound commander data must contain 81 bytes, or 77 bytes for an older save."
+                : "Original Elite commander data must contain exactly 77 bytes.", nameof(data));
         }
 
         Name = NormalizeName(name);
-        _data = (byte[])data.Clone();
+        _data = new byte[format == CommanderFormat.EliteUnbound ? UnboundDataLength : OriginalDataLength];
+        data.CopyTo(_data, 0); // Older Unbound saves acquire an empty extension.
         Format = format;
         LoadAddress = loadAddress;
     }
@@ -42,10 +56,56 @@ public sealed class CommanderSave
     public byte LegalStatus { get => _data[52]; set => _data[52] = value; }
     public byte MarketPriceRandomizer { get => _data[70]; set => _data[70] = value; }
     public ushort KillPoints { get => ReadUInt16LittleEndian(71); set => WriteUInt16LittleEndian(71, value); }
+    public ushort SpecialCargoRewardTenths => Format == CommanderFormat.EliteUnbound
+        ? ReadUInt16LittleEndian(SpecialCargoRewardOffset) : (ushort)0;
+    public byte SpecialCargoTargetX => Format == CommanderFormat.EliteUnbound ? _data[SpecialCargoXOffset] : (byte)0;
+    public byte SpecialCargoTargetY => Format == CommanderFormat.EliteUnbound ? _data[SpecialCargoYOffset] : (byte)0;
+    public bool HasSpecialCargo => SpecialCargoRewardTenths != 0;
+
+    public IReadOnlyList<EliteSystem> CurrentGalaxySystems() =>
+        GalaxyCatalog.Systems(GalaxySeedWord(0), GalaxySeedWord(1), GalaxySeedWord(2));
+
+    public EliteSystem? SpecialCargoDestination => !HasSpecialCargo ? null :
+        CurrentGalaxySystems().FirstOrDefault(system =>
+            system.X == SpecialCargoTargetX && system.Y == SpecialCargoTargetY);
+
+    public void SetSpecialCargo(EliteSystem destination, ushort rewardTenths)
+    {
+        RequireUnboundCargo();
+        ArgumentNullException.ThrowIfNull(destination);
+        if (rewardTenths == 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(rewardTenths), "The reward must be from 0.1 to 6553.5 Cr.");
+        }
+        if (!CurrentGalaxySystems().Contains(destination))
+        {
+            throw new ArgumentException("The delivery destination must be a system in the saved galaxy.", nameof(destination));
+        }
+
+        WriteUInt16LittleEndian(SpecialCargoRewardOffset, rewardTenths);
+        _data[SpecialCargoXOffset] = destination.X;
+        _data[SpecialCargoYOffset] = destination.Y;
+    }
+
+    public void ClearSpecialCargo()
+    {
+        RequireUnboundCargo();
+        // Like delivery/expiry in the game, retain the previous coordinates:
+        // they also participate in generation of the next set of offers.
+        WriteUInt16LittleEndian(SpecialCargoRewardOffset, 0);
+    }
+
+    private void RequireUnboundCargo()
+    {
+        if (Format != CommanderFormat.EliteUnbound)
+        {
+            throw new InvalidOperationException("Special Cargo is only available in Elite: Unbound saves.");
+        }
+    }
 
     public static CommanderSave CreateOriginalJameson()
     {
-        var data = new byte[DataLength];
+        var data = new byte[OriginalDataLength];
         data[0] = 0;
         data[1] = 20;
         data[2] = 173;
@@ -65,12 +125,16 @@ public sealed class CommanderSave
 
     public static CommanderFormat? DetectFormat(byte[] data)
     {
+        if (data.Length == UnboundDataLength)
+        {
+            return CommanderFormat.EliteUnbound;
+        }
         if (CommanderChecksums.IsValid(data))
         {
             return CommanderFormat.OriginalElite;
         }
 
-        if (data.Length == DataLength &&
+        if (data.Length == OriginalDataLength &&
             data[73] is 0 or 0xFF &&
             data[74] is >= (byte)'A' and <= (byte)'Z' &&
             data[75] is >= (byte)'A' and <= (byte)'Z' &&
@@ -99,7 +163,15 @@ public sealed class CommanderSave
     public void SetRaw(int offset, byte value) => _data[offset] = value;
 
     public ushort GalaxySeedWord(int word) => ReadUInt16LittleEndian(3 + word * 2);
-    public void SetGalaxySeedWord(int word, ushort value) => WriteUInt16LittleEndian(3 + word * 2, value);
+    public void SetGalaxySeedWord(int word, ushort value)
+    {
+        if (word is < 0 or > 2) { throw new ArgumentOutOfRangeException(nameof(word)); }
+        if (GalaxySeedWord(word) != value && Format == CommanderFormat.EliteUnbound)
+        {
+            ClearSpecialCargo();
+        }
+        WriteUInt16LittleEndian(3 + word * 2, value);
+    }
 
     public byte Laser(int mount) => _data[16 + mount];
     public void SetLaser(int mount, LaserType value) => _data[16 + mount] = (byte)value;
@@ -144,8 +216,13 @@ public sealed class CommanderSave
             throw new ArgumentOutOfRangeException(nameof(galaxy));
         }
 
+        var seed = GalaxyCatalog.SeedBytes(galaxy);
+        if (Format == CommanderFormat.EliteUnbound && !seed.AsSpan().SequenceEqual(_data.AsSpan(3, seed.Length)))
+        {
+            ClearSpecialCargo();
+        }
         Galaxy = galaxy;
-        GalaxyCatalog.SeedBytes(galaxy).CopyTo(_data, 3);
+        seed.CopyTo(_data, 3);
     }
 
     public void SetSystem(EliteSystem system)
@@ -156,6 +233,10 @@ public sealed class CommanderSave
 
     public void ChangeFormat(CommanderFormat format)
     {
+        if (!Enum.IsDefined(format))
+        {
+            throw new ArgumentOutOfRangeException(nameof(format));
+        }
         if (format == Format)
         {
             return;
@@ -163,6 +244,7 @@ public sealed class CommanderSave
 
         if (format == CommanderFormat.EliteUnbound)
         {
+            Array.Resize(ref _data, UnboundDataLength);
             _data[21] = 0;
             _data[73] = 0;
             _data[74] = (byte)'J';
@@ -171,11 +253,12 @@ public sealed class CommanderSave
         }
         else
         {
+            Array.Resize(ref _data, OriginalDataLength); // Original saves have no delivery extension.
             _data[21] = 0;
             _data[73] = 128;
-            CommanderChecksums.Apply(_data);
             FuelTenths = Math.Min(FuelTenths, (byte)70);
             Missiles = Math.Min(Missiles, (byte)4);
+            CommanderChecksums.Apply(_data);
         }
 
         Format = format;
@@ -306,6 +389,10 @@ public sealed class CommanderSave
 
         if (Format == CommanderFormat.EliteUnbound)
         {
+            if (HasSpecialCargo && SpecialCargoDestination is null)
+            {
+                errors.Add("Special Cargo destination is not a system in the saved galaxy; select a destination or clear the delivery.");
+            }
             if (ship.LaserMounts < 4 && (Laser(2) != 0 || Laser(3) != 0) ||
                 ship.LaserMounts < 2 && Laser(1) != 0)
             {

@@ -12,7 +12,7 @@ public static class CommanderChecksums
     public static OriginalChecksums Calculate(byte[] data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        if (data.Length != CommanderSave.DataLength)
+        if (data.Length != CommanderSave.OriginalDataLength)
         {
             throw new ArgumentException("Commander data must contain exactly 77 bytes.", nameof(data));
         }
@@ -32,7 +32,7 @@ public static class CommanderChecksums
 
     public static bool IsValid(byte[] data)
     {
-        if (data.Length != CommanderSave.DataLength)
+        if (data.Length != CommanderSave.OriginalDataLength)
         {
             return false;
         }

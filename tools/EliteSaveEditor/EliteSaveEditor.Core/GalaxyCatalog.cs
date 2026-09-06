@@ -13,6 +13,9 @@ public static class GalaxyCatalog
     public static IReadOnlyList<EliteSystem> Systems(byte galaxy) =>
         Galaxies[Math.Min(galaxy, (byte)7)];
 
+    public static IReadOnlyList<EliteSystem> Systems(ushort seed0, ushort seed1, ushort seed2) =>
+        BuildSystems([seed0, seed1, seed2]);
+
     public static EliteSystem? FindByName(byte galaxy, string name) =>
         Systems(galaxy).FirstOrDefault(system =>
             string.Equals(system.Name, name, StringComparison.OrdinalIgnoreCase));

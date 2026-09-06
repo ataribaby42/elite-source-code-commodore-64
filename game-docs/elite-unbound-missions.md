@@ -6,7 +6,7 @@ Commander-byte numbers are relative to `DataStart`; add 2 for the physical offse
 
 ## What the save stores
 
-The commander save does **not** contain a separate target-star field. Mission destinations are constants in the program. The save only contains enough state for the game to decide what happens next:
+The three original story missions have destinations fixed in the program. Special Cargo deliveries additionally store their target coordinates and remaining reward in the commander save:
 
 | Commander byte | Variable | Meaning used by missions |
 |---:|---|---|
@@ -19,8 +19,29 @@ The commander save does **not** contain a separate target-star field. Mission de
 | `#43` / `$2B` | `ENGY` | Energy-unit type; mission 2 can set Naval Energy Unit (`2`) |
 | `#48`–`#49` / `$30`–`$31` | `TRIBBLE` | Number of Trumbles, 16-bit little-endian |
 | `#71`–`#72` / `$47`–`$48` | `TALLY` | Integer combat kill-point tally, 16-bit little-endian |
+| `#77`–`#78` / `$4D`–`$4E` | `special_cargo` | Remaining delivery reward, 16-bit little-endian, tenths of a credit; zero means inactive |
+| `#79`–`#80` / `$4F`–`$50` | `special_cargox`, `special_cargoy` | Special Cargo destination coordinates in the current galaxy |
 
-The system names are generated from the galaxy data. Mission code recognizes its destinations by `GCNT`, `QQ0`, and `QQ1`, not by a stored name, system number, or mission target.
+System names are generated from galaxy data. Original story missions recognize their destinations by `GCNT`, `QQ0`, and `QQ1`. Special Cargo compares `QQ0` and `QQ1` with its saved destination coordinates; changing galaxy cancels the delivery.
+
+## Special Cargo deliveries (`unbound=yes`)
+
+This port follows [Elite-A's Special Cargo rules](https://elite.bbcelite.com/deep_dives/elite-a_special_cargo_missions.html), with `cour_buy` and `cour_dock` as the reference implementation.
+
+- **Ctrl+1 while docked** opens the offer screen. Ctrl+2 and Ctrl+3 retain Sell Equipment and Buy Ship. Ctrl+1 in flight does not open this menu.
+- With no active delivery, the screen lists zero to fifteen destinations and their entry fees in credits. Enter a number and Return to accept; `Y` chooses the last listed offer, while `N`, zero or an invalid number cancels. With no offers, it displays `NO CONTRACTS`.
+- Only one contract can be active. Reopening Ctrl+1 shows its destination and remaining value, without charging again or generating another offer. After acceptance the same detail screen appears automatically.
+- The entry fee is deducted immediately. Insufficient cash leaves both cash and delivery state unchanged. Acceptance adds the generated illegality byte to `FIST`, preserving Elite-A's eight-bit wrapping arithmetic. Clean commanders receive a zero illegality increment.
+- **W on either chart**, docked or in flight, selects the active destination and displays its name and distance. A distant destination can lie outside the visible short-range chart. With no active delivery, W leaves the selection unchanged. The existing active-hyperspace-countdown guard still applies.
+- Actual docking at the destination pays the remaining value exactly once, displays the amount, and clears the reward. Docking anywhere else shifts the reward right by one bit. A value of one therefore expires on the next wrong-station docking. A hyperspace jump without docking does not depreciate it.
+- Delivery processing runs before the original Constrictor/Thargoid story-mission docking checks. The reward can be paid on a docking that also triggers a story briefing or debriefing; `TP` remains independent.
+- Galactic hyperspace clears the reward. Completion, expiry and galactic travel retain the old coordinates, as in Elite-A; those bytes contribute to subsequent offer generation.
+- The delivery does not occupy ordinary commodity tonnage and cannot be sold or jettisoned through the commodity screens. This matches the reference, which has no cargo-capacity check or `QQ20` update in its delivery routines.
+- Saving and loading preserve the reward and coordinates. The file now has an 81-byte payload (83 bytes with its PRG header), with previous offsets unchanged. Older 77-byte payloads load with an empty extension. New commanders and **Default JAMESON** initialize all four bytes to zero. Declining the Default JAMESON confirmation retains the current contract.
+
+Offers use Elite-A's deterministic arithmetic over the market byte `QQ26`, current coordinates, `FIST`, low kill byte, galaxy, ship type and previous delivery coordinates. The system walk excludes the current coordinates and stops after at most one galaxy traversal. Fee/reward rounding and distance calculations follow the original 6502 implementation. No extra calls to the flight random-number generator are introduced.
+
+The runtime implementation is in `elite-special-cargo.asm`, included only under `_UNBOUND`. Its six offer tables temporarily use the save/load staging page while the docked menu is open; persistent delivery data is in the commander block. Table bounds, text offsets and commander-copy limits are checked by the assembler.
 
 ## Mission byte `TP`
 
@@ -250,6 +271,12 @@ There is no Trumble target system and no separate accepted/completed mission sta
 
 ```text
 on docking:
+    if special_cargo != 0:
+        if location == (special_cargox, special_cargoy):
+            pay special_cargo once; clear special_cargo
+        else:
+            special_cargo = special_cargo >> 1
+
     m1 = TP & $03
 
     if m1 == $00 and TALLY >= $0100 and GCNT < 2:
@@ -274,6 +301,7 @@ on docking:
 | Area | Labels or tables |
 |---|---|
 | Docking trigger order | `DOENTRY`, `EN1`–`EN6` |
+| Special Cargo | `SpecialCargo`, `SpecialCargoDock`, `SpecialCargoChart`, `SpecialCargoTarget` |
 | Constrictor | `BRIEF`, `THERE`, `KILLSHP`, `DEBRIEF` |
 | Constrictor clues | `PDESC`, `RUPLA`, `RUGAL`, `RUTOK` |
 | Thargoid Plans | `BRIEF2`, `BRIEF3`, `DEBRIEF2`, extra-vessel spawning code |

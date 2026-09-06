@@ -25,47 +25,44 @@ internal sealed class EditorApplication
         var selected = 0;
         while (true)
         {
+            var sections = new List<(string Label, Action Open)>
+            {
+                ("Load TAP...", LoadTapInteractive),
+                ("Save TAP As...", SaveTap),
+                ("Commander identity and format", IdentityMenu),
+                ("Position, credits and fuel", PositionMenu),
+                ("Missions and presets", MissionMenu),
+                ("Ship and cargo", CargoMenu),
+                ("Equipment and weapons", EquipmentMenu),
+                ("Combat and legal status", CombatMenu),
+                ("Local market", MarketMenu),
+                ("Advanced values", AdvancedMenu),
+                ("Reset to original JAMESON", ResetCommander)
+            };
+            if (_commander.Format == CommanderFormat.EliteUnbound)
+            {
+                sections.Insert(6, ("Special Cargo", SpecialCargoMenu));
+            }
+
             var choice = ConsoleUi.Select(
                 Title,
-                [
-                    new("Load TAP..."),
-                    new("Save TAP As..."),
-                    new("Commander identity and format"),
-                    new("Position, credits and fuel"),
-                    new("Missions and presets"),
-                    new("Ship and cargo"),
-                    new("Equipment and weapons"),
-                    new("Combat and legal status"),
-                    new("Local market"),
-                    new("Advanced values"),
-                    new("Reset to original JAMESON"),
-                    new("Exit")
-                ],
+                sections.Select(section => new MenuItem(section.Label)).Append(new("Exit")).ToArray(),
                 Summary(),
                 selected: selected,
                 allowCancel: false);
 
             selected = choice ?? selected;
 
-            switch (choice)
+            if (choice == sections.Count)
             {
-                case 0: LoadTapInteractive(); break;
-                case 1: SaveTap(); break;
-                case 2: IdentityMenu(); break;
-                case 3: PositionMenu(); break;
-                case 4: MissionMenu(); break;
-                case 5: CargoMenu(); break;
-                case 6: EquipmentMenu(); break;
-                case 7: CombatMenu(); break;
-                case 8: MarketMenu(); break;
-                case 9: AdvancedMenu(); break;
-                case 10: ResetCommander(); break;
-                case 11:
-                    if (!_dirty || ConsoleUi.Confirm("Exit", "Discard unsaved changes and exit?"))
-                    {
-                        return 0;
-                    }
-                    break;
+                if (!_dirty || ConsoleUi.Confirm("Exit", "Discard unsaved changes and exit?"))
+                {
+                    return 0;
+                }
+            }
+            else if (choice is not null)
+            {
+                sections[choice.Value].Open();
             }
         }
     }
@@ -127,13 +124,14 @@ internal sealed class EditorApplication
 
             var entry = positions[selected];
             var detected = CommanderSave.DetectFormat(entry.Data);
+            var automatic = detected is not null;
             if (detected is null)
             {
                 var formatChoice = ConsoleUi.Select(
                     "Unknown Commander Format",
                     [new("Treat as Original Elite"), new("Treat as Elite: Unbound")],
                     "The internal Original Elite checksums and the Elite: Unbound registration fields are both invalid.\n" +
-                    "Choose how the 77-byte commander block should be interpreted.");
+                    "Automatic detection could not identify this older 77-byte save. Choose how to interpret it.");
                 if (formatChoice is null)
                 {
                     return;
@@ -150,7 +148,8 @@ internal sealed class EditorApplication
             var message = new List<string>
             {
                 $"Loaded commander {_commander.Name} from {Path.GetFileName(path)}.",
-                $"Format: {FormatName(_commander.Format)}"
+                $"Format: {FormatName(_commander.Format)} ({(automatic ? "detected automatically" : "selected manually")})",
+                $"Loaded {entry.Data.Length} commander bytes; saving this type writes {_commander.Data.Length} bytes."
             };
             if (problems.Count > 0)
             {
@@ -230,6 +229,7 @@ internal sealed class EditorApplication
                 path,
                 "",
                 checksumText,
+                $"Format: {FormatName(_commander.Format)}; commander data: {data.Length} bytes.",
                 "Both KERNAL tape copies and all tape XOR checksums were generated.");
         }
         catch (Exception exception)
@@ -334,8 +334,10 @@ internal sealed class EditorApplication
             ? CommanderFormat.EliteUnbound
             : CommanderFormat.OriginalElite;
         var note = other == CommanderFormat.EliteUnbound
-            ? "The original checksum bytes will become registration JS-042, and the player ship will be Cobra Mk III."
-            : "The registration bytes will become the original save count and recalculated commander checksums.";
+            ? "The saved commander will have 81 bytes, with an empty Special Cargo record.\n" +
+              "The original checksum bytes will become registration JS-042, and the player ship will be Cobra Mk III."
+            : "The saved commander will have 77 bytes. Special Cargo will be removed.\n" +
+              "The registration bytes will become the original save count and recalculated commander checksums.";
 
         if (ConsoleUi.Confirm("Convert Save Format", $"Convert this position to {FormatName(other)}?\n\n{note}"))
         {
@@ -453,6 +455,59 @@ internal sealed class EditorApplication
             _commander.SetSystem(systems[choice.Value]);
             _dirty = true;
         }
+    }
+
+    private void SpecialCargoMenu()
+    {
+        var selected = 0;
+        while (_commander.Format == CommanderFormat.EliteUnbound)
+        {
+            var destination = _commander.SpecialCargoDestination;
+            var summary = _commander.HasSpecialCargo
+                ? $"Destination: {destination?.Name ?? "Unknown system"} " +
+                  $"({_commander.SpecialCargoTargetX},{_commander.SpecialCargoTargetY})\n" +
+                  $"Remaining reward: {FormatOneDecimal(_commander.SpecialCargoRewardTenths / 10m)} Cr"
+                : "No active Special Cargo delivery.";
+            var items = new List<MenuItem>
+            {
+                new(_commander.HasSpecialCargo ? "Edit delivery..." : "Add delivery...")
+            };
+            if (_commander.HasSpecialCargo)
+            {
+                items.Add(new("Clear delivery"));
+            }
+            var choice = ConsoleUi.Select("Special Cargo", items,
+                summary + $"\nDestinations are in the current galaxy ({_commander.Galaxy + 1}).", selected);
+            if (choice is null) { return; }
+            selected = choice.Value;
+            if (choice == 0)
+            {
+                EditSpecialCargo();
+            }
+            else
+            {
+                _commander.ClearSpecialCargo();
+                _dirty = true;
+            }
+        }
+    }
+
+    private void EditSpecialCargo()
+    {
+        var systems = _commander.CurrentGalaxySystems()
+            .OrderBy(system => system.Name).ThenBy(system => system.Number).ToArray();
+        var x = _commander.HasSpecialCargo ? _commander.SpecialCargoTargetX : _commander.SystemX;
+        var y = _commander.HasSpecialCargo ? _commander.SpecialCargoTargetY : _commander.SystemY;
+        var selected = Math.Max(0, Array.FindIndex(systems, system => system.X == x && system.Y == y));
+        var choice = ConsoleUi.Select(
+            "Special Cargo Destination",
+            systems.Select(system => new MenuItem($"{system.Name,-10}  ({system.X,3},{system.Y,3})  #{system.Number}")).ToArray(),
+            "Choose a destination in the saved galaxy. Page Up/Down moves through the list.", selected);
+        if (choice is null) { return; }
+        var reward = ReadCredits("Special Cargo Reward", _commander.SpecialCargoRewardTenths, 1, ushort.MaxValue);
+        if (reward is null) { return; }
+        _commander.SetSpecialCargo(systems[choice.Value], (ushort)reward.Value);
+        _dirty = true;
     }
 
     private void MissionMenu()
@@ -854,7 +909,7 @@ internal sealed class EditorApplication
                 new($"TAP load address: 0x{_commander.LoadAddress:X4}"),
                 new($"Competition/version flags #14: 0x{_commander.CompetitionFlags:X2} (read-only)"),
                 new($"Tape data XOR checksum: 0x{tapeXor:X2} (automatic)"),
-                new("View raw 77-byte commander block")
+                new($"View raw {data.Length}-byte commander block")
             };
             if (_commander.Format == CommanderFormat.OriginalElite)
             {
@@ -964,14 +1019,16 @@ internal sealed class EditorApplication
         }
     }
 
-    private uint? ReadCredits()
+    private uint? ReadCredits() => ReadCredits("Credits", _commander.CashTenths, 0, uint.MaxValue);
+
+    private static uint? ReadCredits(string title, uint current, uint minimum, uint maximum)
     {
         while (true)
         {
             var input = ConsoleUi.ReadText(
-                "Credits",
-                $"Enter credits from 0.0 to {FormatOneDecimal(uint.MaxValue / 10m)}, with at most one decimal place:",
-                (_commander.CashTenths / 10m).ToString("0.0", CultureInfo.InvariantCulture),
+                title,
+                $"Enter credits from {FormatOneDecimal(minimum / 10m)} to {FormatOneDecimal(maximum / 10m)}, with at most one decimal place:",
+                (Math.Max(current, minimum) / 10m).ToString("0.0", CultureInfo.InvariantCulture),
                 20);
             if (input is null)
             {
@@ -979,7 +1036,7 @@ internal sealed class EditorApplication
             }
 
             if (decimal.TryParse(input.Replace(',', '.'), NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var credits) &&
-                credits >= 0 && credits * 10 <= uint.MaxValue && decimal.Truncate(credits * 10) == credits * 10)
+                credits >= minimum / 10m && credits <= maximum / 10m && decimal.Truncate(credits * 10) == credits * 10)
             {
                 return (uint)(credits * 10);
             }

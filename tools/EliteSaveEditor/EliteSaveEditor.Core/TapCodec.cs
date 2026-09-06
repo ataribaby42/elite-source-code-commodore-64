@@ -49,7 +49,7 @@ public static class TapCodec
 
             var start = BinaryPrimitives.ReadUInt16LittleEndian(payload.AsSpan(1, 2));
             var end = BinaryPrimitives.ReadUInt16LittleEndian(payload.AsSpan(3, 2));
-            if (payload[0] is not (1 or 3) || end - start != CommanderSave.DataLength)
+            if (payload[0] is not (1 or 3) || !IsCommanderLength(end - start))
             {
                 continue;
             }
@@ -69,9 +69,13 @@ public static class TapCodec
                 .ThenBy(candidate => candidate.Position);
 
             byte[]? commanderData = null;
+            var header = group.Header;
+            var dataLength = BinaryPrimitives.ReadUInt16LittleEndian(header.AsSpan(3, 2)) -
+                             BinaryPrimitives.ReadUInt16LittleEndian(header.AsSpan(1, 2));
             foreach (var candidate in dataCandidates)
             {
-                if (TryReadRecord(pulses, candidate.Position, CommanderSave.DataLength, out var payload, out _))
+                if (TryReadRecord(pulses, candidate.Position, dataLength, out var payload, out var endPosition) &&
+                    endPosition <= boundary)
                 {
                     commanderData = payload;
                     break;
@@ -83,7 +87,6 @@ public static class TapCodec
                 continue;
             }
 
-            var header = group.Header;
             var name = DecodeFilename(header.AsSpan(5, 16));
             var loadAddress = BinaryPrimitives.ReadUInt16LittleEndian(header.AsSpan(1, 2));
             files.Add(new TapCommanderFile(name, loadAddress, commanderData));
@@ -91,7 +94,7 @@ public static class TapCodec
 
         if (files.Count == 0)
         {
-            throw new InvalidDataException("No valid 77-byte Elite commander position was found in the TAP image.");
+            throw new InvalidDataException("No valid 77-byte Elite or 81-byte Unbound commander position was found in the TAP image.");
         }
 
         return files;
@@ -106,9 +109,9 @@ public static class TapCodec
         var count = 0;
         foreach (var file in files)
         {
-            if (file.Data.Length != CommanderSave.DataLength)
+            if (!IsCommanderLength(file.Data.Length))
             {
-                throw new ArgumentException("Each commander position must contain exactly 77 bytes.", nameof(files));
+                throw new ArgumentException("Each commander position must contain 77 bytes (Original/older Unbound) or 81 bytes (Unbound).", nameof(files));
             }
 
             AppendStandardFile(pulses, file);
@@ -130,6 +133,9 @@ public static class TapCodec
         pulses.CopyTo(result, 20);
         return result;
     }
+
+    private static bool IsCommanderLength(int length) =>
+        length is CommanderSave.OriginalDataLength or CommanderSave.UnboundDataLength;
 
     private static void AppendStandardFile(List<byte> output, TapCommanderFile file)
     {

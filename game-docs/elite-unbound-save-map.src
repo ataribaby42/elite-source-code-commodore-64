@@ -1,18 +1,22 @@
 ;
 ; ELITE: UNBOUND commander save map for Commodore 64
 ;
-; Base revisions for both repository branches:
+; Base revisions before the subsequent registration and Special Cargo extensions:
 ;   main         c24c5134e1bf92ec525385d6c1a7fb370962e385
 ;   flicker-free bac2631efaf12d58961a885de2711aaf2660d75f
 ;
 ; The commander name is the Commodore filename. It is not stored in this data.
 ;
 ; The two-byte PRG load address is outside the commander block. Commander byte
-; numbers #0-#76 and hexadecimal offsets $00-$4C below are relative to
+; numbers #0-#80 and hexadecimal offsets $00-$50 below are relative to
 ; DataStart. Add 2 to obtain the physical offset in an extracted PRG file.
 ;
-; Commander block size: 77 bytes ($4D)
-; PRG file size:        79 bytes ($4F), including the two-byte load address
+; Commander block size: 81 bytes ($51)
+; PRG file size:        83 bytes ($53), including the two-byte load address
+;
+; Special Cargo appends four bytes; offsets #0-#76 remain unchanged. The loader
+; clears the extension in staging RAM before LOAD, so older 77-byte commanders
+; load with no delivery. Default JAMESON resets all four extension bytes.
 ;
 ; The values below form a loadable example for a new Adder commander. Elite:
 ; Unbound does not use commander checksums. Byte #73 stores whether the plate
@@ -167,12 +171,22 @@ DataStart:
     .byte   'S'             ; #75 $4B regplate_2: second letter, ASCII A-Z
     .byte   42              ; #76 $4C regplate_3: number 1-255 (JS-042)
 
+    .word   $0000           ; #77 $4D special_cargo: remaining delivery reward,
+                            ;   16-bit little-endian, in tenths of a credit.
+                            ;   Zero means no active delivery. Docking elsewhere
+                            ;   halves it; arrival pays once and resets it.
+    .byte   $00             ; #79 $4F special_cargox: delivery target X
+    .byte   $00             ; #80 $50 special_cargoy: delivery target Y
+                            ;   Coordinates remain after completion/expiration.
+                            ;   Galactic hyperspace clears the reward, so the
+                            ;   target is always in the current galaxy.
+
 DataEnd:
 
-.if (* - DataStart) <> 77
+.if (* - DataStart) <> 81
 .out Commander structure size mismatch
 .endif
 
-.if (* - FileStart) <> 79
+.if (* - FileStart) <> 83
 .out PRG file size mismatch
 .endif

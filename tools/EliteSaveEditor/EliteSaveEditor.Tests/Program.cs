@@ -12,6 +12,11 @@ var tests = new (string Name, Action Run)[]
     ("TAP single-position round trip", TestTapRoundTrip),
     ("TAP backup-copy recovery", TestTapBackupRecovery),
     ("TAP multiple-position selection data", TestMultiplePositions),
+    ("Commander lengths, automatic detection and conversion", TestCommanderFormats),
+    ("Special Cargo state and boundaries", TestSpecialCargo),
+    ("Special Cargo saved galaxy and ship changes", TestSpecialCargoGalaxy),
+    ("Mixed Original, legacy Unbound and extended Unbound TAP", TestMixedLengths),
+    ("Extended TAP checksum and backup recovery", TestExtendedTapRecovery),
     ("Attached FLINT TAP", TestAttachedFlintTap),
     ("Attached two-position TAP", TestAttachedMultiPositionTap)
 };
@@ -288,6 +293,193 @@ static void TestAttachedMultiPositionTap()
     Equal((byte)13, commanders[1].SystemX, "Second position X");
     Equal((byte)186, commanders[1].SystemY, "Second position Y");
     Equal(34_180u, commanders[1].CashTenths, "Second position credits");
+}
+
+static void TestCommanderFormats()
+{
+    var original = CommanderSave.CreateOriginalJameson().ExportData();
+    var current = CreateUnbound().ExportData();
+    Equal(77, original.Length, "Original payload");
+    Equal(81, current.Length, "Unbound payload");
+    Equal<CommanderFormat?>(CommanderFormat.EliteUnbound, CommanderSave.DetectFormat(current), "Extended detection");
+    var legacy = current[..77];
+    Equal<CommanderFormat?>(CommanderFormat.EliteUnbound, CommanderSave.DetectFormat(legacy), "Legacy detection");
+    var migrated = new CommanderSave("LEGACY", legacy, CommanderFormat.EliteUnbound);
+    SequenceEqual(legacy, migrated.ExportData()[..77], "Legacy prefix retained");
+    SequenceEqual(new byte[4], migrated.ExportData()[77..], "Empty extension for legacy");
+
+    // Length wins even if an extended save's prefix happens to pass Original
+    // checksums, or its registration needs repair.
+    var checksumCollision = new byte[81];
+    original.CopyTo(checksumCollision, 0);
+    Equal<CommanderFormat?>(CommanderFormat.EliteUnbound, CommanderSave.DetectFormat(checksumCollision), "Extended checksum collision");
+    Throws<ArgumentException>(() => new CommanderSave("BAD", current, CommanderFormat.OriginalElite));
+    foreach (var length in new[] { 0, 76, 78, 79, 80, 82, 83 })
+    {
+        foreach (var format in Enum.GetValues<CommanderFormat>())
+        {
+            Throws<ArgumentException>(() => new CommanderSave("BAD", new byte[length], format));
+        }
+        Throws<ArgumentException>(() => TapCodec.Write([new("BAD", 0, new byte[length])]));
+        Equal<CommanderFormat?>(null, CommanderSave.DetectFormat(new byte[length]), "Unknown length");
+    }
+
+    var commander = migrated.Clone();
+    commander.SetSpecialCargo(GalaxyCatalog.FindByName(0, "Lave")!, 5350);
+    commander.ChangeFormat(CommanderFormat.OriginalElite);
+    Equal(77, commander.ExportData().Length, "Conversion to Original removes extension");
+    True(CommanderChecksums.IsValid(commander.ExportData()), "Converted Original checksums");
+    commander.ChangeFormat(CommanderFormat.EliteUnbound);
+    Equal(81, commander.ExportData().Length, "Conversion back to Unbound");
+    True(!commander.HasSpecialCargo, "Conversion must not resurrect a discarded delivery");
+    Equal("JS-042", commander.RegistrationId, "Registration restored when converting");
+}
+
+static void TestSpecialCargo()
+{
+    var commander = CreateUnbound();
+    var before = commander.ExportData()[..77];
+    var lave = GalaxyCatalog.FindByName(0, "Lave")!;
+    foreach (ushort reward in new ushort[] { 1, 5350, ushort.MaxValue })
+    {
+        commander.SetSpecialCargo(lave, reward);
+        Equal(reward, commander.SpecialCargoRewardTenths, "Reward");
+        Equal("LAVE", commander.SpecialCargoDestination!.Name, "Destination");
+        var data = commander.ExportData();
+        SequenceEqual(before, data[..77], "Setting cargo preserves all existing commander fields");
+        SequenceEqual(new byte[] { (byte)reward, (byte)(reward >> 8), 20, 173 }, data[77..], "Game extension layout");
+        Equal(0, commander.Validate().Count, "Valid delivery");
+        var clone = commander.Clone();
+        clone.ClearSpecialCargo();
+        True(commander.HasSpecialCargo && !clone.HasSpecialCargo, "Clone storage is independent");
+        SequenceEqual(data[79..], clone.ExportData()[79..], "Clearing preserves previous offer coordinates as in game");
+    }
+    var unchanged = commander.ExportData();
+    Throws<ArgumentOutOfRangeException>(() => commander.SetSpecialCargo(lave, 0));
+    Throws<ArgumentException>(() => commander.SetSpecialCargo(new(0, "INVALID", 0, 0, 0), 100));
+    SequenceEqual(unchanged, commander.ExportData(), "Rejected edits are atomic");
+
+    commander.SetRaw(79, 0);
+    commander.SetRaw(80, 0);
+    True(commander.Validate().Any(error => error.Contains("Special Cargo destination")), "Invalid active target rejected");
+    commander.ClearSpecialCargo();
+    Equal(0, commander.Validate().Count, "Inactive coordinates need not be a system");
+    SequenceEqual(before, commander.ExportData()[..77], "Clear preserves other commander state");
+    var original = CommanderSave.CreateOriginalJameson();
+    True(!original.HasSpecialCargo, "Original has no cargo extension");
+    Throws<InvalidOperationException>(() => original.SetSpecialCargo(lave, 100));
+    Throws<InvalidOperationException>(() => original.ClearSpecialCargo());
+}
+
+static void TestSpecialCargoGalaxy()
+{
+    var commander = CreateUnbound();
+    foreach (byte galaxy in Enumerable.Range(0, 8).Select(value => (byte)value))
+    {
+        commander.SetGalaxy(galaxy);
+        var target = commander.CurrentGalaxySystems()[255];
+        commander.SetSpecialCargo(target, 5350);
+        commander.SetGalaxy(galaxy);
+        True(commander.HasSpecialCargo, "Selecting the same galaxy preserves cargo");
+        Equal(target, commander.SpecialCargoDestination, "Last system in saved galaxy");
+        commander.ChangeShip(1);
+        True(commander.HasSpecialCargo, "Changing hull preserves separate delivery");
+        commander.SetGalaxy((byte)((galaxy + 1) % 8));
+        True(!commander.HasSpecialCargo, "Changing galaxy cancels delivery");
+    }
+    // Use the raw seed rather than assuming the galaxy-number byte is authoritative.
+    var seed = GalaxyCatalog.SeedBytes(2);
+    for (var word = 0; word < 3; word++)
+    {
+        commander.SetGalaxySeedWord(word, (ushort)(seed[2 * word] | seed[2 * word + 1] << 8));
+    }
+    commander.Galaxy = 0;
+    var ceerdi = GalaxyCatalog.FindByName(2, "Ceerdi")!;
+    commander.SetSpecialCargo(ceerdi, 5350);
+    Equal("CEERDI", commander.SpecialCargoDestination!.Name, "Destination uses raw saved seed");
+    commander.SetGalaxySeedWord(0, commander.GalaxySeedWord(0));
+    True(commander.HasSpecialCargo, "Unchanged seed preserves cargo");
+    commander.SetGalaxySeedWord(0, (ushort)(commander.GalaxySeedWord(0) ^ 1));
+    True(!commander.HasSpecialCargo, "Changed raw seed cancels cargo");
+}
+
+static void TestMixedLengths()
+{
+    var original = CommanderSave.CreateOriginalJameson();
+    var unbound = CreateUnbound();
+    unbound.SetRegistrationLetters("ZZ");
+    unbound.RegistrationNumber = 255;
+    unbound.RegistrationScrambled = true;
+    unbound.SetSpecialCargo(GalaxyCatalog.FindByName(0, "Lave")!, 5350);
+    var files = new TapCommanderFile[]
+    {
+        new("SAME", original.LoadAddress, original.ExportData()),
+        new("SAME", unbound.LoadAddress, unbound.ExportData()),
+        new("SAME", unbound.LoadAddress, unbound.ExportData()[..77])
+    };
+    var loaded = TapCodec.Read(TapCodec.Write(files));
+    Equal(3, loaded.Count, "Same-named files with mixed lengths remain distinct");
+    for (var i = 0; i < files.Length; i++)
+    {
+        SequenceEqual(files[i].Data, loaded[i].Data, "Mixed TAP payload");
+        var format = CommanderSave.DetectFormat(loaded[i].Data)!.Value;
+        var restored = new CommanderSave(loaded[i].Name, loaded[i].Data, format, loaded[i].LoadAddress);
+        Equal(i == 0 ? 77 : 81, restored.ExportData().Length, "Output length by selected type");
+        if (i != 0) { Equal("ZZ-255", restored.RegistrationId, "Registration is not checksummed"); }
+        Equal(i == 1, restored.HasSpecialCargo, "Only extended file has delivery");
+    }
+    var fixtureDirectory = Environment.GetEnvironmentVariable("ELITE_TEST_OUTPUT");
+    if (!string.IsNullOrEmpty(fixtureDirectory))
+    {
+        Directory.CreateDirectory(fixtureDirectory);
+        TapCodec.Write(Path.Combine(fixtureDirectory, "mixed.tap"), files);
+        for (var i = 0; i < files.Length; i++)
+        {
+            TapCodec.Write(Path.Combine(fixtureDirectory, $"format-{i}.tap"), [files[i]]);
+        }
+    }
+}
+
+static void TestExtendedTapRecovery()
+{
+    var commander = CreateUnbound();
+    commander.SetSpecialCargo(GalaxyCatalog.FindByName(0, "Lave")!, ushort.MaxValue);
+    var data = commander.ExportData();
+    var tap = TapCodec.Write([new(commander.Name, commander.LoadAddress, data)]);
+    var primary = tap.AsSpan().LastIndexOf(CountdownPulses(true));
+    var backup = tap.AsSpan().LastIndexOf(CountdownPulses(false));
+    True(primary > 0 && backup > primary, "Both data countdowns found");
+    // Corrupt the last extension byte, after the nine countdown bytes.
+    // Twenty pulses encode each ROM byte; pulse four belongs to its first bit.
+    tap[primary + (9 + data.Length - 1) * 20 + 4] = 1;
+    SequenceEqual(data, TapCodec.Read(tap).Single().Data, "Backup retains all 81 bytes");
+    tap[backup + (9 + data.Length - 1) * 20 + 4] = 1;
+    Throws<InvalidDataException>(() => TapCodec.Read(tap));
+}
+
+static byte[] CountdownPulses(bool primary)
+{
+    var pulses = new List<byte>();
+    for (var count = 9; count > 0; count--)
+    {
+        var value = count | (primary ? 0x80 : 0);
+        pulses.AddRange(new byte[] { 0x55, 0x41 });
+        var parity = 1;
+        for (var bit = 0; bit < 9; bit++)
+        {
+            var set = bit == 8 ? parity : (value >> bit) & 1;
+            if (bit < 8) { parity ^= set; }
+            pulses.AddRange(set == 0 ? new byte[] { 0x2D, 0x41 } : new byte[] { 0x41, 0x2D });
+        }
+    }
+    return pulses.ToArray();
+}
+
+static void Throws<T>(Action action) where T : Exception
+{
+    try { action(); }
+    catch (T) { return; }
+    throw new InvalidOperationException($"Expected {typeof(T).Name}.");
 }
 
 static CommanderSave CreateUnbound()
