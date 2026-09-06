@@ -55,6 +55,7 @@
 
     <nav class="page-toc" aria-label="Obsah stránky">
       <a href="#new-keyboard-commands">Nové klávesové příkazy</a>
+      <a href="#special-cargo">Zakázky Special Cargo</a>
       <a href="#status-screen">Obrazovka Status</a>
       <a href="#inventory-screen">Obrazovka Inventory</a>
       <a href="#sell-equip-screen">Obrazovka Sell Equip</a>
@@ -87,9 +88,19 @@
         <p><strong>Po přistání:</strong></p>
 
         <ul>
+          <li><code class="nowrap">Ctrl + 1</code> — Otevře nabídku Special Cargo nebo detail přijaté zakázky.</li>
           <li><code class="nowrap">Ctrl + 2</code> — Otevře obrazovku Sell Equip.</li>
           <li><code class="nowrap">Ctrl + 3</code> — Otevře obrazovku Buy Ship.</li>
         </ul>
+      </section>
+
+      <section id="special-cargo">
+        <h2>Zakázky Special Cargo</h2>
+        <p>Po zadokování stiskněte <code class="nowrap">Ctrl + 1</code> a zobrazí se až patnáct přepravních zakázek. Cena u cílové planety je vstupní poplatek v kreditech. Zakázku přijmete zadáním jejího čísla a stisknutím Return; klávesou N výběr zrušíte. Současně můžete mít jen jednu zakázku. Ctrl + 1 pak zobrazí její cíl a zbývající hodnotu.</p>
+        <p>Přijetí potvrdí stejné pípnutí jako nákup vybavení. Inventory navíc ukazuje cíl aktivní zakázky a zbývající odměnu v řádku <code>Cargo:</code> nad údajem Fuel.</p>
+        <p>Na obou mapách klávesa <code>W</code> vybere cíl zakázky a zobrazí jeho název a vzdálenost. Vzdálený cíl může ležet mimo výřez místní mapy.</p>
+        <p>Zadokováním v cíli získáte zbývající odměnu. Každé zadokování jinde její hodnotu rozpůlí; samotné hyperprostorové skoky ji nesnižují. Galaktický hyperprostor zakázku zruší. Vstupní poplatek se nevrací.</p>
+        <p>Stejně jako v Elite-A se Special Cargo eviduje samostatně a nezabírá kapacitu běžného nákladového prostoru. Některé zakázky mohou zvýšit stávající trestní záznam. Zakázka se ukládá s commanderem; volba Default JAMESON ji vymaže.</p>
       </section>
 
       <section id="status-screen">

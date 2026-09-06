@@ -261,6 +261,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  OINT = $1A             ; Internal key number for key "O" (Crosshairs home)
 
+ WINT = $37             ; Internal key number for key "W" (Special Cargo target)
+
  YINT = $27             ; Internal key number for key "Y" (Y/N)
 
  RED = %01010101        ; Four multicolour bitmap mode pixels of colour %01,
@@ -970,6 +972,8 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ;   6   = Death screen
                         ;   8   = Status Mode screen (key "9")
                         ;         Inventory screen (key "0")
+                        ;   10  = Unbound in-flight Cargo Jettison (CTRL+2)
+                        ;   11  = Unbound docked Special Cargo (CTRL+1)
                         ;   13  = Title screen
                         ;   16  = Market Price screen (key "8")
                         ;   32  = Equip Ship screen (key "4")
@@ -2044,10 +2048,20 @@ ELSE                   ; ELITE: Unbound build option (else)
 
 ENDIF                  ; ELITE: Unbound build option (end)
 
- NT% = SVC + 3 - TP     ; This sets the variable NT% to the size of the current
-                        ; commander data block, which starts at TP and ends at
-                        ; SVC+3 (inclusive), i.e. with registration byte #76 in
-                        ; Unbound or the last checksum byte in the original game
+IF _UNBOUND
+.special_cargo
+ SKIP 2                 ; Remaining Special Cargo reward, little-endian, #77-78
+.special_cargox
+ SKIP 1                 ; Delivery target X, #79
+.special_cargoy
+ SKIP 1                 ; Delivery target Y, #80
+ENDIF
+.CommanderDataEnd
+
+ NT% = CommanderDataEnd - TP - 1 ; Last commander byte index, inclusive
+                        ; Unbound appends four delivery bytes after the plate.
+                        ; The original game still ends at its checksum byte.
+ ASSERT NT% < 128       ; Commander-copy loops use signed eight-bit indices
 
 .MCH
 
@@ -2266,6 +2280,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; The top bit for Trumble Y's x-coordinate is stored in
                         ; TRIBXH + Y*2, for Y = 0 to 5
 
+ ASSERT P% <= $0580     ; Keep commander extension clear of WP
  PRINT "UP workspace from ", ~UP, "to ", ~P%-1, "inclusive"
 
 ; ******************************************************************************
@@ -2936,6 +2951,9 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  LDY #44                ; Wait for 44/50 of a second (0.88 seconds) on PAL
  JSR DELAY              ; systems, or 44/60 of a second (0.73 seconds) on NTSC
+IF _UNBOUND
+ JSR SpecialCargoDock   ; Deliver or depreciate cargo once per real docking
+ENDIF
 
  LDA TP                 ; Fetch bits 0 and 1 of TP, and if they are non-zero
  AND #%00000011         ; (i.e. mission 1 is either in progress or has been
@@ -6745,9 +6763,17 @@ ELSE                   ; ELITE: Unbound build option (else)
 
 ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND
+ SKIP CommanderDataEnd - special_cargo ; Saved delivery state
+ENDIF
 .CommanderSaveEnd
+ ASSERT CommanderSaveEnd - (NA% + 8) = NT% + 1
 
+IF _UNBOUND
+ SKIP 20 - (CommanderDataEnd - special_cargo) ; Reuse existing padding
+ELSE
  SKIP 20                ; These bytes appear to be unused
+ENDIF
 
 ; ******************************************************************************
 ;
@@ -6977,7 +7003,13 @@ ELSE                   ; ELITE: Unbound build option (else)
 
 ENDIF                  ; ELITE: Unbound build option (end)
 
+IF _UNBOUND
+ SKIP CommanderDataEnd - special_cargo ; New commander: no delivery
+ ASSERT P% - (NA2% + 8) = NT% + 1
+ SKIP 12 - (CommanderDataEnd - special_cargo) ; Keep default block size
+ELSE
  SKIP 12                ; These bytes appear to be unused
+ENDIF
 
 .NAEND%
 
@@ -20819,6 +20851,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; instead and saved the above call to TT60, but you
                         ; just can't optimise everything
 
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR SpecialCargoInventory ; Active delivery in the spare row below the title
+ENDIF                  ; ELITE: Unbound build option (end)
+
  JSR fwl                ; Call fwl to print the fuel and cash levels on two
                         ; separate lines
 
@@ -22028,6 +22064,10 @@ ENDIF                  ; ELITE: Unbound build option (end)
  STX GHYP               ; The galactic hyperdrive is a one-use item, so set GHYP
                         ; to 0 so we no longer have one fitted
 
+IF _UNBOUND
+ STX special_cargo      ; A delivery cannot be carried into another galaxy
+ STX special_cargo+1
+ENDIF
  STX FIST               ; Changing galaxy also clears our criminal record, so
                         ; set our legal status in FIST to 0 ("clean")
 
@@ -35442,6 +35482,14 @@ ENDIF                  ; ELITE: Unbound build option (end)
                         ; for f1-f3 and "@" (save commander file) key presses
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ ; CTRL+1 opens Special Cargo only in the docked dispatch path.
+ BIT KLO+$06            ; CTRL
+ BPL notCtrl1
+ BIT KLO+f1             ; "1"
+ BPL notCtrl1
+ JMP SpecialCargo
+.notCtrl1
+
  ; ELITE: Unbound: CTRL+2 opens the Elite-A-style Sell Equipment screen.
  ; Detect the chord from the raw C64 key logger, just like CTRL+3 below. BIT
  ; leaves A unchanged, so normal key dispatch remains untouched when CTRL+2 is
@@ -35587,6 +35635,12 @@ ENDIF                  ; ELITE: Unbound build option (end)
  LDA T1                 ; Restore the original value of A (the key that's been
                         ; pressed) from T1
 
+IF _UNBOUND
+ CMP #WINT              ; W selects the Special Cargo destination
+ BNE notSpecialCargoKey
+ JMP SpecialCargoChart
+.notSpecialCargoKey
+ENDIF
  CMP #OINT              ; If "O" was pressed, do the following three jumps,
  BNE ee2                ; otherwise skip to ee2 to continue
 
@@ -37941,6 +37995,15 @@ ENDIF
 
 .LOD
 
+IF _UNBOUND
+ ; Old Unbound saves stop before the extension; LOAD leaves these zeros intact.
+ LDA #0
+ LDY #CommanderDataEnd - special_cargo - 1
+.specialCargoLoadClear
+ STA TAP% + special_cargo - TP,Y
+ DEY
+ BPL specialCargoLoadClear
+ENDIF
  JSR KERNALSETUP        ; Set up memory so we can use the Kernal functions,
                         ; which includes swapping the contents of zero page with
                         ; the page at $CE00 (so the Kernal functions get a zero
@@ -59251,6 +59314,10 @@ ENDIF
 
 IF _BOUNTY_HUNTER_FIX AND _UNBOUND AND (_DIALS <> 2)
  INCLUDE "1-source-files/main-sources/elite-bounty-hunter.asm"
+ENDIF
+
+IF _UNBOUND
+ INCLUDE "1-source-files/main-sources/elite-special-cargo.asm"
 ENDIF
 
 .F%

@@ -1,10 +1,93 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 3. září 2026.
+Stav poznámek: 6. září 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
 a nový build.
+
+## Special Cargo z Elite-A (2026-09-06)
+
+Implementováno v main i flicker-free, výhradně pro `unbound=yes`.
+`Ctrl+1` po zadokování otevírá nabídku až 15 přepravních zakázek; při
+aktivní zakázce zobrazí cíl a zbývající hodnotu. `Ctrl+2` zachovává prodej
+vybavení a odhazování nákladu za letu. `W` na obou mapách vybírá cíl
+aktivní zakázky, po zadokování i za letu.
+
+Inventory zobrazuje aktivní zakázku v původně prázdném řádku nad Fuel:
+`Cargo:Lave 535.0 CR`. Zachovává ostatní řádky i výběr a vzdálenost na
+mapě. Osmipísmenný název s maximální hodnotou 6553.5 CR se vejde.
+Řádky VALUE a Cash? jsou posunuté o znak doprava. Přijetí zakázky přehraje
+stejný BEEP jako úspěšný nákup vybavení; pouhé otevření zakázky nepípá.
+Nadpis nabídky obsahuje jen SPECIAL CARGO; popisek FEE/CR byl odstraněn.
+Odstranění popisku a mezery za Cargo: ušetřilo dalších 17 B HICODE.
+
+Generování cílů, poplatků, odměn a ilegality zachovává aritmetiku Elite-A.
+Platí jedna aktivní zakázka: zadokování v cíli vyplatí zbývající hodnotu
+právě jednou, zadokování jinde ji rozpůlí, samotný hyperspace ji nesnižuje.
+Galaktický hyperspace zakázku zruší. Special Cargo nezabírá tonáž běžného
+nákladu a nemění bity původních misí v TP. Zpracovává se před jejich
+původními dokovacími kontrolami.
+
+Commander nově obsahuje 81 datových bajtů (83 B včetně PRG hlavičky).
+Původní offsety #0–#76 zůstávají zachované; #77–#78 je little-endian
+odměna v desetinách kreditu a #79–#80 jsou cílové souřadnice. Stará 77B
+uložení se načtou s nulovou zakázkou. Nový commander i potvrzená volba
+Default JAMESON vynulují všechny čtyři nové bajty. Zamítnutí potvrzení
+zakázku zachová. Rozšíření kopií NA% a NA2% využívá jejich původní výplň.
+
+Modul `elite-special-cargo.asm` je v HICODE (656 B); celá změna přidává
+695 B HICODE a 3 B LOCODE. Živá commander data rostou o 4 B. Nabídky
+používají 96 B staging RAM od TAP% pouze během dokovaného menu. Meze tabulek,
+textů, commander kopírování i UP workspace hlídají assemblerové ASSERT.
+
+Aktuální plná konfigurace s bountyhunterfix, renderspeedups a planetdatafix:
+
+| Větev | R% | F% | Přidatelné LOCODE | Přidatelné HICODE | Přidatelné RLE |
+|---|---|---|---:|---:|---:|
+| main | $3FA0 | $CD86 | 95 B | 121 B | 4 B |
+| flicker-free | $3FF0 | $CDEA | 15 B | 21 B | 4 B |
+
+Rezervy již zohledňují striktní limity assembleru. LOCODE, HICODE a RLE
+jsou oddělené oblasti. RLE se nezvětšuje: 2 B před texty a 2 skutečně
+přidatelné B na konci payloadu. Aktuální rezervy jsou ověřeny plnými PAL TAP
+a GMA86 PAL D64 buildy. NTSC a EasyFlash výstupy jsou z předchozího buildu.
+
+Podrobnosti pravidel a formátu jsou ve větvi main v `game-docs/`.
+Přesné buildy, srovnání s původními instrukcemi Elite-A, testy ve VICE
+a snímky obrazovek jsou zaznamenané v
+`game-docs/special-cargo-port-validation.md`. Pracovní podklady jsou v
+`3-assembled-output/special-cargo-port/` ve větvi main.
+Následné úpravy obrazovek a pípnutí mají samostatné buildy a testy v
+`3-assembled-output/special-cargo-feedback/`: 20 buildů prošlo, včetně
+běžného PAL a šifrovaného GMA86 v obou větvích. VICE ověřil C64 PAL/NTSC
+v obou větvích a C128 PAL ve flicker-free, také Inventory za letu,
+plný seznam komodit, dlouhý název a ohraničené hledání neplatného cíle.
+Finální odstranění FEE/CR a mezery má podklady v
+`3-assembled-output/special-cargo-labels/`: osm úspěšných PAL TAP/GMA86
+buildů (běžná a plná konfigurace v obou větvích) a kontrolu vzhledu ve VICE.
+
+## Save editor: Special Cargo a délky commander dat (2026-09-06)
+
+Editor se udržuje jen ve větvi main v `tools/EliteSaveEditor/`.
+Automaticky rozpoznává Original Elite (77 B), starší Unbound (77 B)
+a aktuální Unbound (81 B), také ve smíšeném TAP s více pozicemi.
+Zvolený typ v editoru určuje výstup: Original ukládá 77 B s původními
+checksumy, Unbound 81 B se zachováním registračních údajů. Starší Unbound
+se doplní o prázdnou čtyřbajtovou Special Cargo část.
+
+Položka Special Cargo se zobrazuje jen pro Unbound. Umožňuje přidat či
+upravit cíl z aktuální uložené galaxie a odměnu 0.1–6553.5 Cr, nebo zakázku
+smazat. Smazání vynuluje odměnu a zachová předchozí souřadnice jako hra.
+Změna galaxie či jejího seedu zakázku zruší; změna lodi ji zachová.
+Převod na Original rozšíření odstraní a další převod zpět je neobnovuje.
+
+Release build a samostatný win-x64 publish prošly bez chyb a varování;
+všech 17 testů prošlo, včetně dodaných starších TAP souborů.
+Interaktivně ověřeno automatické načtení všech tří formátů, Special Cargo
+menu a uložení přes běžnou nabídku editoru. Aktuální samostatný program:
+`tools/EliteSaveEditor/release/EliteSaveEditor.exe` ve větvi main.
+Herní ASM ani paměťové rezervy se touto úpravou nemění.
 
 ## Repozitář a pracovní kopie
 
@@ -460,7 +543,8 @@ písmena `A-Z` a číslo `1-255`; velikost 77bajtového commander bloku se nemě
 Výchozí commander Jameson má registraci `JS-042`.
 
 Výchozí blok posledního commandera obsahuje stejnou registraci a rutina
-`DFAULT` při `unbound=yes` kopíruje všech 77 bajtů včetně čísla v bajtu #76.
+`DFAULT` při `unbound=yes` nově kopíruje 81 bajtů včetně Special Cargo;
+registrační číslo zůstává v bajtu #76.
 Tím zůstává `JS-042` zachováno při prvním spuštění i po volbě Default JAMESON.
 
 Po načtení se obě písmena a nenulové číslo validují. Původní save, jehož
