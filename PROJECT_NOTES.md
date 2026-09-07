@@ -1,10 +1,30 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 6. září 2026.
+Stav poznámek: 7. září 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
 a nový build.
+
+## EliteTapD64Transfer (2026-09-07)
+
+Ve větvi `flicker-free` je samostatný projekt `EliteTapD64Transfer/`. Z aktuálního
+35stopého D64 vytváří jediný PAL TAP se zapisovačem pro C64 + 1541, device 8.
+Po potvrzení formátuje cílovou disketu, zapíše všech 683 sektorů (včetně
+generovaných nulových sektorů) a každý sektor porovná zpětným čtením.
+Stopa 18 s BAM/adresářem se zapisuje poslední; souborové rozložení GMA zůstává
+přesně zachováno. Načtené bloky se před zápisem kontrolují CRC-16.
+
+Ověřeno hostitelskými testy a kompletním TAP přenosem ve VICE 3.9 s true drive
+emulation; výstupní D64 má stejný SHA-256 jako zdroj:
+`2d46cc6dd35a90cfc2f13179b820cbcdc7464e3a2efa53ead19a308386ec3b90`.
+Negativní test zachytil poškozený blok před sektorovým zápisem.
+Rezidentní konec zapisovače je `$0EB9`, do bufferu `$4000` zbývá 12 615 B.
+Herní ASM, LOCODE/HICODE a herní buildy nejsou změněny. Na skutečném hardwaru
+zatím netestováno. Podrobnosti a příkazy jsou v `EliteTapD64Transfer/README.md`.
+Ve větvi `main` je pouze tato společná poznámka, nástroj tam není kopírován.
+Projekt byl přejmenován na `EliteTapD64Transfer`, přibyl Windows `build.bat` a
+úvodní obrazovka `ELITE: UNBOUND`. Dočasné soubory byly po ověření odstraněny.
 
 ## Special Cargo z Elite-A (2026-09-06)
 
