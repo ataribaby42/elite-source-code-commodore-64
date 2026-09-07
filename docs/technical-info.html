@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Technical information for Elite: Unbound on the Commodore 64.">
   <meta name="theme-color" content="#000000">
-  <title>Technical Info — Elite: Unbound</title>
+  <title>Technical Info - Elite: Unbound</title>
   <link rel="icon" href="./assets/favicon-asp.ico" type="image/x-icon">
   <link rel="icon" href="./assets/favicon-asp.svg" type="image/svg+xml" sizes="any">
   <link rel="stylesheet" href="./css/style.css">
@@ -53,13 +53,728 @@
       </div>
     </header>
 
+    <nav class="page-toc" aria-label="On this page">
+      <a href="#how-it-all-began">How It All Began</a>
+      <a href="#making-room">Making Room</a>
+      <a href="#spaceship-dealership">A Used Ship Lot in Space</a>
+      <a href="#player-ship-specifications">Under the Hood</a>
+      <a href="#player-ship-equipment">Pimp My Ride</a>
+      <a href="#crash-tests">Size Matters</a>
+      <a href="#licence-plates">Licence Plates</a>
+      <a href="#space-is-not-a-dump">Space Is Not a Dump!</a>
+      <a href="#pattern-is-full">Pattern Is Full</a>
+      <a href="#someone-is-listening">Someone Is Listening</a>
+      <a href="#delivery-boy">Delivery Boy</a>
+      <a href="#catch-me-if-you-can">Catch Me If You Can</a>
+      <a href="#one-is-not-enough">One Is Not Enough!</a>
+      <a href="#they-are-all-around">They Are All Around!</a>
+      <a href="#its-working">It's working! It's working!</a>
+      <a href="#who-cares">Who Cares?</a>
+      <a href="#it-is-circular">It Is... Circular!</a>
+      <a href="#too-fast">Too Fast!</a>
+      <a href="#turbo">Turbo</a>
+    </nav>
+
     <main id="content">
       <aside class="infobox">
         <strong>Spoiler Warning!</strong>
         <p>The following text contains gameplay information and spoilers that may detract from your experience if you want to explore and discover the world of <em>Elite: Unbound</em> for yourself.</p>
       </aside>
 
-      <p>This section has yet to be written.</p>
+      <section id="how-it-all-began">
+        <div class="section-heading">
+          <h2>How It All Began</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>It all began when I stumbled across Mark Moxon’s <a href="https://elite.bbcelite.com/" target="_blank" rel="noopener noreferrer">BBC Elite</a> website, which explores the original Elite’s code in remarkable detail and explains how it all works. A real treasure trove for a fan of the original game.</p>
+
+        <p>There I found a link to the C64 version’s source code on <a href="https://github.com/markmoxon/elite-source-code-commodore-64" target="_blank" rel="noopener noreferrer">GitHub</a> and forked the repository to <a href="https://github.com/ataribaby42/elite-source-code-commodore-64" target="_blank" rel="noopener noreferrer">my own GitHub account</a>. After a while, once I had the build tools working, I started making my first changes.</p>
+
+        <aside class="infobox">
+          <strong>I Want My Own...</strong>
+          <p>Create your own modifications or turn off some of the options in an <em>Elite: Unbound</em> build. Fork or download the code from <a href="https://github.com/ataribaby42/elite-source-code-commodore-64" target="_blank" rel="noopener noreferrer">GitHub</a>, set up the required build tools (Python, BeebAsm, Make and VICE), adjust the build options and run <code>build_all.bat</code> to build your own version.</p>
+          <p class="manual-note">The repository contains both versions in separate branches: <code>main</code> for the standard version and <code>flicker-free</code> for the flicker-free version.</p>
+        </aside>
+
+        <p>My first change was a simple fix: adding the missing space after the hyphen between the text and the planet name in the hyperspace message. I changed <code class="nowrap">HYPERSPACE -LAVE</code> to <code class="nowrap">HYPERSPACE - LAVE</code>. One small step for an assembly-language game programmer from the 1980s, one giant leap for me. ;)</p>
+
+        <figure class="content-image technical-image">
+          <img src="./assets/manual-first-code.png" alt="The first code change: fixing the spacing in the hyperspace message" width="753" height="271" loading="lazy">
+        </figure>
+
+        <p>A few more ambitious changes followed. I also wrote an editor for the instrument panel bitmap and recreated the font from the ZX Spectrum 48K version of Elite using Art Studio on the Spectrum.</p>
+
+        <figure class="content-image technical-image">
+          <img src="./assets/manual-dials-editor.png" alt="The instrument panel bitmap editor" width="887" height="510" loading="lazy">
+        </figure>
+        <figure class="content-image technical-image">
+          <img src="./assets/manual-zx-font.png" alt="The Elite font in Art Studio on the ZX Spectrum" width="965" height="872" loading="lazy">
+        </figure>
+        <figure class="content-image technical-image">
+          <img src="./assets/manual-new-font.png" alt="The recreated font for the C64 version of Elite" width="729" height="200" loading="lazy">
+        </figure>
+
+        <p>I put the project aside for a while. Then, one evening, I had the idea of asking ChatGPT whether it could port the ability to fly different ships from Elite-A. The source code for that version was also available on <a href="https://github.com/markmoxon/elite-a-source-code-bbc-micro" target="_blank" rel="noopener noreferrer">Mark’s GitHub</a>.</p>
+
+        <p>To my surprise, after a little thought, ChatGPT produced code that actually ran. It was not perfect, but it worked, and the ships flew. With ChatGPT’s help, I gradually refined the code, improved the feature and balanced the gameplay.</p>
+
+        <p>I kept adding more ideas, and <em>Elite: Unbound</em> began to take shape.</p>
+      </section>
+
+      <section id="making-room">
+        <div class="section-heading">
+          <h2>Making Room</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>To fit everything into 64KB memory that was already almost full, some less essential parts of the original game had to go.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Memory reclaimed" tabindex="0">
+          <table class="technical-table">
+            <thead><tr><th scope="col">Change</th><th scope="col">Bytes saved</th></tr></thead>
+            <tbody>
+              <tr><td>Removed title music (Elite Theme)</td><td>2,931</td></tr>
+              <tr><td>Removed docking music (The Blue Danube)</td><td>2,615</td></tr>
+              <tr><td>Removed music player and supporting code</td><td>720</td></tr>
+              <tr><td>Removed commander checksum and competition code</td><td>132</td></tr>
+              <tr><td>Removed “COMPETITION NUMBER:” text</td><td>14</td></tr>
+              <tr><td>Dashboard PackBits RLE compression</td><td>1,049</td></tr>
+              <tr><td>Dashboard decompression code overhead</td><td>−85</td></tr>
+              <tr class="table-subtotal"><th scope="row">Subtotal</th><td>7,376</td></tr>
+              <tr><td>Other unused code and redundant instructions</td><td>71</td></tr>
+            </tbody>
+            <tfoot><tr><th scope="row">Total net memory reclaimed</th><td>7,447 bytes<br>(7.27 KiB)</td></tr></tfoot>
+          </table>
+        </div>
+
+        <p>Those reclaimed seven kilobytes made room for the additions that became <em>Elite: Unbound</em>.</p>
+
+        <p>Almost every byte has now been put to use. This is the remaining space in the PAL tape build with the full set of <em>Elite: Unbound</em> options:</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Remaining memory" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">Branch</th><th scope="col">LOCODE end</th><th scope="col">Free</th><th scope="col">HICODE end</th><th scope="col">Free</th><th scope="col">RLE free</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">main</th><td>$3FA2</td><td>93 B</td><td>$CD88</td><td>119 B</td><td>4 B</td></tr>
+              <tr><th scope="row">flicker-free</th><td>$3FF2</td><td>13 B</td><td>$CDEC</td><td>19 B</td><td>4 B</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">The free figures show how many bytes can actually be added within the assembler and loader limits. LOCODE, HICODE and the RLE area are separate regions; the 4 B in the RLE area are split into two 2-byte gaps.</p>
+
+        <p>So there is barely any room left for more features and ideas. I will be happy if those last few bytes are enough for any fixes that might be needed.</p>
+      </section>
+      <aside class="infobox ai-note">
+        <strong>It Is Not SKYNET, Yet...</strong>
+        <div class="ai-note-body">
+          <img src="./assets/manual-skynet.png" alt="SKYNET logo" width="250" height="179" loading="lazy">
+          <div class="ai-note-copy">
+            <p>AI is just a tool. It all depends on how you use it. It is not a perfect solution to every problem: you still need to decide what to do and how to do it. In my case, AI made it possible to create my own dream version of 8-bit Elite.</p>
+            <p>If I had coded everything by hand, I would probably never have finished the project. After a few months, it would most likely have ended up on ice. Through those conversations and the development work, Mark’s commented source code and AI-assisted analysis helped me understand how Elite works on the inside. It was an amazing journey.</p>
+            <p>That is all I wanted to say about my use of AI.</p>
+          </div>
+        </div>
+      </aside>
+
+      <section id="spaceship-dealership">
+        <div class="section-heading">
+          <h2>A Used Ship Lot in Space</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>This was what I dreamed of most while playing the original Elite: being able to fly something other than a Cobra Mk III. Do not get me wrong, the Cobra Mk III is a great all-round ship for traders. But taking a small, nimble pirate Sidewinder or a fast Asp Mk II for a spin? For me, that dream only came true when <em>Frontier: Elite II</em> arrived on 16-bit computers.</p>
+
+        <p>It was only when I discovered Elite-A, a modified version of the original BBC Elite, that I realised this was possible in the original game too. Here is the result of my implementation for the C64 version.</p>
+
+        <p>The selection of ships depends on the planet’s economy and whether its government is Anarchy. The technology level does not directly affect it.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Ship availability by economy" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Planet economy</th><th scope="col">Standard selection</th><th scope="col">Additional ships in Anarchy</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Rich Industrial</th><td>10 ships</td><td>Sidewinder, Krait, Mamba</td></tr>
+              <tr><th scope="row">Average Industrial</th><td>8 ships</td><td>Sidewinder, Krait, Mamba</td></tr>
+              <tr><th scope="row">Poor Industrial</th><td>6 ships</td><td>Sidewinder, Krait, Mamba</td></tr>
+              <tr><th scope="row">Mainly Industrial</th><td>5 ships</td><td>Sidewinder, Krait</td></tr>
+              <tr><th scope="row">Mainly Agricultural</th><td>4 ships</td><td>Sidewinder, Krait</td></tr>
+              <tr><th scope="row">Rich Agricultural</th><td>4 ships</td><td>Sidewinder, Krait</td></tr>
+              <tr><th scope="row">Average Agricultural</th><td>3 ships</td><td>Sidewinder</td></tr>
+              <tr><th scope="row">Poor Agricultural</th><td>1 ship</td><td>None</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The standard selection always contains the first <em>N</em> ships from this list, in order:</p>
+        <p>Adder → Gecko → Moray → Cobra Mk I → Cobra Mk III → Fer-de-Lance → Python → Boa → Anaconda → Asp Mk II.</p>
+
+        <p>For example, a Poor Agricultural system offers only the Adder. A Rich Industrial Anarchy system offers all 13 types.</p>
+
+        <p>The selection is fixed. Waiting or docking again will not change it. Your credits, cargo and equipment determine whether you can complete a purchase, but do not affect which ships are offered.</p>
+
+        <div class="section-heading section-heading-subsection">
+          <h3 id="player-ship-specifications">Under the Hood</h3>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>The figures below apply to player ships in <em>Elite: Unbound</em>. Ships are listed by purchase price. Sidewinder, Krait and Mamba are available only in Anarchy systems, subject to the economy limits above.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Player Ship Specifications" tabindex="0">
+          <table class="technical-table ship-spec-table">
+            <thead><tr><th scope="col">Ship</th><th scope="col">Price (Cr)</th><th scope="col">Speed</th><th scope="col">Range (LY)</th><th scope="col">Cargo (t)</th><th scope="col">Missiles</th><th scope="col">Laser mounts</th><th scope="col">Shields</th><th scope="col">Recharge</th><th scope="col">Maneuverability</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sidewinder</th><td>20,500</td><td>56 (0.47 LM)</td><td>5</td><td>4 / 5</td><td>1</td><td>1</td><td>2 (28.6%)</td><td>1/2/3</td><td>245 (102.5%)</td></tr>
+              <tr><th scope="row">Adder</th><td>27,000</td><td>36 (0.30 LM)</td><td>6</td><td>8 / 12</td><td>1</td><td>2</td><td>4 (57.1%)</td><td>1/2/3</td><td>223 (93.3%)</td></tr>
+              <tr><th scope="row">Krait</th><td>30,500</td><td>45 (0.38 LM)</td><td>6</td><td>10 / 12</td><td>0</td><td>1</td><td>3 (42.9%)</td><td>1/2/3</td><td>223 (93.3%)</td></tr>
+              <tr><th scope="row">Gecko</th><td>32,500</td><td>45 (0.38 LM)</td><td>7</td><td>9 / 11</td><td>2</td><td>4</td><td>5 (71.4%)</td><td>1/2/3</td><td>239 (100%)</td></tr>
+              <tr><th scope="row">Moray</th><td>36,000</td><td>38 (0.32 LM)</td><td>8</td><td>11 / 15</td><td>2</td><td>4</td><td>6 (85.7%)</td><td>1/2/3</td><td>239 (100%)</td></tr>
+              <tr><th scope="row">Mamba</th><td>37,500</td><td>48 (0.40 LM)</td><td>6</td><td>10 / 12</td><td>2</td><td>1</td><td>4 (57.1%)</td><td>1/2/3</td><td>241 (100.8%)</td></tr>
+              <tr><th scope="row">Cobra Mk I</th><td>39,500</td><td>39 (0.33 LM)</td><td>6</td><td>14 / 20</td><td>3</td><td>4</td><td>5 (71.4%)</td><td>1/2/3</td><td>207 (86.6%)</td></tr>
+              <tr><th scope="row">Cobra Mk III</th><td>100,000</td><td>42 (0.35 LM)</td><td>7</td><td>25 / 35</td><td>4</td><td>4</td><td>7 (100%)</td><td>1/2/3</td><td>239 (100%)</td></tr>
+              <tr><th scope="row">Fer-de-Lance</th><td>143,500</td><td>45 (0.38 LM)</td><td>8.5</td><td>9 / 11</td><td>3</td><td>4</td><td>8 (114.3%)</td><td>2/3/4</td><td>223 (93.3%)</td></tr>
+              <tr><th scope="row">Python</th><td>205,000</td><td>30 (0.25 LM)</td><td>8</td><td>106 / 125</td><td>4</td><td>4</td><td>11 (157.1%)</td><td>1/2/3</td><td>175 (73.2%)</td></tr>
+              <tr><th scope="row">Boa</th><td>240,000</td><td>36 (0.30 LM)</td><td>9</td><td>132 / 155</td><td>6</td><td>2</td><td>10 (142.9%)</td><td>1/2/3</td><td>191 (79.9%)</td></tr>
+              <tr><th scope="row">Anaconda</th><td>400,000</td><td>21 (0.18 LM)</td><td>10</td><td>215 / 253</td><td>16</td><td>4</td><td>13 (185.7%)</td><td>1/2/3</td><td>175 (73.2%)</td></tr>
+              <tr><th scope="row">Asp Mk II</th><td>895,000</td><td>60 (0.50 LM)</td><td>12.5</td><td>6 / 9</td><td>1</td><td>1</td><td>10 (142.9%)</td><td>1/2/3</td><td>223 (93.3%)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ul class="technical-note">
+          <li><strong>Speed:</strong> the raw maximum speed value from the game, followed by its LM equivalent. The conversion uses Cobra Mk III’s 42 = 0.35 LM as the reference and is rounded to two decimal places.</li>
+          <li><strong>Shields:</strong> the raw shield strength from the game, followed by its percentage relative to Cobra Mk III: 7 = 100%. Percentages are rounded to one decimal place; for example, Sidewinder has 2 (28.6%). These values describe relative damage resistance, not the length of the shield bars.</li>
+          <li><strong>Cargo:</strong> standard hold / total capacity with a Large Cargo Bay. Installed equipment takes up part of this capacity; missiles use separate hull slots.</li>
+          <li><strong>Laser mounts:</strong> 1 = front only; 2 = front and rear; 4 = front, rear, left and right. The figure is the number of supported positions, not fitted lasers.</li>
+          <li><strong>Recharge:</strong> energy points restored per recharge step, in this order: without an energy unit / with Extra Energy Unit / with Naval Energy Unit. For example, 1/2/3 means 1 point without an upgrade, 2 with Extra Energy Unit and 3 with Naval Energy Unit. Fer-de-Lance has a higher base rate, so its values are 2/3/4.</li>
+          <li><strong>Maneuverability:</strong> the raw handling limit from the game’s ship data, followed by its percentage relative to Cobra Mk III: 239 = 100%. Percentages are rounded to one decimal place and compare the handling parameter, not the resulting rotation speed. Higher raw values mean greater agility.</li>
+          <li><strong>Price:</strong> full hull purchase price before the 60% trade-in allowance for your current ship.</li>
+        </ul>
+        <p class="technical-note">If your ship carries more than four guided missiles, the cockpit displays only the last four.</p>
+      </section>
+
+      <section id="player-ship-equipment">
+        <div class="section-heading">
+          <h2>Pimp My Ride</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Equipment prices depend on the ship type. Ships are divided into five categories, each with its own equipment prices.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Ship equipment categories" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Category</th><th scope="col">Ships</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">0</th><td>Cobra Mk III</td></tr>
+              <tr><th scope="row">1</th><td>Adder, Gecko, Cobra Mk I</td></tr>
+              <tr><th scope="row">2</th><td>Fer-de-Lance, Asp Mk II</td></tr>
+              <tr><th scope="row">3</th><td>Python, Boa, Anaconda</td></tr>
+              <tr><th scope="row">4</th><td>Moray, Sidewinder, Krait, Mamba</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="technical-table-scroll" role="region" aria-label="Equipment prices (Cr)" tabindex="0">
+          <table class="technical-table memory-table">
+            <caption class="technical-note">Equipment prices (Cr)</caption>
+            <thead><tr><th scope="col">Equipment</th><th scope="col">Category 0</th><th scope="col">Category 1</th><th scope="col">Category 2</th><th scope="col">Category 3</th><th scope="col">Category 4</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Fuel - per 1 LY</th><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td></tr>
+              <tr><th scope="row">Missile</th><td>25</td><td>25</td><td>25</td><td>25</td><td>25</td></tr>
+              <tr><th scope="row">Large Cargo Bay</th><td>600</td><td>500</td><td>2,000</td><td>6,000</td><td>400</td></tr>
+              <tr><th scope="row">E.C.M. System</th><td>600</td><td>400</td><td>500</td><td>800</td><td>300</td></tr>
+              <tr><th scope="row">Pulse Laser</th><td>400</td><td>400</td><td>400</td><td>400</td><td>400</td></tr>
+              <tr><th scope="row">Beam Laser</th><td>1,000</td><td>1,000</td><td>1,000</td><td>1,000</td><td>1,000</td></tr>
+              <tr><th scope="row">Fuel Scoops</th><td>525</td><td>375</td><td>700</td><td>650</td><td>450</td></tr>
+              <tr><th scope="row">Escape Pod</th><td>300</td><td>200</td><td>600</td><td>450</td><td>250</td></tr>
+              <tr><th scope="row">I.F.F. Unit</th><td>2,500</td><td>1,250</td><td>2,500</td><td>1,875</td><td>938</td></tr>
+              <tr><th scope="row">Extra Energy Unit</th><td>1,500</td><td>900</td><td>2,500</td><td>1,900</td><td>700</td></tr>
+              <tr><th scope="row">Docking Computer</th><td>1,500</td><td>800</td><td>1,000</td><td>2,000</td><td>700</td></tr>
+              <tr><th scope="row">Galactic Hyperdrive</th><td>5,000</td><td>3,000</td><td>4,000</td><td>6,000</td><td>3,000</td></tr>
+              <tr><th scope="row">Military Laser</th><td>6,000</td><td>6,000</td><td>6,000</td><td>6,000</td><td>6,000</td></tr>
+              <tr><th scope="row">Mining Laser</th><td>800</td><td>800</td><td>800</td><td>800</td><td>800</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">Laser prices are per mount. Krait cannot carry missiles, even though its price category includes a missile price.</p>
+      </section>
+
+      <section id="crash-tests">
+        <div class="section-heading">
+          <h2>Size Matters</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>A tiny ship like the Sidewinder can no longer destroy a huge Anaconda by ramming it without consequences. The smaller ship will most likely be destroyed in such a collision. The tables show collision outcomes for all player ships against all AI ships.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Collision size classes" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Size class</th><th scope="col">Player ships</th><th scope="col">AI ships and objects</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Debris</th><td>None</td><td>Missile, Alloy plate, Cargo canister, Splinter</td></tr>
+              <tr><th scope="row">Very small</th><td>Sidewinder</td><td>Escape Pod, Sidewinder, Thargon</td></tr>
+              <tr><th scope="row">Small</th><td>Adder, Krait, Gecko, Mamba</td><td>Boulder, Shuttle, Mamba, Krait, Adder, Gecko, Worm</td></tr>
+              <tr><th scope="row">Medium</th><td>Moray, Cobra Mk I, Cobra Mk III, Fer-de-Lance, Asp Mk II</td><td>Transporter, Cobra Mk III, Viper, Cobra Mk I, Cobra Mk III (pirate), Asp Mk II, Fer-de-Lance, Moray, Constrictor, Cougar</td></tr>
+              <tr><th scope="row">Large</th><td>Python, Boa, Anaconda</td><td>Coriolis station, Asteroid, Python, Boa, Anaconda, Rock hermit (asteroid), Python (pirate), Thargoid, Dodecahedron station</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The first column lists player ships; the remaining columns list AI ships. Each result assumes a single frontal collision, a full forward shield (255 points), full player energy (255 points) and an undamaged AI ship at its blueprint’s maximum energy. Scooping is disabled. The matrix includes escape pods and the separate pirate variants of Cobra Mk III and Python.</p>
+        <p id="collision-matrix-legend"><strong>A number means the player survives</strong> and shows how many shield points are lost. Subtract it from 255 to find the remaining shield; player energy stays at 255. <strong>X means immediate destruction of the player.</strong></p>
+        <p class="technical-note">Scroll the matrix horizontally to see all AI ships. The player-ship column and column headings remain visible while scrolling.</p>
+
+        <div class="technical-table-scroll collision-matrix-scroll" role="region" aria-label="Player versus AI collision matrix" tabindex="0">
+          <table class="technical-table collision-matrix" aria-describedby="collision-matrix-legend">
+            <thead><tr><th scope="col">Player ship / AI ship</th><th scope="col">Escape Pod</th><th scope="col">Shuttle</th><th scope="col">Transporter</th><th scope="col">Cobra Mk III</th><th scope="col">Python</th><th scope="col">Boa</th><th scope="col">Anaconda</th><th scope="col">Viper</th><th scope="col">Sidewinder</th><th scope="col">Mamba</th><th scope="col">Krait</th><th scope="col">Adder</th><th scope="col">Gecko</th><th scope="col">Cobra Mk I</th><th scope="col">Worm</th><th scope="col">Cobra Mk III (pirate)</th><th scope="col">Asp Mk II</th><th scope="col">Python (pirate)</th><th scope="col">Fer-de-Lance</th><th scope="col">Moray</th><th scope="col">Thargoid</th><th scope="col">Thargon</th><th scope="col">Constrictor</th><th scope="col">Cougar</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sidewinder</th><td title="Sidewinder / Escape Pod: player survives, 136 shield points lost, 119 remaining" aria-label="Sidewinder / Escape Pod: player survives, 136 shield points lost, 119 remaining">136</td><td title="Sidewinder / Shuttle: player survives, 208 shield points lost, 47 remaining" aria-label="Sidewinder / Shuttle: player survives, 208 shield points lost, 47 remaining">208</td><td class="collision-fatal" title="Sidewinder / Transporter: player destroyed regardless of shields and energy" aria-label="Sidewinder / Transporter: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Cobra Mk III: player destroyed regardless of shields and energy" aria-label="Sidewinder / Cobra Mk III: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Python: player destroyed regardless of shields and energy" aria-label="Sidewinder / Python: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Boa: player destroyed regardless of shields and energy" aria-label="Sidewinder / Boa: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Anaconda: player destroyed regardless of shields and energy" aria-label="Sidewinder / Anaconda: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Viper: player destroyed regardless of shields and energy" aria-label="Sidewinder / Viper: player destroyed regardless of shields and energy">X</td><td title="Sidewinder / Sidewinder: player survives, 163 shield points lost, 92 remaining" aria-label="Sidewinder / Sidewinder: player survives, 163 shield points lost, 92 remaining">163</td><td title="Sidewinder / Mamba: player survives, 237 shield points lost, 18 remaining" aria-label="Sidewinder / Mamba: player survives, 237 shield points lost, 18 remaining">237</td><td title="Sidewinder / Krait: player survives, 232 shield points lost, 23 remaining" aria-label="Sidewinder / Krait: player survives, 232 shield points lost, 23 remaining">232</td><td title="Sidewinder / Adder: player survives, 234 shield points lost, 21 remaining" aria-label="Sidewinder / Adder: player survives, 234 shield points lost, 21 remaining">234</td><td title="Sidewinder / Gecko: player survives, 227 shield points lost, 28 remaining" aria-label="Sidewinder / Gecko: player survives, 227 shield points lost, 28 remaining">227</td><td class="collision-fatal" title="Sidewinder / Cobra Mk I: player destroyed regardless of shields and energy" aria-label="Sidewinder / Cobra Mk I: player destroyed regardless of shields and energy">X</td><td title="Sidewinder / Worm: player survives, 207 shield points lost, 48 remaining" aria-label="Sidewinder / Worm: player survives, 207 shield points lost, 48 remaining">207</td><td class="collision-fatal" title="Sidewinder / Cobra Mk III (pirate): player destroyed regardless of shields and energy" aria-label="Sidewinder / Cobra Mk III (pirate): player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Asp Mk II: player destroyed regardless of shields and energy" aria-label="Sidewinder / Asp Mk II: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Python (pirate): player destroyed regardless of shields and energy" aria-label="Sidewinder / Python (pirate): player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Fer-de-Lance: player destroyed regardless of shields and energy" aria-label="Sidewinder / Fer-de-Lance: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Moray: player destroyed regardless of shields and energy" aria-label="Sidewinder / Moray: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Thargoid: player destroyed regardless of shields and energy" aria-label="Sidewinder / Thargoid: player destroyed regardless of shields and energy">X</td><td title="Sidewinder / Thargon: player survives, 138 shield points lost, 117 remaining" aria-label="Sidewinder / Thargon: player survives, 138 shield points lost, 117 remaining">138</td><td class="collision-fatal" title="Sidewinder / Constrictor: player destroyed regardless of shields and energy" aria-label="Sidewinder / Constrictor: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Sidewinder / Cougar: player destroyed regardless of shields and energy" aria-label="Sidewinder / Cougar: player destroyed regardless of shields and energy">X</td></tr>
+              <tr><th scope="row">Adder</th><td title="Adder / Escape Pod: player survives, 68 shield points lost, 187 remaining" aria-label="Adder / Escape Pod: player survives, 68 shield points lost, 187 remaining">68</td><td title="Adder / Shuttle: player survives, 144 shield points lost, 111 remaining" aria-label="Adder / Shuttle: player survives, 144 shield points lost, 111 remaining">144</td><td title="Adder / Transporter: player survives, 208 shield points lost, 47 remaining" aria-label="Adder / Transporter: player survives, 208 shield points lost, 47 remaining">208</td><td title="Adder / Cobra Mk III: player survives, 255 shield points lost, 0 remaining" aria-label="Adder / Cobra Mk III: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Adder / Python: player destroyed regardless of shields and energy" aria-label="Adder / Python: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Adder / Boa: player destroyed regardless of shields and energy" aria-label="Adder / Boa: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Adder / Anaconda: player destroyed regardless of shields and energy" aria-label="Adder / Anaconda: player destroyed regardless of shields and energy">X</td><td title="Adder / Viper: player survives, 255 shield points lost, 0 remaining" aria-label="Adder / Viper: player survives, 255 shield points lost, 0 remaining">255</td><td title="Adder / Sidewinder: player survives, 81 shield points lost, 174 remaining" aria-label="Adder / Sidewinder: player survives, 81 shield points lost, 174 remaining">81</td><td title="Adder / Mamba: player survives, 173 shield points lost, 82 remaining" aria-label="Adder / Mamba: player survives, 173 shield points lost, 82 remaining">173</td><td title="Adder / Krait: player survives, 168 shield points lost, 87 remaining" aria-label="Adder / Krait: player survives, 168 shield points lost, 87 remaining">168</td><td title="Adder / Adder: player survives, 170 shield points lost, 85 remaining" aria-label="Adder / Adder: player survives, 170 shield points lost, 85 remaining">170</td><td title="Adder / Gecko: player survives, 163 shield points lost, 92 remaining" aria-label="Adder / Gecko: player survives, 163 shield points lost, 92 remaining">163</td><td title="Adder / Cobra Mk I: player survives, 237 shield points lost, 18 remaining" aria-label="Adder / Cobra Mk I: player survives, 237 shield points lost, 18 remaining">237</td><td title="Adder / Worm: player survives, 143 shield points lost, 112 remaining" aria-label="Adder / Worm: player survives, 143 shield points lost, 112 remaining">143</td><td title="Adder / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Adder / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Adder / Asp Mk II: player survives, 255 shield points lost, 0 remaining" aria-label="Adder / Asp Mk II: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Adder / Python (pirate): player destroyed regardless of shields and energy" aria-label="Adder / Python (pirate): player destroyed regardless of shields and energy">X</td><td title="Adder / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining" aria-label="Adder / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining">255</td><td title="Adder / Moray: player survives, 242 shield points lost, 13 remaining" aria-label="Adder / Moray: player survives, 242 shield points lost, 13 remaining">242</td><td class="collision-fatal" title="Adder / Thargoid: player destroyed regardless of shields and energy" aria-label="Adder / Thargoid: player destroyed regardless of shields and energy">X</td><td title="Adder / Thargon: player survives, 69 shield points lost, 186 remaining" aria-label="Adder / Thargon: player survives, 69 shield points lost, 186 remaining">69</td><td title="Adder / Constrictor: player survives, 255 shield points lost, 0 remaining" aria-label="Adder / Constrictor: player survives, 255 shield points lost, 0 remaining">255</td><td title="Adder / Cougar: player survives, 255 shield points lost, 0 remaining" aria-label="Adder / Cougar: player survives, 255 shield points lost, 0 remaining">255</td></tr>
+              <tr><th scope="row">Krait</th><td title="Krait / Escape Pod: player survives, 68 shield points lost, 187 remaining" aria-label="Krait / Escape Pod: player survives, 68 shield points lost, 187 remaining">68</td><td title="Krait / Shuttle: player survives, 144 shield points lost, 111 remaining" aria-label="Krait / Shuttle: player survives, 144 shield points lost, 111 remaining">144</td><td title="Krait / Transporter: player survives, 208 shield points lost, 47 remaining" aria-label="Krait / Transporter: player survives, 208 shield points lost, 47 remaining">208</td><td title="Krait / Cobra Mk III: player survives, 255 shield points lost, 0 remaining" aria-label="Krait / Cobra Mk III: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Krait / Python: player destroyed regardless of shields and energy" aria-label="Krait / Python: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Krait / Boa: player destroyed regardless of shields and energy" aria-label="Krait / Boa: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Krait / Anaconda: player destroyed regardless of shields and energy" aria-label="Krait / Anaconda: player destroyed regardless of shields and energy">X</td><td title="Krait / Viper: player survives, 255 shield points lost, 0 remaining" aria-label="Krait / Viper: player survives, 255 shield points lost, 0 remaining">255</td><td title="Krait / Sidewinder: player survives, 81 shield points lost, 174 remaining" aria-label="Krait / Sidewinder: player survives, 81 shield points lost, 174 remaining">81</td><td title="Krait / Mamba: player survives, 173 shield points lost, 82 remaining" aria-label="Krait / Mamba: player survives, 173 shield points lost, 82 remaining">173</td><td title="Krait / Krait: player survives, 168 shield points lost, 87 remaining" aria-label="Krait / Krait: player survives, 168 shield points lost, 87 remaining">168</td><td title="Krait / Adder: player survives, 170 shield points lost, 85 remaining" aria-label="Krait / Adder: player survives, 170 shield points lost, 85 remaining">170</td><td title="Krait / Gecko: player survives, 163 shield points lost, 92 remaining" aria-label="Krait / Gecko: player survives, 163 shield points lost, 92 remaining">163</td><td title="Krait / Cobra Mk I: player survives, 237 shield points lost, 18 remaining" aria-label="Krait / Cobra Mk I: player survives, 237 shield points lost, 18 remaining">237</td><td title="Krait / Worm: player survives, 143 shield points lost, 112 remaining" aria-label="Krait / Worm: player survives, 143 shield points lost, 112 remaining">143</td><td title="Krait / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Krait / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Krait / Asp Mk II: player survives, 255 shield points lost, 0 remaining" aria-label="Krait / Asp Mk II: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Krait / Python (pirate): player destroyed regardless of shields and energy" aria-label="Krait / Python (pirate): player destroyed regardless of shields and energy">X</td><td title="Krait / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining" aria-label="Krait / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining">255</td><td title="Krait / Moray: player survives, 242 shield points lost, 13 remaining" aria-label="Krait / Moray: player survives, 242 shield points lost, 13 remaining">242</td><td class="collision-fatal" title="Krait / Thargoid: player destroyed regardless of shields and energy" aria-label="Krait / Thargoid: player destroyed regardless of shields and energy">X</td><td title="Krait / Thargon: player survives, 69 shield points lost, 186 remaining" aria-label="Krait / Thargon: player survives, 69 shield points lost, 186 remaining">69</td><td title="Krait / Constrictor: player survives, 255 shield points lost, 0 remaining" aria-label="Krait / Constrictor: player survives, 255 shield points lost, 0 remaining">255</td><td title="Krait / Cougar: player survives, 255 shield points lost, 0 remaining" aria-label="Krait / Cougar: player survives, 255 shield points lost, 0 remaining">255</td></tr>
+              <tr><th scope="row">Gecko</th><td title="Gecko / Escape Pod: player survives, 68 shield points lost, 187 remaining" aria-label="Gecko / Escape Pod: player survives, 68 shield points lost, 187 remaining">68</td><td title="Gecko / Shuttle: player survives, 144 shield points lost, 111 remaining" aria-label="Gecko / Shuttle: player survives, 144 shield points lost, 111 remaining">144</td><td title="Gecko / Transporter: player survives, 208 shield points lost, 47 remaining" aria-label="Gecko / Transporter: player survives, 208 shield points lost, 47 remaining">208</td><td title="Gecko / Cobra Mk III: player survives, 255 shield points lost, 0 remaining" aria-label="Gecko / Cobra Mk III: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Gecko / Python: player destroyed regardless of shields and energy" aria-label="Gecko / Python: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Gecko / Boa: player destroyed regardless of shields and energy" aria-label="Gecko / Boa: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Gecko / Anaconda: player destroyed regardless of shields and energy" aria-label="Gecko / Anaconda: player destroyed regardless of shields and energy">X</td><td title="Gecko / Viper: player survives, 255 shield points lost, 0 remaining" aria-label="Gecko / Viper: player survives, 255 shield points lost, 0 remaining">255</td><td title="Gecko / Sidewinder: player survives, 81 shield points lost, 174 remaining" aria-label="Gecko / Sidewinder: player survives, 81 shield points lost, 174 remaining">81</td><td title="Gecko / Mamba: player survives, 173 shield points lost, 82 remaining" aria-label="Gecko / Mamba: player survives, 173 shield points lost, 82 remaining">173</td><td title="Gecko / Krait: player survives, 168 shield points lost, 87 remaining" aria-label="Gecko / Krait: player survives, 168 shield points lost, 87 remaining">168</td><td title="Gecko / Adder: player survives, 170 shield points lost, 85 remaining" aria-label="Gecko / Adder: player survives, 170 shield points lost, 85 remaining">170</td><td title="Gecko / Gecko: player survives, 163 shield points lost, 92 remaining" aria-label="Gecko / Gecko: player survives, 163 shield points lost, 92 remaining">163</td><td title="Gecko / Cobra Mk I: player survives, 237 shield points lost, 18 remaining" aria-label="Gecko / Cobra Mk I: player survives, 237 shield points lost, 18 remaining">237</td><td title="Gecko / Worm: player survives, 143 shield points lost, 112 remaining" aria-label="Gecko / Worm: player survives, 143 shield points lost, 112 remaining">143</td><td title="Gecko / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Gecko / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Gecko / Asp Mk II: player survives, 255 shield points lost, 0 remaining" aria-label="Gecko / Asp Mk II: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Gecko / Python (pirate): player destroyed regardless of shields and energy" aria-label="Gecko / Python (pirate): player destroyed regardless of shields and energy">X</td><td title="Gecko / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining" aria-label="Gecko / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining">255</td><td title="Gecko / Moray: player survives, 242 shield points lost, 13 remaining" aria-label="Gecko / Moray: player survives, 242 shield points lost, 13 remaining">242</td><td class="collision-fatal" title="Gecko / Thargoid: player destroyed regardless of shields and energy" aria-label="Gecko / Thargoid: player destroyed regardless of shields and energy">X</td><td title="Gecko / Thargon: player survives, 69 shield points lost, 186 remaining" aria-label="Gecko / Thargon: player survives, 69 shield points lost, 186 remaining">69</td><td title="Gecko / Constrictor: player survives, 255 shield points lost, 0 remaining" aria-label="Gecko / Constrictor: player survives, 255 shield points lost, 0 remaining">255</td><td title="Gecko / Cougar: player survives, 255 shield points lost, 0 remaining" aria-label="Gecko / Cougar: player survives, 255 shield points lost, 0 remaining">255</td></tr>
+              <tr><th scope="row">Moray</th><td title="Moray / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Moray / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Moray / Shuttle: player survives, 72 shield points lost, 183 remaining" aria-label="Moray / Shuttle: player survives, 72 shield points lost, 183 remaining">72</td><td title="Moray / Transporter: player survives, 144 shield points lost, 111 remaining" aria-label="Moray / Transporter: player survives, 144 shield points lost, 111 remaining">144</td><td title="Moray / Cobra Mk III: player survives, 203 shield points lost, 52 remaining" aria-label="Moray / Cobra Mk III: player survives, 203 shield points lost, 52 remaining">203</td><td title="Moray / Python: player survives, 255 shield points lost, 0 remaining" aria-label="Moray / Python: player survives, 255 shield points lost, 0 remaining">255</td><td title="Moray / Boa: player survives, 255 shield points lost, 0 remaining" aria-label="Moray / Boa: player survives, 255 shield points lost, 0 remaining">255</td><td title="Moray / Anaconda: player survives, 255 shield points lost, 0 remaining" aria-label="Moray / Anaconda: player survives, 255 shield points lost, 0 remaining">255</td><td title="Moray / Viper: player survives, 198 shield points lost, 57 remaining" aria-label="Moray / Viper: player survives, 198 shield points lost, 57 remaining">198</td><td title="Moray / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Moray / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Moray / Mamba: player survives, 86 shield points lost, 169 remaining" aria-label="Moray / Mamba: player survives, 86 shield points lost, 169 remaining">86</td><td title="Moray / Krait: player survives, 84 shield points lost, 171 remaining" aria-label="Moray / Krait: player survives, 84 shield points lost, 171 remaining">84</td><td title="Moray / Adder: player survives, 85 shield points lost, 170 remaining" aria-label="Moray / Adder: player survives, 85 shield points lost, 170 remaining">85</td><td title="Moray / Gecko: player survives, 81 shield points lost, 174 remaining" aria-label="Moray / Gecko: player survives, 81 shield points lost, 174 remaining">81</td><td title="Moray / Cobra Mk I: player survives, 173 shield points lost, 82 remaining" aria-label="Moray / Cobra Mk I: player survives, 173 shield points lost, 82 remaining">173</td><td title="Moray / Worm: player survives, 71 shield points lost, 184 remaining" aria-label="Moray / Worm: player survives, 71 shield points lost, 184 remaining">71</td><td title="Moray / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining" aria-label="Moray / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining">203</td><td title="Moray / Asp Mk II: player survives, 203 shield points lost, 52 remaining" aria-label="Moray / Asp Mk II: player survives, 203 shield points lost, 52 remaining">203</td><td title="Moray / Python (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Moray / Python (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Moray / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining" aria-label="Moray / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining">208</td><td title="Moray / Moray: player survives, 178 shield points lost, 77 remaining" aria-label="Moray / Moray: player survives, 178 shield points lost, 77 remaining">178</td><td title="Moray / Thargoid: player survives, 255 shield points lost, 0 remaining" aria-label="Moray / Thargoid: player survives, 255 shield points lost, 0 remaining">255</td><td title="Moray / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Moray / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Moray / Constrictor: player survives, 254 shield points lost, 1 remaining" aria-label="Moray / Constrictor: player survives, 254 shield points lost, 1 remaining">254</td><td title="Moray / Cougar: player survives, 254 shield points lost, 1 remaining" aria-label="Moray / Cougar: player survives, 254 shield points lost, 1 remaining">254</td></tr>
+              <tr><th scope="row">Mamba</th><td title="Mamba / Escape Pod: player survives, 68 shield points lost, 187 remaining" aria-label="Mamba / Escape Pod: player survives, 68 shield points lost, 187 remaining">68</td><td title="Mamba / Shuttle: player survives, 144 shield points lost, 111 remaining" aria-label="Mamba / Shuttle: player survives, 144 shield points lost, 111 remaining">144</td><td title="Mamba / Transporter: player survives, 208 shield points lost, 47 remaining" aria-label="Mamba / Transporter: player survives, 208 shield points lost, 47 remaining">208</td><td title="Mamba / Cobra Mk III: player survives, 255 shield points lost, 0 remaining" aria-label="Mamba / Cobra Mk III: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Mamba / Python: player destroyed regardless of shields and energy" aria-label="Mamba / Python: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Mamba / Boa: player destroyed regardless of shields and energy" aria-label="Mamba / Boa: player destroyed regardless of shields and energy">X</td><td class="collision-fatal" title="Mamba / Anaconda: player destroyed regardless of shields and energy" aria-label="Mamba / Anaconda: player destroyed regardless of shields and energy">X</td><td title="Mamba / Viper: player survives, 255 shield points lost, 0 remaining" aria-label="Mamba / Viper: player survives, 255 shield points lost, 0 remaining">255</td><td title="Mamba / Sidewinder: player survives, 81 shield points lost, 174 remaining" aria-label="Mamba / Sidewinder: player survives, 81 shield points lost, 174 remaining">81</td><td title="Mamba / Mamba: player survives, 173 shield points lost, 82 remaining" aria-label="Mamba / Mamba: player survives, 173 shield points lost, 82 remaining">173</td><td title="Mamba / Krait: player survives, 168 shield points lost, 87 remaining" aria-label="Mamba / Krait: player survives, 168 shield points lost, 87 remaining">168</td><td title="Mamba / Adder: player survives, 170 shield points lost, 85 remaining" aria-label="Mamba / Adder: player survives, 170 shield points lost, 85 remaining">170</td><td title="Mamba / Gecko: player survives, 163 shield points lost, 92 remaining" aria-label="Mamba / Gecko: player survives, 163 shield points lost, 92 remaining">163</td><td title="Mamba / Cobra Mk I: player survives, 237 shield points lost, 18 remaining" aria-label="Mamba / Cobra Mk I: player survives, 237 shield points lost, 18 remaining">237</td><td title="Mamba / Worm: player survives, 143 shield points lost, 112 remaining" aria-label="Mamba / Worm: player survives, 143 shield points lost, 112 remaining">143</td><td title="Mamba / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Mamba / Cobra Mk III (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Mamba / Asp Mk II: player survives, 255 shield points lost, 0 remaining" aria-label="Mamba / Asp Mk II: player survives, 255 shield points lost, 0 remaining">255</td><td class="collision-fatal" title="Mamba / Python (pirate): player destroyed regardless of shields and energy" aria-label="Mamba / Python (pirate): player destroyed regardless of shields and energy">X</td><td title="Mamba / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining" aria-label="Mamba / Fer-de-Lance: player survives, 255 shield points lost, 0 remaining">255</td><td title="Mamba / Moray: player survives, 242 shield points lost, 13 remaining" aria-label="Mamba / Moray: player survives, 242 shield points lost, 13 remaining">242</td><td class="collision-fatal" title="Mamba / Thargoid: player destroyed regardless of shields and energy" aria-label="Mamba / Thargoid: player destroyed regardless of shields and energy">X</td><td title="Mamba / Thargon: player survives, 69 shield points lost, 186 remaining" aria-label="Mamba / Thargon: player survives, 69 shield points lost, 186 remaining">69</td><td title="Mamba / Constrictor: player survives, 255 shield points lost, 0 remaining" aria-label="Mamba / Constrictor: player survives, 255 shield points lost, 0 remaining">255</td><td title="Mamba / Cougar: player survives, 255 shield points lost, 0 remaining" aria-label="Mamba / Cougar: player survives, 255 shield points lost, 0 remaining">255</td></tr>
+              <tr><th scope="row">Cobra Mk I</th><td title="Cobra Mk I / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Cobra Mk I / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Cobra Mk I / Shuttle: player survives, 72 shield points lost, 183 remaining" aria-label="Cobra Mk I / Shuttle: player survives, 72 shield points lost, 183 remaining">72</td><td title="Cobra Mk I / Transporter: player survives, 144 shield points lost, 111 remaining" aria-label="Cobra Mk I / Transporter: player survives, 144 shield points lost, 111 remaining">144</td><td title="Cobra Mk I / Cobra Mk III: player survives, 203 shield points lost, 52 remaining" aria-label="Cobra Mk I / Cobra Mk III: player survives, 203 shield points lost, 52 remaining">203</td><td title="Cobra Mk I / Python: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk I / Python: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk I / Boa: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk I / Boa: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk I / Anaconda: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk I / Anaconda: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk I / Viper: player survives, 198 shield points lost, 57 remaining" aria-label="Cobra Mk I / Viper: player survives, 198 shield points lost, 57 remaining">198</td><td title="Cobra Mk I / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Cobra Mk I / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Cobra Mk I / Mamba: player survives, 86 shield points lost, 169 remaining" aria-label="Cobra Mk I / Mamba: player survives, 86 shield points lost, 169 remaining">86</td><td title="Cobra Mk I / Krait: player survives, 84 shield points lost, 171 remaining" aria-label="Cobra Mk I / Krait: player survives, 84 shield points lost, 171 remaining">84</td><td title="Cobra Mk I / Adder: player survives, 85 shield points lost, 170 remaining" aria-label="Cobra Mk I / Adder: player survives, 85 shield points lost, 170 remaining">85</td><td title="Cobra Mk I / Gecko: player survives, 81 shield points lost, 174 remaining" aria-label="Cobra Mk I / Gecko: player survives, 81 shield points lost, 174 remaining">81</td><td title="Cobra Mk I / Cobra Mk I: player survives, 173 shield points lost, 82 remaining" aria-label="Cobra Mk I / Cobra Mk I: player survives, 173 shield points lost, 82 remaining">173</td><td title="Cobra Mk I / Worm: player survives, 71 shield points lost, 184 remaining" aria-label="Cobra Mk I / Worm: player survives, 71 shield points lost, 184 remaining">71</td><td title="Cobra Mk I / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining" aria-label="Cobra Mk I / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining">203</td><td title="Cobra Mk I / Asp Mk II: player survives, 203 shield points lost, 52 remaining" aria-label="Cobra Mk I / Asp Mk II: player survives, 203 shield points lost, 52 remaining">203</td><td title="Cobra Mk I / Python (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk I / Python (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk I / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining" aria-label="Cobra Mk I / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining">208</td><td title="Cobra Mk I / Moray: player survives, 178 shield points lost, 77 remaining" aria-label="Cobra Mk I / Moray: player survives, 178 shield points lost, 77 remaining">178</td><td title="Cobra Mk I / Thargoid: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk I / Thargoid: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk I / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Cobra Mk I / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Cobra Mk I / Constrictor: player survives, 254 shield points lost, 1 remaining" aria-label="Cobra Mk I / Constrictor: player survives, 254 shield points lost, 1 remaining">254</td><td title="Cobra Mk I / Cougar: player survives, 254 shield points lost, 1 remaining" aria-label="Cobra Mk I / Cougar: player survives, 254 shield points lost, 1 remaining">254</td></tr>
+              <tr><th scope="row">Cobra Mk III</th><td title="Cobra Mk III / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Cobra Mk III / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Cobra Mk III / Shuttle: player survives, 72 shield points lost, 183 remaining" aria-label="Cobra Mk III / Shuttle: player survives, 72 shield points lost, 183 remaining">72</td><td title="Cobra Mk III / Transporter: player survives, 144 shield points lost, 111 remaining" aria-label="Cobra Mk III / Transporter: player survives, 144 shield points lost, 111 remaining">144</td><td title="Cobra Mk III / Cobra Mk III: player survives, 203 shield points lost, 52 remaining" aria-label="Cobra Mk III / Cobra Mk III: player survives, 203 shield points lost, 52 remaining">203</td><td title="Cobra Mk III / Python: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk III / Python: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk III / Boa: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk III / Boa: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk III / Anaconda: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk III / Anaconda: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk III / Viper: player survives, 198 shield points lost, 57 remaining" aria-label="Cobra Mk III / Viper: player survives, 198 shield points lost, 57 remaining">198</td><td title="Cobra Mk III / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Cobra Mk III / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Cobra Mk III / Mamba: player survives, 86 shield points lost, 169 remaining" aria-label="Cobra Mk III / Mamba: player survives, 86 shield points lost, 169 remaining">86</td><td title="Cobra Mk III / Krait: player survives, 84 shield points lost, 171 remaining" aria-label="Cobra Mk III / Krait: player survives, 84 shield points lost, 171 remaining">84</td><td title="Cobra Mk III / Adder: player survives, 85 shield points lost, 170 remaining" aria-label="Cobra Mk III / Adder: player survives, 85 shield points lost, 170 remaining">85</td><td title="Cobra Mk III / Gecko: player survives, 81 shield points lost, 174 remaining" aria-label="Cobra Mk III / Gecko: player survives, 81 shield points lost, 174 remaining">81</td><td title="Cobra Mk III / Cobra Mk I: player survives, 173 shield points lost, 82 remaining" aria-label="Cobra Mk III / Cobra Mk I: player survives, 173 shield points lost, 82 remaining">173</td><td title="Cobra Mk III / Worm: player survives, 71 shield points lost, 184 remaining" aria-label="Cobra Mk III / Worm: player survives, 71 shield points lost, 184 remaining">71</td><td title="Cobra Mk III / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining" aria-label="Cobra Mk III / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining">203</td><td title="Cobra Mk III / Asp Mk II: player survives, 203 shield points lost, 52 remaining" aria-label="Cobra Mk III / Asp Mk II: player survives, 203 shield points lost, 52 remaining">203</td><td title="Cobra Mk III / Python (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk III / Python (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk III / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining" aria-label="Cobra Mk III / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining">208</td><td title="Cobra Mk III / Moray: player survives, 178 shield points lost, 77 remaining" aria-label="Cobra Mk III / Moray: player survives, 178 shield points lost, 77 remaining">178</td><td title="Cobra Mk III / Thargoid: player survives, 255 shield points lost, 0 remaining" aria-label="Cobra Mk III / Thargoid: player survives, 255 shield points lost, 0 remaining">255</td><td title="Cobra Mk III / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Cobra Mk III / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Cobra Mk III / Constrictor: player survives, 254 shield points lost, 1 remaining" aria-label="Cobra Mk III / Constrictor: player survives, 254 shield points lost, 1 remaining">254</td><td title="Cobra Mk III / Cougar: player survives, 254 shield points lost, 1 remaining" aria-label="Cobra Mk III / Cougar: player survives, 254 shield points lost, 1 remaining">254</td></tr>
+              <tr><th scope="row">Fer-de-Lance</th><td title="Fer-de-Lance / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Fer-de-Lance / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Fer-de-Lance / Shuttle: player survives, 72 shield points lost, 183 remaining" aria-label="Fer-de-Lance / Shuttle: player survives, 72 shield points lost, 183 remaining">72</td><td title="Fer-de-Lance / Transporter: player survives, 144 shield points lost, 111 remaining" aria-label="Fer-de-Lance / Transporter: player survives, 144 shield points lost, 111 remaining">144</td><td title="Fer-de-Lance / Cobra Mk III: player survives, 203 shield points lost, 52 remaining" aria-label="Fer-de-Lance / Cobra Mk III: player survives, 203 shield points lost, 52 remaining">203</td><td title="Fer-de-Lance / Python: player survives, 255 shield points lost, 0 remaining" aria-label="Fer-de-Lance / Python: player survives, 255 shield points lost, 0 remaining">255</td><td title="Fer-de-Lance / Boa: player survives, 255 shield points lost, 0 remaining" aria-label="Fer-de-Lance / Boa: player survives, 255 shield points lost, 0 remaining">255</td><td title="Fer-de-Lance / Anaconda: player survives, 255 shield points lost, 0 remaining" aria-label="Fer-de-Lance / Anaconda: player survives, 255 shield points lost, 0 remaining">255</td><td title="Fer-de-Lance / Viper: player survives, 198 shield points lost, 57 remaining" aria-label="Fer-de-Lance / Viper: player survives, 198 shield points lost, 57 remaining">198</td><td title="Fer-de-Lance / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Fer-de-Lance / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Fer-de-Lance / Mamba: player survives, 86 shield points lost, 169 remaining" aria-label="Fer-de-Lance / Mamba: player survives, 86 shield points lost, 169 remaining">86</td><td title="Fer-de-Lance / Krait: player survives, 84 shield points lost, 171 remaining" aria-label="Fer-de-Lance / Krait: player survives, 84 shield points lost, 171 remaining">84</td><td title="Fer-de-Lance / Adder: player survives, 85 shield points lost, 170 remaining" aria-label="Fer-de-Lance / Adder: player survives, 85 shield points lost, 170 remaining">85</td><td title="Fer-de-Lance / Gecko: player survives, 81 shield points lost, 174 remaining" aria-label="Fer-de-Lance / Gecko: player survives, 81 shield points lost, 174 remaining">81</td><td title="Fer-de-Lance / Cobra Mk I: player survives, 173 shield points lost, 82 remaining" aria-label="Fer-de-Lance / Cobra Mk I: player survives, 173 shield points lost, 82 remaining">173</td><td title="Fer-de-Lance / Worm: player survives, 71 shield points lost, 184 remaining" aria-label="Fer-de-Lance / Worm: player survives, 71 shield points lost, 184 remaining">71</td><td title="Fer-de-Lance / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining" aria-label="Fer-de-Lance / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining">203</td><td title="Fer-de-Lance / Asp Mk II: player survives, 203 shield points lost, 52 remaining" aria-label="Fer-de-Lance / Asp Mk II: player survives, 203 shield points lost, 52 remaining">203</td><td title="Fer-de-Lance / Python (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Fer-de-Lance / Python (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Fer-de-Lance / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining" aria-label="Fer-de-Lance / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining">208</td><td title="Fer-de-Lance / Moray: player survives, 178 shield points lost, 77 remaining" aria-label="Fer-de-Lance / Moray: player survives, 178 shield points lost, 77 remaining">178</td><td title="Fer-de-Lance / Thargoid: player survives, 255 shield points lost, 0 remaining" aria-label="Fer-de-Lance / Thargoid: player survives, 255 shield points lost, 0 remaining">255</td><td title="Fer-de-Lance / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Fer-de-Lance / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Fer-de-Lance / Constrictor: player survives, 254 shield points lost, 1 remaining" aria-label="Fer-de-Lance / Constrictor: player survives, 254 shield points lost, 1 remaining">254</td><td title="Fer-de-Lance / Cougar: player survives, 254 shield points lost, 1 remaining" aria-label="Fer-de-Lance / Cougar: player survives, 254 shield points lost, 1 remaining">254</td></tr>
+              <tr><th scope="row">Python</th><td title="Python / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Python / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Python / Shuttle: player survives, 36 shield points lost, 219 remaining" aria-label="Python / Shuttle: player survives, 36 shield points lost, 219 remaining">36</td><td title="Python / Transporter: player survives, 72 shield points lost, 183 remaining" aria-label="Python / Transporter: player survives, 72 shield points lost, 183 remaining">72</td><td title="Python / Cobra Mk III: player survives, 101 shield points lost, 154 remaining" aria-label="Python / Cobra Mk III: player survives, 101 shield points lost, 154 remaining">101</td><td title="Python / Python: player survives, 253 shield points lost, 2 remaining" aria-label="Python / Python: player survives, 253 shield points lost, 2 remaining">253</td><td title="Python / Boa: player survives, 253 shield points lost, 2 remaining" aria-label="Python / Boa: player survives, 253 shield points lost, 2 remaining">253</td><td title="Python / Anaconda: player survives, 254 shield points lost, 1 remaining" aria-label="Python / Anaconda: player survives, 254 shield points lost, 1 remaining">254</td><td title="Python / Viper: player survives, 99 shield points lost, 156 remaining" aria-label="Python / Viper: player survives, 99 shield points lost, 156 remaining">99</td><td title="Python / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Python / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Python / Mamba: player survives, 43 shield points lost, 212 remaining" aria-label="Python / Mamba: player survives, 43 shield points lost, 212 remaining">43</td><td title="Python / Krait: player survives, 42 shield points lost, 213 remaining" aria-label="Python / Krait: player survives, 42 shield points lost, 213 remaining">42</td><td title="Python / Adder: player survives, 42 shield points lost, 213 remaining" aria-label="Python / Adder: player survives, 42 shield points lost, 213 remaining">42</td><td title="Python / Gecko: player survives, 40 shield points lost, 215 remaining" aria-label="Python / Gecko: player survives, 40 shield points lost, 215 remaining">40</td><td title="Python / Cobra Mk I: player survives, 86 shield points lost, 169 remaining" aria-label="Python / Cobra Mk I: player survives, 86 shield points lost, 169 remaining">86</td><td title="Python / Worm: player survives, 35 shield points lost, 220 remaining" aria-label="Python / Worm: player survives, 35 shield points lost, 220 remaining">35</td><td title="Python / Cobra Mk III (pirate): player survives, 101 shield points lost, 154 remaining" aria-label="Python / Cobra Mk III (pirate): player survives, 101 shield points lost, 154 remaining">101</td><td title="Python / Asp Mk II: player survives, 101 shield points lost, 154 remaining" aria-label="Python / Asp Mk II: player survives, 101 shield points lost, 154 remaining">101</td><td title="Python / Python (pirate): player survives, 253 shield points lost, 2 remaining" aria-label="Python / Python (pirate): player survives, 253 shield points lost, 2 remaining">253</td><td title="Python / Fer-de-Lance: player survives, 104 shield points lost, 151 remaining" aria-label="Python / Fer-de-Lance: player survives, 104 shield points lost, 151 remaining">104</td><td title="Python / Moray: player survives, 89 shield points lost, 166 remaining" aria-label="Python / Moray: player survives, 89 shield points lost, 166 remaining">89</td><td title="Python / Thargoid: player survives, 248 shield points lost, 7 remaining" aria-label="Python / Thargoid: player survives, 248 shield points lost, 7 remaining">248</td><td title="Python / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Python / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Python / Constrictor: player survives, 127 shield points lost, 128 remaining" aria-label="Python / Constrictor: player survives, 127 shield points lost, 128 remaining">127</td><td title="Python / Cougar: player survives, 127 shield points lost, 128 remaining" aria-label="Python / Cougar: player survives, 127 shield points lost, 128 remaining">127</td></tr>
+              <tr><th scope="row">Boa</th><td title="Boa / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Boa / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Boa / Shuttle: player survives, 36 shield points lost, 219 remaining" aria-label="Boa / Shuttle: player survives, 36 shield points lost, 219 remaining">36</td><td title="Boa / Transporter: player survives, 72 shield points lost, 183 remaining" aria-label="Boa / Transporter: player survives, 72 shield points lost, 183 remaining">72</td><td title="Boa / Cobra Mk III: player survives, 101 shield points lost, 154 remaining" aria-label="Boa / Cobra Mk III: player survives, 101 shield points lost, 154 remaining">101</td><td title="Boa / Python: player survives, 253 shield points lost, 2 remaining" aria-label="Boa / Python: player survives, 253 shield points lost, 2 remaining">253</td><td title="Boa / Boa: player survives, 253 shield points lost, 2 remaining" aria-label="Boa / Boa: player survives, 253 shield points lost, 2 remaining">253</td><td title="Boa / Anaconda: player survives, 254 shield points lost, 1 remaining" aria-label="Boa / Anaconda: player survives, 254 shield points lost, 1 remaining">254</td><td title="Boa / Viper: player survives, 99 shield points lost, 156 remaining" aria-label="Boa / Viper: player survives, 99 shield points lost, 156 remaining">99</td><td title="Boa / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Boa / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Boa / Mamba: player survives, 43 shield points lost, 212 remaining" aria-label="Boa / Mamba: player survives, 43 shield points lost, 212 remaining">43</td><td title="Boa / Krait: player survives, 42 shield points lost, 213 remaining" aria-label="Boa / Krait: player survives, 42 shield points lost, 213 remaining">42</td><td title="Boa / Adder: player survives, 42 shield points lost, 213 remaining" aria-label="Boa / Adder: player survives, 42 shield points lost, 213 remaining">42</td><td title="Boa / Gecko: player survives, 40 shield points lost, 215 remaining" aria-label="Boa / Gecko: player survives, 40 shield points lost, 215 remaining">40</td><td title="Boa / Cobra Mk I: player survives, 86 shield points lost, 169 remaining" aria-label="Boa / Cobra Mk I: player survives, 86 shield points lost, 169 remaining">86</td><td title="Boa / Worm: player survives, 35 shield points lost, 220 remaining" aria-label="Boa / Worm: player survives, 35 shield points lost, 220 remaining">35</td><td title="Boa / Cobra Mk III (pirate): player survives, 101 shield points lost, 154 remaining" aria-label="Boa / Cobra Mk III (pirate): player survives, 101 shield points lost, 154 remaining">101</td><td title="Boa / Asp Mk II: player survives, 101 shield points lost, 154 remaining" aria-label="Boa / Asp Mk II: player survives, 101 shield points lost, 154 remaining">101</td><td title="Boa / Python (pirate): player survives, 253 shield points lost, 2 remaining" aria-label="Boa / Python (pirate): player survives, 253 shield points lost, 2 remaining">253</td><td title="Boa / Fer-de-Lance: player survives, 104 shield points lost, 151 remaining" aria-label="Boa / Fer-de-Lance: player survives, 104 shield points lost, 151 remaining">104</td><td title="Boa / Moray: player survives, 89 shield points lost, 166 remaining" aria-label="Boa / Moray: player survives, 89 shield points lost, 166 remaining">89</td><td title="Boa / Thargoid: player survives, 248 shield points lost, 7 remaining" aria-label="Boa / Thargoid: player survives, 248 shield points lost, 7 remaining">248</td><td title="Boa / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Boa / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Boa / Constrictor: player survives, 127 shield points lost, 128 remaining" aria-label="Boa / Constrictor: player survives, 127 shield points lost, 128 remaining">127</td><td title="Boa / Cougar: player survives, 127 shield points lost, 128 remaining" aria-label="Boa / Cougar: player survives, 127 shield points lost, 128 remaining">127</td></tr>
+              <tr><th scope="row">Anaconda</th><td title="Anaconda / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Anaconda / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Anaconda / Shuttle: player survives, 36 shield points lost, 219 remaining" aria-label="Anaconda / Shuttle: player survives, 36 shield points lost, 219 remaining">36</td><td title="Anaconda / Transporter: player survives, 72 shield points lost, 183 remaining" aria-label="Anaconda / Transporter: player survives, 72 shield points lost, 183 remaining">72</td><td title="Anaconda / Cobra Mk III: player survives, 101 shield points lost, 154 remaining" aria-label="Anaconda / Cobra Mk III: player survives, 101 shield points lost, 154 remaining">101</td><td title="Anaconda / Python: player survives, 253 shield points lost, 2 remaining" aria-label="Anaconda / Python: player survives, 253 shield points lost, 2 remaining">253</td><td title="Anaconda / Boa: player survives, 253 shield points lost, 2 remaining" aria-label="Anaconda / Boa: player survives, 253 shield points lost, 2 remaining">253</td><td title="Anaconda / Anaconda: player survives, 254 shield points lost, 1 remaining" aria-label="Anaconda / Anaconda: player survives, 254 shield points lost, 1 remaining">254</td><td title="Anaconda / Viper: player survives, 99 shield points lost, 156 remaining" aria-label="Anaconda / Viper: player survives, 99 shield points lost, 156 remaining">99</td><td title="Anaconda / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Anaconda / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Anaconda / Mamba: player survives, 43 shield points lost, 212 remaining" aria-label="Anaconda / Mamba: player survives, 43 shield points lost, 212 remaining">43</td><td title="Anaconda / Krait: player survives, 42 shield points lost, 213 remaining" aria-label="Anaconda / Krait: player survives, 42 shield points lost, 213 remaining">42</td><td title="Anaconda / Adder: player survives, 42 shield points lost, 213 remaining" aria-label="Anaconda / Adder: player survives, 42 shield points lost, 213 remaining">42</td><td title="Anaconda / Gecko: player survives, 40 shield points lost, 215 remaining" aria-label="Anaconda / Gecko: player survives, 40 shield points lost, 215 remaining">40</td><td title="Anaconda / Cobra Mk I: player survives, 86 shield points lost, 169 remaining" aria-label="Anaconda / Cobra Mk I: player survives, 86 shield points lost, 169 remaining">86</td><td title="Anaconda / Worm: player survives, 35 shield points lost, 220 remaining" aria-label="Anaconda / Worm: player survives, 35 shield points lost, 220 remaining">35</td><td title="Anaconda / Cobra Mk III (pirate): player survives, 101 shield points lost, 154 remaining" aria-label="Anaconda / Cobra Mk III (pirate): player survives, 101 shield points lost, 154 remaining">101</td><td title="Anaconda / Asp Mk II: player survives, 101 shield points lost, 154 remaining" aria-label="Anaconda / Asp Mk II: player survives, 101 shield points lost, 154 remaining">101</td><td title="Anaconda / Python (pirate): player survives, 253 shield points lost, 2 remaining" aria-label="Anaconda / Python (pirate): player survives, 253 shield points lost, 2 remaining">253</td><td title="Anaconda / Fer-de-Lance: player survives, 104 shield points lost, 151 remaining" aria-label="Anaconda / Fer-de-Lance: player survives, 104 shield points lost, 151 remaining">104</td><td title="Anaconda / Moray: player survives, 89 shield points lost, 166 remaining" aria-label="Anaconda / Moray: player survives, 89 shield points lost, 166 remaining">89</td><td title="Anaconda / Thargoid: player survives, 248 shield points lost, 7 remaining" aria-label="Anaconda / Thargoid: player survives, 248 shield points lost, 7 remaining">248</td><td title="Anaconda / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Anaconda / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Anaconda / Constrictor: player survives, 127 shield points lost, 128 remaining" aria-label="Anaconda / Constrictor: player survives, 127 shield points lost, 128 remaining">127</td><td title="Anaconda / Cougar: player survives, 127 shield points lost, 128 remaining" aria-label="Anaconda / Cougar: player survives, 127 shield points lost, 128 remaining">127</td></tr>
+              <tr><th scope="row">Asp Mk II</th><td title="Asp Mk II / Escape Pod: player survives, 34 shield points lost, 221 remaining" aria-label="Asp Mk II / Escape Pod: player survives, 34 shield points lost, 221 remaining">34</td><td title="Asp Mk II / Shuttle: player survives, 72 shield points lost, 183 remaining" aria-label="Asp Mk II / Shuttle: player survives, 72 shield points lost, 183 remaining">72</td><td title="Asp Mk II / Transporter: player survives, 144 shield points lost, 111 remaining" aria-label="Asp Mk II / Transporter: player survives, 144 shield points lost, 111 remaining">144</td><td title="Asp Mk II / Cobra Mk III: player survives, 203 shield points lost, 52 remaining" aria-label="Asp Mk II / Cobra Mk III: player survives, 203 shield points lost, 52 remaining">203</td><td title="Asp Mk II / Python: player survives, 255 shield points lost, 0 remaining" aria-label="Asp Mk II / Python: player survives, 255 shield points lost, 0 remaining">255</td><td title="Asp Mk II / Boa: player survives, 255 shield points lost, 0 remaining" aria-label="Asp Mk II / Boa: player survives, 255 shield points lost, 0 remaining">255</td><td title="Asp Mk II / Anaconda: player survives, 255 shield points lost, 0 remaining" aria-label="Asp Mk II / Anaconda: player survives, 255 shield points lost, 0 remaining">255</td><td title="Asp Mk II / Viper: player survives, 198 shield points lost, 57 remaining" aria-label="Asp Mk II / Viper: player survives, 198 shield points lost, 57 remaining">198</td><td title="Asp Mk II / Sidewinder: player survives, 40 shield points lost, 215 remaining" aria-label="Asp Mk II / Sidewinder: player survives, 40 shield points lost, 215 remaining">40</td><td title="Asp Mk II / Mamba: player survives, 86 shield points lost, 169 remaining" aria-label="Asp Mk II / Mamba: player survives, 86 shield points lost, 169 remaining">86</td><td title="Asp Mk II / Krait: player survives, 84 shield points lost, 171 remaining" aria-label="Asp Mk II / Krait: player survives, 84 shield points lost, 171 remaining">84</td><td title="Asp Mk II / Adder: player survives, 85 shield points lost, 170 remaining" aria-label="Asp Mk II / Adder: player survives, 85 shield points lost, 170 remaining">85</td><td title="Asp Mk II / Gecko: player survives, 81 shield points lost, 174 remaining" aria-label="Asp Mk II / Gecko: player survives, 81 shield points lost, 174 remaining">81</td><td title="Asp Mk II / Cobra Mk I: player survives, 173 shield points lost, 82 remaining" aria-label="Asp Mk II / Cobra Mk I: player survives, 173 shield points lost, 82 remaining">173</td><td title="Asp Mk II / Worm: player survives, 71 shield points lost, 184 remaining" aria-label="Asp Mk II / Worm: player survives, 71 shield points lost, 184 remaining">71</td><td title="Asp Mk II / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining" aria-label="Asp Mk II / Cobra Mk III (pirate): player survives, 203 shield points lost, 52 remaining">203</td><td title="Asp Mk II / Asp Mk II: player survives, 203 shield points lost, 52 remaining" aria-label="Asp Mk II / Asp Mk II: player survives, 203 shield points lost, 52 remaining">203</td><td title="Asp Mk II / Python (pirate): player survives, 255 shield points lost, 0 remaining" aria-label="Asp Mk II / Python (pirate): player survives, 255 shield points lost, 0 remaining">255</td><td title="Asp Mk II / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining" aria-label="Asp Mk II / Fer-de-Lance: player survives, 208 shield points lost, 47 remaining">208</td><td title="Asp Mk II / Moray: player survives, 178 shield points lost, 77 remaining" aria-label="Asp Mk II / Moray: player survives, 178 shield points lost, 77 remaining">178</td><td title="Asp Mk II / Thargoid: player survives, 255 shield points lost, 0 remaining" aria-label="Asp Mk II / Thargoid: player survives, 255 shield points lost, 0 remaining">255</td><td title="Asp Mk II / Thargon: player survives, 34 shield points lost, 221 remaining" aria-label="Asp Mk II / Thargon: player survives, 34 shield points lost, 221 remaining">34</td><td title="Asp Mk II / Constrictor: player survives, 254 shield points lost, 1 remaining" aria-label="Asp Mk II / Constrictor: player survives, 254 shield points lost, 1 remaining">254</td><td title="Asp Mk II / Cougar: player survives, 254 shield points lost, 1 remaining" aria-label="Asp Mk II / Cougar: player survives, 254 shield points lost, 1 remaining">254</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>For example, a fully shielded Cobra Mk III survives a collision with an undamaged Anaconda, but loses all 255 points of its forward shield. An Anaconda hitting a Sidewinder loses only 40 shield points.</p>
+        <p>For equal size classes, collision damage is 128 plus half the AI ship’s current energy, rounded down. A collider one class smaller causes half that damage; two or more classes smaller cause one quarter, again rounded down. A collider one class larger adds 64 points, capped at 255. A collider two or more classes larger destroys the player immediately.</p>
+        <p class="technical-note">These are player-versus-AI results, not a symmetric simulation of two player ships. The colliding AI object is marked for removal. Ordinary collision damage goes directly to the struck shield without the hull’s shield-strength modifier. With depleted shields or energy, a collision marked as survivable here may be fatal. Stations and missiles use separate collision routines; debris and asteroids are listed by size above but are not ship columns in this matrix.</p>
+      </section>
+      <section id="licence-plates">
+        <div class="section-heading">
+          <h2>Licence Plates</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Player and AI ships in <em>Elite: Unbound</em> now carry their own registration IDs. Your registration appears on the Status screen, while the I.F.F. Unit lets you read the registration of a targeted AI ship. The same IDs identify the sender and recipient in radio messages.</p>
+
+        <h3>Scramble Ship ID</h3>
+
+        <p>In Anarchy systems, pirates offer the special <strong>Scramble Ship ID</strong> service on the Equip Ship screen for <span class="nowrap">5,000 Cr</span>. Once purchased, the service disappears from the equipment list while your registration remains scrambled. Buying the service does not itself change your legal status.</p>
+
+        <p>A scrambled registration can be useful in a pirate career. If your ID is scrambled and your legal status is Fugitive, each newly spawned human pirate has a 50% chance of being neutral towards you. This check also applies separately to individual members of a pirate pack. A neutral pirate can still retaliate if attacked; Thargoids and mission ships are excluded from this rule.</p>
+
+        <p>Scrambling hides your existing registration as <span class="nowrap">??-???</span> on the Status screen and in radio messages. Pirate AI ships also conceal their registrations.</p>
+
+        <h3>Approaching a station</h3>
+
+        <p>In Multi-Government, Communist, Confederacy, Democracy and Corporate State systems, entering a station’s safe zone with a scrambled ID immediately raises your internal legal record to at least 100, making you a Fugitive. A higher existing value is preserved.</p>
+
+        <p>A commander with Clean or Offender status therefore becomes <strong>Fugitive</strong> immediately, even without committing another offence. An existing Fugitive keeps that status, but a record below 100 is raised to 100. For reference, Clean means a legal-record value of 0, Offender means 1 to 49, and Fugitive means 50 or more.</p>
+
+        <p>When this check raises your legal record, the station sends a radio warning addressed to <span class="nowrap">??-???</span>: <span class="nowrap">SCRAM PIRATE!</span>, <span class="nowrap">RUN PIRATE!</span> or <span class="nowrap">DIE PIRATE!</span> If your record is already 100 or more, this check does not send another warning.</p>
+
+        <p><strong>Anarchy, Feudal and Dictatorship</strong> systems ignore scrambled registrations. Entering their station safe zones does not cause this penalty or warning. This exemption applies only to the concealed ID and does not clear an existing criminal record.</p>
+
+        <h3>Player registration</h3>
+
+        <p>A ship registration consists of two letters from A to Z and a number from 001 to 255, for example <span class="nowrap">JS-042</span>, the starting registration of Commander Jameson. New registrations are generated using the game’s normal random-number generator.</p>
+
+        <p>The two letters and the number are stored in the commander save, so a valid registration survives saving and loading. If a loaded registration contains an invalid letter or the number 000, the game replaces it with a newly generated one.</p>
+
+        <h3>Restoring a visible ID</h3>
+
+        <ul>
+          <li><strong>Buying another ship:</strong> every successful purchase gives the new ship a newly generated, visible registration. Your existing legal record is preserved.</li>
+          <li><strong>Using an Escape Pod:</strong> the replacement ship receives a newly generated, visible registration. The Escape Pod also clears your criminal record, restoring Clean status.</li>
+          <li><strong>Continuing after death:</strong> the game restores the last saved commander, including the registration and its scrambled state. A visible ID in that save becomes visible again; an ID saved as scrambled remains scrambled. Death itself does not guarantee a readable ID.</li>
+          <li><strong>Default JAMESON:</strong> starting over with the default commander restores the visible registration <span class="nowrap">JS-042</span>.</li>
+        </ul>
+
+        <h3>AI registrations in the local bubble</h3>
+
+        <p>The local bubble is the area of space the game currently simulates around your ship. AI registrations use a separate 8-bit generator called an LFSR. Its starting state combines the current system’s coordinates, the galaxy number and the market randomiser for that visit. It does not advance the normal random-number generator, so assigning registrations does not change other gameplay events.</p>
+
+        <p>Each newly created ship or object receives the next non-zero value in the sequence. The generator visits all 255 values before repeating, so the numeric part does not repeat within those first 255 allocations. The two letters are derived from that number, the system coordinates, the galaxy and the market randomiser.</p>
+
+        <p>The assigned number stays with the AI ship throughout its time in the bubble, even when the game rearranges its internal ship slots. Resetting the bubble clears the AI registration table and restarts the generator.</p>
+
+        <p class="technical-note">This is a local identification system, not a galaxy-wide register of permanently unique IDs. After 255 allocations the sequence repeats, and the game does not check whether a previous holder is still present. A complete match with the player’s registration is displayed as <span class="nowrap">??-???</span> for the AI ship; matching only the numeric part does not hide it.</p>
+      </section>
+
+      <section id="space-is-not-a-dump">
+        <div class="section-heading">
+          <h2>Space Is Not a Dump!</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>You can now jettison unwanted cargo from your ship into space. Dumping it near a station, however, can cost you your clean record.</p>
+
+        <p>Press <code class="nowrap">Ctrl + 2</code> in flight to open the Jettison screen. Each confirmed selection ejects one 1t cargo canister. The controls are described in <a href="./instruction-manual.html#in-flight-cargo-jettison">In-Flight Cargo Jettison</a>.</p>
+
+        <p>Every successfully jettisoned canister inside a station’s safe zone adds <strong>15 points</strong> to your internal legal record. The penalty affects your legal status without deducting any credits. Repeated offences accumulate, up to a maximum record of 255.</p>
+
+        <p>Starting from Clean, the first penalised jettison raises your record from 0 to 15 and changes your status to <strong>Offender</strong>. Four such jettisons raise it to 60, making you a <strong>Fugitive</strong>, provided nothing else changes your record in between.</p>
+
+        <p>The consequences can begin even before you become a Fugitive: bounty hunters turn hostile at a legal-record value of 40 or more. Three penalised jettisons from a clean record already reach 45.</p>
+
+        <p><strong>Anarchy</strong> systems tolerate dumping even inside a station’s safe zone. All other governments apply the penalty, including Feudal and Dictatorship. Outside a station’s safe zone, jettisoning cargo adds no legal-record points in any system. Open Space is big.</p>
+      </section>
+
+      <section id="pattern-is-full">
+        <div class="section-heading">
+          <h2>Pattern Is Full</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Stations have received an upgrade: an approach corridor and basic air traffic control (ATC), complete with radio messages. When the player or an AI ship occupies the corridor, the station holds its routine departures to keep the docking approach clear.</p>
+
+        <h3>The approach corridor</h3>
+
+        <p>The monitored area is a cylinder extending from the docking face towards the planet, along the station’s docking axis. It has a radius of 200 game units and a length of 2,240 units, equivalent to seven Coriolis station diameters. It begins 160 units from the station’s centre and ends 2,400 units from it. Its circular cross-section keeps the check consistent as the station rotates.</p>
+
+        <p>The game tests the position of each ship’s centre. A ship blocks the corridor whenever its centre lies inside the cylinder, regardless of its size, heading or whether it is actively docking. The player is checked first, followed by AI ships in the local bubble. Missiles, cargo canisters, escape pods, debris, rocks and asteroids, including rock hermits, do not block departures.</p>
+
+        <h3>Holding departures</h3>
+
+        <p>Before launching a Shuttle or Transporter, the station checks that the corridor is clear. If it finds a blocking ship, that launch attempt is cancelled. The station keeps no departure queue: once the corridor is clear, a later normal random launch attempt can succeed.</p>
+
+        <p><strong>Police Vipers have priority and can launch even when the corridor is occupied.</strong> Ships launched by Anacondas or rock hermits are outside this station traffic-control system.</p>
+
+        <h3>Radio communication</h3>
+
+        <p>A blocked launch attempt prompts the station to send <strong>DOCK OR LEAVE</strong> to the first blocking ship found. For example, <code>C1-007:AB-123, DOCK OR LEAVE</code> identifies the station as <span class="nowrap">C1-007</span> and the ship occupying the corridor as <span class="nowrap">AB-123</span>.</p>
+
+        <p>A station’s registration encodes its type and location. The first letter is <strong>C</strong> for a Coriolis station or <strong>D</strong> for a Dodecahedron station. The next digit is the galaxy number, from 1 to 8. The three digits after the hyphen give the system’s internal index, from 000 to 255. Thus <span class="nowrap">C1-007</span> identifies a Coriolis station in galaxy 1, in the system with index 7.</p>
+
+        <p>The game finds this index by generating the current galaxy’s system sequence from the beginning until it reaches the current system, counting from zero. The same station therefore keeps the same ID on later visits. Station registrations are always visible.</p>
+
+        <p>The recipient can be the player or an AI ship. Hidden registrations appear as <span class="nowrap">??-???</span>, following the same rules as other radio messages. The instruction is simple: finish docking or move out of the corridor so regular departures can resume.</p>
+      </section>
+
+      <section id="someone-is-listening">
+        <div class="section-heading">
+          <h2>Someone Is Listening</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Radio communication gives nearby ships and stations a voice. In <em>Elite: Unbound</em>, transmissions are short, pre-written messages triggered by specific events. The game checks what happened and which ship is involved, then selects a message from the appropriate group.</p>
+
+        <h3>Who transmits and when</h3>
+
+        <p>Traders, hostile pirates, hostile bounty hunters and hostile police currently have a <strong>50% chance</strong> of transmitting after a qualifying spawn. Each group has its own probability setting in the source code. If the roll succeeds, one of its three messages is selected with equal probability. Station messages are triggered directly by the relevant event and do not use this 50% roll.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Radio message triggers and texts" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Sender</th><th scope="col">Trigger</th><th scope="col">Possible messages</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Pirate</th><td>A hostile pirate is successfully spawned, either alone or as part of a pack.</td><td><span class="nowrap">YOU ARE DEAD!</span><br><span class="nowrap">PREPARE DIE!</span><br><span class="nowrap">SCUMBAG!</span></td></tr>
+              <tr><th scope="row">Trader</th><td>The trader spawn routine successfully creates a Cobra Mk III, Python, Boa or Anaconda.</td><td><span class="nowrap">HAVE NICE TRIP</span><br><span class="nowrap">HELLO</span><br><span class="nowrap">JUST PASSING</span></td></tr>
+              <tr><th scope="row">Bounty hunter</th><td>A separately spawned ship has both the bounty-hunter and hostile flags.</td><td><span class="nowrap">WRONG PLACE!</span><br><span class="nowrap">HERE WE GO!</span><br><span class="nowrap">MY BOUNTY!</span></td></tr>
+              <tr><th scope="row">Police</th><td>A Viper launches from a hostile station, or a random police Viper is spawned while the player’s legal record is 40 or more.</td><td><span class="nowrap">STOP NOW!</span><br><span class="nowrap">WE FOUND YOU!</span><br><span class="nowrap">SURRENDER!</span></td></tr>
+              <tr><th scope="row">Station traffic control</th><td>A ship in the approach corridor blocks a routine departure.</td><td><span class="nowrap">DOCK OR LEAVE</span></td></tr>
+              <tr><th scope="row">Station registration check</th><td>A scrambled ID causes the station safe-zone check to raise the player’s legal record to 100.</td><td><span class="nowrap">SCRAM PIRATE!</span><br><span class="nowrap">RUN PIRATE!</span><br><span class="nowrap">DIE PIRATE!</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>A pirate pack gets one transmission roll after all its members have been processed. The first successfully created pirate that remains hostile supplies the sender’s ID. The whole pack therefore sends at most one message; a pack with no hostile members sends none. A separately spawned pirate gets its own single roll.</p>
+
+        <h3>Addressing and reception</h3>
+
+        <p>Messages use the format <code>SENDER:RECIPIENT, MESSAGE</code>. AI ship transmissions are addressed to the player; station traffic control can address the player or the AI ship blocking the corridor. Registrations follow the rules in <a href="#licence-plates">Licence Plates</a>, including <span class="nowrap">??-???</span> for concealed identities. The radio system receives these messages automatically.</p>
+
+        <p>Each received message produces one short beep. In a 3D space view, the text appears immediately. On a chart, the Status screen or another in-flight information screen, it is held until you return to a space view, then displayed without a second beep.</p>
+
+        <p>There is room for <strong>only one pending communication</strong>. A newer message replaces the older pending one, with no priority between senders. There is no message history. Pending communication is cleared when the flight state resets, including docking, launching, hyperspace, using an Escape Pod or dying.</p>
+
+        <h3>Fitting the radio into memory</h3>
+
+        <p>The implementation reuses Elite’s centred flight-message routine, with a dedicated radio token numbered 2. Its display counter starts at 100 instead of the usual 20, giving the longer messages more time on screen. These are internal counter values, not seconds.</p>
+
+        <p>The selected message and both registration IDs are kept stable for display. For a pending message, the IDs are copied when it arrives, so the sender can leave the local bubble without changing the eventual text. This also matters when erasing a visible message: Elite draws the same text again using XOR to remove it without damaging the background.</p>
+
+        <p>Message texts are stored once and selected through compact offset tables. The shared punctuation is added by the printing routine. To save HICODE space, some of the handling code and the message texts occupy space in the original dashboard buffer freed by RLE compression.</p>
+      </section>
+
+      <section id="delivery-boy">
+        <div class="section-heading">
+          <h2>Delivery Boy</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Special Cargo brings Elite-A’s courier contracts to <em>Elite: Unbound</em>. These small consignments can include urgent documents, medical supplies or less reputable packages. You can carry only one active contract at a time. It occupies no ordinary cargo space and cannot be sold or jettisoned through the commodity screens.</p>
+
+        <h3>Taking a contract</h3>
+
+        <p>Press <code class="nowrap">Ctrl + 1</code> while docked to see the available destinations and their <strong>entry fees</strong>. Enter a contract number and press <code>Return</code> to accept it. The fee is deducted immediately; without enough credits, the contract is not accepted. An empty list displays <strong>NO CONTRACTS</strong>.</p>
+
+        <p>After acceptance, <strong>VALUE</strong> shows the remaining payment due on delivery. Reopening the screen displays the active contract without charging again. Inventory also shows its destination and value. Press <code>W</code> on either chart to select the destination and display its name and distance; the controls are described in <a href="./instruction-manual.html#special-cargo">Special Cargo Deliveries</a>.</p>
+
+        <h3>Delivering without losing value</h3>
+
+        <p>The delivery has no countdown timer. Its value changes when you dock, so the number of intermediate station stops matters more than the number of hyperspace jumps.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Special Cargo delivery events" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Event</th><th scope="col">Effect on the contract</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Dock at the destination</th><td>The remaining value is paid automatically, once, and the contract ends.</td></tr>
+              <tr><th scope="row">Dock at any other station</th><td>The remaining value is halved, rounded down to the nearest 0.1 Cr. Returning to the departure station also counts.</td></tr>
+              <tr><th scope="row">Make an ordinary hyperspace jump</th><td>The value stays unchanged until you dock.</td></tr>
+              <tr><th scope="row">Use galactic hyperspace</th><td>The contract is cancelled without payment.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>If halving reduces the value to zero, the contract expires. The entry fee is not refunded, so your net earnings are the final payment minus that fee and your travel expenses. A destination can require several jumps: offer generation does not check your ship’s range or whether a complete route is available.</p>
+
+        <h3>How offers are generated</h3>
+
+        <p>The offer list is calculated from the current game state: the market randomisation byte, current system coordinates, legal record, the low byte of the combat kill tally, galaxy number, player ship type and previous delivery coordinates. The code combines these values using XOR and 8-bit addition and subtraction.</p>
+
+        <p>The result determines a requested count from 0 to 15 and the intervals at which candidate systems are considered while stepping through the galaxy’s system sequence. The current location is excluded. The search stops when it has enough offers or reaches the end of a single galaxy traversal, so the actual list can be shorter.</p>
+
+        <p>No new flight random numbers are drawn to generate the offers. With the same inputs, reopening the menu gives the same list. Completing, losing or cancelling a delivery leaves its old target coordinates in memory, where they contribute to the next offer calculation.</p>
+
+        <h3>Fees, rewards and legality</h3>
+
+        <p>The price calculation takes the larger of the destination’s distance in internal map units and a value from 0 to 31 derived from the destination’s system data and the offer state. A bitwise OR with the contract’s legal-record increment produces a pricing byte, <code>V</code>. The entry fee and initial payment are then built from that byte using Elite-A’s original integer shifts.</p>
+
+        <p class="technical-note">The exact calculation is <code>F = floor(257 × V / 8)</code>, where floor means rounding down. The entry fee is <code>F / 10</code> Cr and the initial payment is <code>(256 × V + (F mod 256)) / 10</code> Cr; mod gives the division remainder. For example, <code>V = 40</code> gives a fee of <span class="nowrap">128.5 Cr</span> and an initial payment of <span class="nowrap">1,024.5 Cr</span>.</p>
+
+        <p>For a Clean commander, the legal-record increment is always zero. For a commander with an existing record, the generator derives a candidate increment from the destination’s system data and the offer state. It is used only if it is smaller than the current record; otherwise the increment is zero. Acceptance adds the resulting amount to the legal record.</p>
+
+        <p class="technical-note">This addition preserves Elite-A’s 8-bit wraparound: values above 255 wrap back through zero. It does not clamp at 255, so accepting a contract can also lower a sufficiently high record through overflow.</p>
+
+        <h3>Saving the delivery</h3>
+
+        <p>Only four persistent bytes are needed: two for the remaining reward in tenths of a credit and one for each destination coordinate. A zero reward means there is no active contract. Saving and loading preserve these values; older saves without them start with no delivery. New commanders and Default JAMESON clear all four bytes.</p>
+
+        <p>The offer list is rebuilt when needed. Its six temporary tables use 96 bytes of the save/load staging area while the docked menu is open. Delivery progress is separate from the original story-mission flags, so a payment can be processed on the same docking that triggers a mission briefing.</p>
+      </section>
+
+      <section id="catch-me-if-you-can">
+        <div class="section-heading">
+          <h2>Catch Me If You Can</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>A Fer-de-Lance bounty hunter should have a reason to hunt you. The original spawn path could make it hostile even towards a Clean commander. The fix lets a newly created Fer-de-Lance bounty hunter start neutral when your legal record is below 40.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Fer-de-Lance bounty-hunter starting behaviour" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Legal record</th><th scope="col">Player status</th><th scope="col">Normal bounty-hunter spawn</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">0</th><td>Clean</td><td>Neutral</td></tr>
+              <tr><th scope="row">1-39</th><td>Offender</td><td>Neutral</td></tr>
+              <tr><th scope="row">40-49</th><td>Offender</td><td>Hostile</td></tr>
+              <tr><th scope="row">50-255</th><td>Fugitive</td><td>Hostile</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The spawn routine first combines the ship blueprint’s flags with the flags for that particular encounter. The fix then checks both the Fer-de-Lance hull type and the bounty-hunter role. Below 40, it clears only the hostile flag, preserving the ship’s role, AI aggression and registration. At 40 or more, the normal hostile spawn remains hostile.</p>
+
+        <p>The existing tactics routine continues to watch your legal record. If it reaches 40 while a neutral hunter is already present, that hunter becomes hostile. Attacking it also provokes retaliation, even if you are Clean. Once the ship is hostile, lowering your record does not automatically make it neutral again.</p>
+
+        <p>A neutral hunter does not send the hostile bounty-hunter taunts on arrival. That radio check requires both the bounty-hunter and hostile flags. Becoming hostile later does not repeat the spawn-time communication roll.</p>
+
+        <p class="technical-note">The fix is enabled by <code>bountyhunterfix=yes</code>. It applies when new Fer-de-Lance bounty hunters are created; it does not retrospectively change ships already present in an emulator snapshot.</p>
+      </section>
+
+      <section id="one-is-not-enough">
+        <div class="section-heading">
+          <h2>One Is Not Enough!</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>A single guided missile used to destroy an AI ship outright, regardless of its remaining energy. In <em>Elite: Unbound</em>, a missile hit instead removes <strong>81 energy points</strong>. A small Sidewinder can still be destroyed by one hit, but a larger, undamaged ship can take several.</p>
+
+        <p>The damage is applied to the target’s current energy. If it has fewer than 81 points before the hit, it is marked for destruction. With 81 or more, the game subtracts 81 and lets it survive. There is one detail in the subtraction: a ship with exactly 81 points survives with zero energy. The missile itself is destroyed after the hit in either case.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Examples of missile damage against AI ships" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">AI ship</th><th scope="col">Full energy</th><th scope="col">After one hit</th><th scope="col">Hits to destroy</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sidewinder</th><td>70</td><td>Destroyed</td><td>1</td></tr>
+              <tr><th scope="row">Mamba</th><td>90</td><td>9</td><td>2</td></tr>
+              <tr><th scope="row">Cobra Mk III</th><td>150</td><td>69</td><td>2</td></tr>
+              <tr><th scope="row">Thargoid</th><td>240</td><td>159</td><td>3</td></tr>
+              <tr><th scope="row">Python, Boa</th><td>250</td><td>169</td><td>4</td></tr>
+              <tr><th scope="row">Anaconda</th><td>252</td><td>171</td><td>4</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">These examples use AI ship energy values and assume full starting energy, successful missile hits, no regeneration and no other damage between hits. They do not describe the player’s shields or energy banks.</p>
+
+        <p>An Anaconda therefore has 171, 90 and then 9 energy points left after three hits; the fourth destroys it. In combat, laser damage can reduce the number of missiles needed, while the AI’s energy regeneration between hits can increase it. Missiles become a way to inflict heavy damage or finish off a weakened target, without guaranteeing an immediate kill against every ship.</p>
+
+        <p class="technical-note">The change is enabled by <code>realmissiledamage=yes</code>, independently of <code>unbound</code>. Space stations remain immune to missiles. This option changes missile damage against AI targets; it leaves the existing damage from a missile explosion near the player unchanged.</p>
+      </section>
+
+      <section id="they-are-all-around">
+        <div class="section-heading">
+          <h2>They Are All Around!</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Ships in the original game can appear in recognisably repetitive positions. The hostile-ship setup uses fixed high-byte distances on all three axes, while some coordinates reuse a random value from the decision that created the encounter. Traders and floating objects have their own narrow placement pattern.</p>
+
+        <p>The Elite-A position routine <code>rand_posn</code> gives encounters a wider spread. It resets the ship workspace, chooses random horizontal and vertical signs and offsets, and calculates a forward distance from those offsets. It is used by the common hostile-ship setup and by the routine that places traders and floating objects.</p>
+
+        <p>In the coordinate representation, <code>x_hi</code> and <code>y_hi</code> range from 0 to 31, with random low bytes and signs. The forward distance is calculated from these offsets and stays positive. These encounters are therefore spread across the space ahead of the player, rather than a full 360-degree sphere.</p>
+
+        <p>The existing encounter rules still decide when a spawn is attempted and which types are eligible. Station departures keep their dedicated launch positioning. In <em>Elite: Unbound</em>, pirate packs also give each member its own low-byte offsets within the pack’s shared position, so the group stays together without every ship occupying exactly the same point.</p>
+
+        <p class="technical-note">The Elite-A placement routine is enabled with <code>randomspawns=yes</code>. The additional scattering of pirate-pack members is part of <code>unbound=yes</code>.</p>
+      </section>
+
+      <section id="its-working">
+        <div class="section-heading">
+          <h2>It's working! It's working!</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Steering or firing with the joystick should not stop the keyboard from responding. In the original input path, joystick activity sends the handler through the joystick code and then out without scanning the keyboard. This can make a keyboard command appear to do nothing while a direction or the fire button is held.</p>
+
+        <p>The fix follows Elite 128: after reading joystick directions, fire and the configured axis reversals, <code>RDKEY</code> continues into <code>scanmatrix</code>. The joystick’s control entries remain in the key logger, and pressed keyboard keys are added during the same pass.</p>
+
+        <p>You can therefore keep steering with the joystick while using the keyboard to change speed, operate missiles or E.C.M., open charts and issue other commands. The existing key assignments and joystick axis settings still apply.</p>
+
+        <p>Joystick mode is selected in the usual way: press the fire button on the rotating title-ship screen. The fix then allows both input sources to work together during each scan.</p>
+
+        <p class="technical-note">Enabled with <code>inputfix=yes</code>, independently of <code>unbound</code>. The change adds a jump to the existing keyboard scanner after joystick processing.</p>
+      </section>
+
+      <section id="who-cares">
+        <div class="section-heading">
+          <h2>Who Cares?</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Some improvements are small enough to disappear into ordinary play. Floating debris should stay behind when you jump away, and a planet description should remain on screen long enough to read.</p>
+
+        <h3>Leaving the junk behind</h3>
+
+        <p>The in-system jump on <kbd>J</kbd> works by moving the planet and sun relative to the player. The original code leaves other objects in the local bubble in place, so cargo canisters, asteroids and escape pods seem to travel along with you.</p>
+
+        <p>With <code>warpjunk=yes</code>, an accepted jump first removes the objects counted as junk. That includes escape pods, alloy plates, cargo canisters, boulders, asteroids, splinters, Shuttles, Transporters and rock hermits. Their scanner markers are erased before their slots are removed, including the correct I.F.F. markers, so no frozen blips remain.</p>
+
+        <p>The cleanup runs only after all jump checks have passed. A blocked attempt, for example when facing a nearby planet or sun, leaves the objects in place. The usual restrictions from other ships, a station or witchspace still apply.</p>
+
+        <h3>A moment to read</h3>
+
+        <p>A long Data on System description can run past the bottom of the screen. The original text routine immediately clears the screen to print the remainder, making the first page disappear before it can be read.</p>
+
+        <p>With <code>planetdatafix=yes</code>, the first page stays visible and the overflowing text is held in a temporary buffer. Release the key that opened the page, then press and release a game key to show the continuation. Both the press and release are consumed by the page handler, so holding the opening key cannot skip the first page.</p>
+
+        <p>This is handled through the normal game loop. Flight and the hyperspace countdown continue while you read, and temporary flight messages are prevented from overwriting the waiting page. The final page behaves as an ordinary Data on System screen and remains open until you select another view. Short descriptions need no extra key press.</p>
+
+        <p class="technical-note">The continuation uses the existing 256-byte save/load staging area while that area is idle. Its size is checked by the assembler, and a runtime bound prevents the text from reaching the ship blueprints that follow it in memory.</p>
+      </section>
+
+      <section id="it-is-circular">
+        <div class="section-heading">
+          <h2>It Is... Circular!</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>Drawing a circle means calculating a series of points and joining them with lines. The original routine repeatedly multiplies the radius by sine values to obtain each point’s horizontal and vertical offsets. On a 6502-family processor, those multiplications take useful time away from the rest of the game.</p>
+
+        <p>The optimisation uses the circle’s symmetry. Before drawing, <code>BuildCircleSinCache</code> calculates the products needed for the first quarter of the circle and mirrors them into a 32-byte cache. The drawing loop then reads the cached values for both coordinates, applying the original signs and centre offsets.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Circle calculation counts before and after optimisation" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">Angular step (STP)</th><th scope="col">Original calculations</th><th scope="col">With cache</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">8</th><td>18</td><td>3</td></tr>
+              <tr><th scope="row">4</th><td>34</td><td>5</td></tr>
+              <tr><th scope="row">2</th><td>66</td><td>9</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">The figures count calls to the sine-product routine <code>FMLTU2</code> per circle, including the closing point. Angles use the game’s 64-step circle, so a smaller STP produces more segments. These are calculation counts, not measured FPS gains.</p>
+
+        <p>The point order, line clipping and stored line coordinates remain the same. The cached lookup also restores the processor’s carry flag as the original calculation did, keeping the sign changes exact. The circle therefore retains its original shape and detail.</p>
+
+        <p>The shared <code>CIRCLE2</code> routine draws the planet’s outline, chart circles and the rings of the launch and hyperspace tunnels, so all of these benefit. The cache is rebuilt for each circle’s radius and step size.</p>
+
+        <p class="technical-note">Enabled with <code>renderspeedups=yes</code>, independently of <code>unbound</code>.</p>
+      </section>
+
+      <section id="too-fast">
+        <div class="section-heading">
+          <h2>Too Fast!</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>When a scene is simple or the processor is accelerated, the original game can run its flight loop much faster. That also speeds up movement and other logic tied to the loop. The frame limiter, based on Elite 128, gives each iteration a minimum of four video frames.</p>
+
+        <p>The raster interrupt increments a counter once per complete video frame. The <code>FrameLimit</code> routine waits until the counter reaches four, then resets it. If the previous iteration has already taken at least four frames, execution continues immediately.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Frame limiter timing" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">Video standard</th><th scope="col">Nominal video rate</th><th scope="col">Maximum game-loop rate</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">PAL</th><td>50 Hz</td><td>12.5 FPS</td></tr>
+              <tr><th scope="row">NTSC</th><td>60 Hz</td><td>15 FPS</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">These are approximate upper limits for game-loop updates. The video display keeps its normal refresh rate. A busy scene can still run more slowly; the limiter only waits when there is time to spare.</p>
+
+        <p>The same limiter also controls the rotating ship on the title screen. Sound remains driven by the video interrupt, once per frame. The result is a more consistent pace in fast scenes and on accelerated hardware, including the C128 border turbo described below.</p>
+
+        <p class="technical-note">Enabled at build time with <code>fpslimiter=yes</code>. The option is independent of <code>unbound</code> and has no in-game toggle.</p>
+      </section>
+
+      <section id="turbo">
+        <div class="section-heading">
+          <h2>Turbo</h2>
+          <a class="section-top-link" href="#top">Return to top △</a>
+        </div>
+
+        <p>On a Commodore 128 running in C64 mode, <em>Elite: Unbound</em> uses the processor’s 2 MHz mode during the screen borders. While the bitmap and dashboard are being displayed, it returns to 1 MHz so the VIC-IIe can fetch the graphics correctly.</p>
+
+        <h3>Switching speed with the raster</h3>
+
+        <p>The raster is the current scanline being drawn by the video chip. The game’s raster interrupt handler has three stages per video frame. It writes 0 or 1 to the C128 clock register <code>$D030</code> to select 1 or 2 MHz.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="C128 raster turbo sequence" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Raster line</th><th scope="col">Action</th><th scope="col">CPU speed afterwards</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">40</th><td>Set up the upper screen and restore normal speed before visible bitmap and sprite fetching.</td><td><span class="nowrap">1 MHz</span></td></tr>
+              <tr><th scope="row">194</th><td>Switch to the dashboard display and update sound and the frame counter.</td><td><span class="nowrap">1 MHz</span></td></tr>
+              <tr><th scope="row">250</th><td>Enable turbo in the bottom border and schedule the next interrupt for line 40 of the following frame.</td><td><span class="nowrap">2 MHz</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The 2 MHz interval continues through the bottom border and the top of the next frame. The internal raster state cycles through <code>0 → 1 → $FF → 0</code>. The extra border interrupt only handles the speed transition and scheduling; sound and the frame counter still advance once per frame at the dashboard interrupt.</p>
+
+        <h3>How much extra time is available?</h3>
+
+        <p>On PAL, the nominal turbo interval covers 102 of the frame’s 312 scanlines, about 32.7% of the frame. NTSC uses the same switching lines but has a shorter border interval. The benefit depends on the work the game is doing, and the frame limiter still caps the main loop when enabled. The border percentage is not a measured increase in frame rate.</p>
+
+        <h3>Keeping display and loading stable</h3>
+
+        <p>The upper-screen and dashboard interrupts perform their time-critical video-register writes before taking the helper call that restores 1 MHz. Only the border interrupt takes the separate turbo path. This keeps the bitmap/dashboard split aligned with the video chip’s display fetches.</p>
+
+        <p>Before KERNAL loading or saving disables the raster interrupts, the game explicitly selects 1 MHz. Restart code does the same before waiting for the raster. These paths therefore do not depend on a disabled interrupt to restore normal speed.</p>
+
+        <p>The feature is included automatically with <code>unbound=yes</code>. The same binary writes the clock register on both machines: a standard C64 ignores these speed-control writes and keeps its normal clock. On the C128, no extra player setting is needed. The helper code uses spare space around the RLE dashboard data, with its location and limits checked by the assembler.</p>
+      </section>
+
+      <aside class="infobox">
+        <strong>I am cheater and I do not care</strong>
+        <p>Use the Save Game Editor to edit your saved commander and try different starting conditions for your next flight. It supports tape saves in TAP format from both the original C64 Elite and <em>Elite: Unbound</em>.</p>
+        <p><a href="assets/EliteSaveEditor.zip" download>Download Save Game Editor (ZIP)</a></p>
+      </aside>
     </main>
 
     <footer class="site-footer">

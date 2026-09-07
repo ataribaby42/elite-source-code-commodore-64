@@ -432,6 +432,160 @@ h2 {
   image-rendering: crisp-edges;
 }
 
+.technical-image {
+  width: min(100%, 800px);
+}
+
+.technical-table-scroll {
+  max-width: 100%;
+  margin: 1.5rem auto;
+  overflow-x: auto;
+}
+
+.technical-table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.technical-table th,
+.technical-table td {
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+}
+
+.technical-table th {
+  font-weight: 600;
+}
+
+.technical-table td:last-child,
+.technical-table th:last-child,
+.memory-table td {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.memory-table th {
+  white-space: nowrap;
+}
+
+.ship-market-table th:last-child,
+.ship-market-table td:last-child {
+  text-align: left;
+  white-space: normal;
+}
+
+.ship-spec-table {
+  min-width: 68rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ship-spec-table tr > th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--page);
+  border-right: 1px solid var(--border);
+}
+
+.ship-spec-table td {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ship-spec-table tbody th {
+  white-space: nowrap;
+}
+
+.collision-matrix-scroll {
+  overflow-x: auto;
+}
+
+.collision-matrix {
+  max-width: none;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.technical-table.collision-matrix th,
+.technical-table.collision-matrix td {
+  text-align: center;
+  white-space: normal;
+}
+
+.collision-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-width: 6.5rem;
+  background: var(--page);
+}
+
+.technical-table.collision-matrix tr > th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 11rem;
+  text-align: left;
+  background: var(--page);
+  border-right: 1px solid var(--border);
+}
+
+.technical-table.collision-matrix thead th:first-child {
+  z-index: 3;
+}
+
+.collision-matrix .collision-fatal {
+  color: var(--link);
+  background: #171717;
+  font-weight: 700;
+}
+
+.technical-table thead th,
+.technical-table tfoot th,
+.technical-table tfoot td,
+.technical-table .table-subtotal > * {
+  border-color: var(--border);
+}
+
+.technical-table tfoot > tr > *,
+.technical-table .table-subtotal > * {
+  border-top: 1px solid var(--border);
+}
+
+.technical-table tfoot {
+  font-weight: 600;
+}
+
+.technical-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.ai-note-body {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.ai-note-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.ai-note-copy p + p {
+  margin-top: 0.85rem;
+}
+
 .content-image figcaption,
 .infobox .manual-note {
   margin: 0.4rem 0 0;
@@ -460,13 +614,45 @@ p {
   margin: 1.25rem 0 0;
 }
 
-section {
+section,
+h3[id] {
   scroll-margin-top: 4rem;
 }
 
 section > h2 {
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--border-soft);
+}
+
+.section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  margin: 2.25rem 0 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.section-heading > h2,
+.section-heading > h3 {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+}
+
+.section-heading-subsection {
+  margin: 1.17rem 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.section-top-link {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: normal;
+  white-space: nowrap;
 }
 
 .commander-signoff {
@@ -612,6 +798,10 @@ pre {
 }
 
 @media (max-width: 620px) {
+  .ai-note-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .page-frame {
     width: calc(100% - 1rem);
     margin: 0.5rem auto;

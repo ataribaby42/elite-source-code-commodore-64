@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Technické informace o Elite: Unbound pro Commodore 64.">
   <meta name="theme-color" content="#000000">
-  <title>Technické informace — Elite: Unbound</title>
+  <title>Technické informace - Elite: Unbound</title>
   <link rel="icon" href="../assets/favicon-asp.ico" type="image/x-icon">
   <link rel="icon" href="../assets/favicon-asp.svg" type="image/svg+xml" sizes="any">
   <link rel="stylesheet" href="../css/style.css">
@@ -53,13 +53,728 @@
       </div>
     </header>
 
+    <nav class="page-toc" aria-label="Na této stránce">
+      <a href="#how-it-all-began">Jak vše začalo</a>
+      <a href="#making-room">Kde vzít a nekrást?</a>
+      <a href="#spaceship-dealership">Vesmírný autobazar</a>
+      <a href="#player-ship-specifications">Pod kapotou</a>
+      <a href="#player-ship-equipment">Vytuň si loď</a>
+      <a href="#crash-tests">Na velikosti záleží</a>
+      <a href="#licence-plates">Registrační značky</a>
+      <a href="#space-is-not-a-dump">Vesmír není skládka!</a>
+      <a href="#pattern-is-full">Okruh je plný</a>
+      <a href="#someone-is-listening">Někdo poslouchá</a>
+      <a href="#delivery-boy">Poslíček</a>
+      <a href="#catch-me-if-you-can">Chyť mě, když to dokážeš</a>
+      <a href="#one-is-not-enough">Jedna nestačí!</a>
+      <a href="#they-are-all-around">Jsou všude kolem!</a>
+      <a href="#its-working">Funguje to! Funguje to!</a>
+      <a href="#who-cares">Koho to zajímá?</a>
+      <a href="#it-is-circular">Je to... kulaté!</a>
+      <a href="#too-fast">Příliš rychle!</a>
+      <a href="#turbo">Turbo</a>
+    </nav>
+
     <main id="content">
       <aside class="infobox">
         <strong>Varování před spoilery!</strong>
         <p>Následující text obsahuje herní informace a spoilery, které mohou zhoršit váš zážitek, pokud chcete svět <em>Elite: Unbound</em> prozkoumávat a objevovat sami.</p>
       </aside>
 
-      <p>Tato část zatím nebyla napsána.</p>
+      <section id="how-it-all-began">
+        <div class="section-heading">
+          <h2>Jak vše začalo</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Vše začalo, když jsem náhodou narazil na web <a href="https://elite.bbcelite.com/" target="_blank" rel="noopener noreferrer">BBC Elite</a> od Marka Moxona, kde je do nejmenších podrobností rozebráno a popsáno, jak původní Elite funguje. Doslova zlatý poklad pro fanouška původní hry.</p>
+
+        <p>Našel jsem tam i odkaz na <a href="https://github.com/markmoxon/elite-source-code-commodore-64" target="_blank" rel="noopener noreferrer">GitHub</a> se zdrojovým kódem C64 verze Elite a vytvořil si fork repozitáře na <a href="https://github.com/ataribaby42/elite-source-code-commodore-64" target="_blank" rel="noopener noreferrer">svém GitHubu</a>. Po čase, když se mi podařilo zprovoznit nástroje pro sestavení hry, jsem se pustil do prvních úprav.</p>
+
+        <aside class="infobox">
+          <strong>Chci vlastní verzi...</strong>
+          <p>Vytvořte si vlastní úpravy nebo vypněte některé volby při sestavení <em>Elite: Unbound</em>. Vytvořte si fork nebo stáhněte kód z <a href="https://github.com/ataribaby42/elite-source-code-commodore-64" target="_blank" rel="noopener noreferrer">GitHubu</a>, zprovozněte potřebné nástroje (Python, BeebAsm, Make a VICE), upravte volby sestavení a pomocí <code>build_all.bat</code> sestavte vlastní verzi.</p>
+          <p class="manual-note">Repozitář obsahuje obě verze v samostatných větvích: <code>main</code> pro běžnou verzi a <code>flicker-free</code> pro verzi s potlačeným blikáním.</p>
+        </aside>
+
+        <p>První úpravou byla jednoduchá oprava: doplnění chybějící mezery za pomlčkou mezi textem a názvem planety ve zprávě při hyperskoku. Z <code class="nowrap">HYPERSPACE -LAVE</code> se stalo <code class="nowrap">HYPERSPACE - LAVE</code>. Malý krok pro programátora her v assembleru z osmdesátých let, velký skok pro mě osobně. ;)</p>
+
+        <figure class="content-image technical-image">
+          <img src="../assets/manual-first-code.png" alt="První úprava kódu: oprava mezery ve zprávě při hyperskoku" width="753" height="271" loading="lazy">
+        </figure>
+
+        <p>Následovalo několik složitějších úprav. Napsal jsem také editor bitmapy přístrojového panelu a v Art Studiu na Spectru znovu vytvořil font ze ZX Spectrum 48K verze Elite.</p>
+
+        <figure class="content-image technical-image">
+          <img src="../assets/manual-dials-editor.png" alt="Editor bitmapy přístrojového panelu" width="887" height="510" loading="lazy">
+        </figure>
+        <figure class="content-image technical-image">
+          <img src="../assets/manual-zx-font.png" alt="Font Elite v Art Studiu na ZX Spectru" width="965" height="872" loading="lazy">
+        </figure>
+        <figure class="content-image technical-image">
+          <img src="../assets/manual-new-font.png" alt="Znovu vytvořený font pro C64 verzi Elite" width="729" height="200" loading="lazy">
+        </figure>
+
+        <p>Projekt jsem na chvíli odložil. Jednou večer mě pak napadlo zeptat se ChatGPT, zda by do kódu šlo přenést létání v různých lodích z Elite-A. Zdrojový kód této verze byl také na <a href="https://github.com/markmoxon/elite-a-source-code-bbc-micro" target="_blank" rel="noopener noreferrer">Markově GitHubu</a>.</p>
+
+        <p>K mému překvapení ChatGPT po chvíli přemýšlení dodal spustitelný kód úpravy. Nebylo to dokonalé, ale fungovalo to a létalo to. S pomocí ChatGPT jsem postupně vylepšoval kód i samotnou funkci a vyvažoval herní mechanismy.</p>
+
+        <p>Přidával jsem další a další nápady a <em>Elite: Unbound</em> začalo dostávat konkrétní obrysy.</p>
+      </section>
+
+      <section id="making-room">
+        <div class="section-heading">
+          <h2>Kde vzít a nekrást?</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Aby se vše vešlo do už tak téměř plné paměti o velikosti 64 KB, musely ze hry pryč některé méně důležité části původního kódu.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Uvolněná paměť" tabindex="0">
+          <table class="technical-table">
+            <thead><tr><th scope="col">Úprava</th><th scope="col">Ušetřené bajty</th></tr></thead>
+            <tbody>
+              <tr><td>Odstranění úvodní hudby (Elite Theme)</td><td>2 931</td></tr>
+              <tr><td>Odstranění dokovací hudby (Na krásném modrém Dunaji)</td><td>2 615</td></tr>
+              <tr><td>Odstranění hudebního přehrávače a podpůrného kódu</td><td>720</td></tr>
+              <tr><td>Odstranění kontrolních součtů uloženého velitele a soutěžního kódu</td><td>132</td></tr>
+              <tr><td>Odstranění textu „COMPETITION NUMBER:“</td><td>14</td></tr>
+              <tr><td>Komprese přístrojového panelu pomocí PackBits RLE</td><td>1 049</td></tr>
+              <tr><td>Režie kódu pro rozbalení přístrojového panelu</td><td>−85</td></tr>
+              <tr class="table-subtotal"><th scope="row">Mezisoučet</th><td>7 376</td></tr>
+              <tr><td>Další nepoužívaný kód a nadbytečné instrukce</td><td>71</td></tr>
+            </tbody>
+            <tfoot><tr><th scope="row">Celková čistá úspora paměti</th><td>7 447 bajtů<br>(7,27 KiB)</td></tr></tfoot>
+          </table>
+        </div>
+
+        <p>Těchto uvolněných sedm kilobajtů poskytlo prostor pro rozšíření, ze kterých vzniklo <em>Elite: Unbound</em>.</p>
+
+        <p>Dnes už je využitý téměř každý bajt. Tolik místa zbývá po sestavení kazetové PAL verze se všemi volbami <em>Elite: Unbound</em>:</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Zbývající paměť" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">Větev</th><th scope="col">Konec LOCODE</th><th scope="col">Volno</th><th scope="col">Konec HICODE</th><th scope="col">Volno</th><th scope="col">Volno v RLE</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">main</th><td>$3FA2</td><td>93 B</td><td>$CD88</td><td>119 B</td><td>4 B</td></tr>
+              <tr><th scope="row">flicker-free</th><td>$3FF2</td><td>13 B</td><td>$CDEC</td><td>19 B</td><td>4 B</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">Uvedené volné bajty lze skutečně přidat při dodržení limitů assembleru a loaderu. LOCODE, HICODE a oblast RLE jsou samostatné oblasti; 4 B v oblasti RLE tvoří dvě oddělené mezery po 2 bajtech.</p>
+
+        <p>Na další vylepšení a nápady už tedy téměř nezbývá místo. Budu rád, když těch posledních pár bajtů vystačí na případné opravy.</p>
+      </section>
+      <aside class="infobox ai-note">
+        <strong>SKYNET to ještě není...</strong>
+        <div class="ai-note-body">
+          <img src="../assets/manual-skynet.png" alt="Logo SKYNET" width="250" height="179" loading="lazy">
+          <div class="ai-note-copy">
+            <p>AI je jen nástroj. Záleží na tom, jak ho použijete. Není to dokonalé řešení všech problémů: pořád musíte sami rozhodovat, co udělat a jak. V mém případě mi AI umožnila vytvořit si vysněnou verzi osmibitového Elite.</p>
+            <p>Kdybych všechno programoval ručně, nejspíš bych projekt nikdy nedokončil. Po několika měsících by pravděpodobně skončil u ledu. Během těch rozhovorů a práce na hře jsem díky Markovu komentovanému kódu a analýze s pomocí AI pochopil, jak Elite uvnitř funguje. Byla to úžasná cesta.</p>
+            <p>Tolik jen na vysvětlenou k mému použití AI.</p>
+          </div>
+        </div>
+      </aside>
+
+      <section id="spaceship-dealership">
+        <div class="section-heading">
+          <h2>Vesmírný autobazar</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>O tomhle jsem při hraní původního Elite snil nejvíc: moci létat i v jiných lodích než v Cobře Mk III. Neberte mě špatně, Cobra Mk III je skvělá univerzální loď pro obchodníky. Ale proletět se v malém obratném pirátském Sidewinderu nebo rychlém Aspu Mk II? Tenhle sen se mi splnil až s příchodem hry <em>Frontier: Elite II</em> na šestnáctibitové počítače.</p>
+
+        <p>Teprve když jsem objevil Elite-A, upravenou verzi původního BBC Elite, zjistil jsem, že to jde i v původní hře. Tady je výsledek mé implementace pro C64 verzi.</p>
+
+        <p>Nabídka lodí závisí na ekonomice planety a na tom, zda má vládu Anarchy. Technologická úroveň ji přímo neovlivňuje.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Nabídka lodí podle ekonomiky" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Ekonomika planety</th><th scope="col">Běžná nabídka</th><th scope="col">Navíc v Anarchy</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Rich Industrial</th><td>10 lodí</td><td>Sidewinder, Krait, Mamba</td></tr>
+              <tr><th scope="row">Average Industrial</th><td>8 lodí</td><td>Sidewinder, Krait, Mamba</td></tr>
+              <tr><th scope="row">Poor Industrial</th><td>6 lodí</td><td>Sidewinder, Krait, Mamba</td></tr>
+              <tr><th scope="row">Mainly Industrial</th><td>5 lodí</td><td>Sidewinder, Krait</td></tr>
+              <tr><th scope="row">Mainly Agricultural</th><td>4 lodě</td><td>Sidewinder, Krait</td></tr>
+              <tr><th scope="row">Rich Agricultural</th><td>4 lodě</td><td>Sidewinder, Krait</td></tr>
+              <tr><th scope="row">Average Agricultural</th><td>3 lodě</td><td>Sidewinder</td></tr>
+              <tr><th scope="row">Poor Agricultural</th><td>1 loď</td><td>Nic</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Běžná nabídka vždy obsahuje prvních <em>N</em> lodí z tohoto pořadí:</p>
+        <p>Adder → Gecko → Moray → Cobra Mk I → Cobra Mk III → Fer-de-Lance → Python → Boa → Anaconda → Asp Mk II.</p>
+
+        <p>Například v systému Poor Agricultural koupíte pouze Adder. Systém Rich Industrial Anarchy nabízí všech 13 typů.</p>
+
+        <p>Nabídka není náhodná a čekáním ani opakovaným zadokováním se nemění. Peníze, náklad a vybavení ovlivňují možnost nákup dokončit, nikoli seznam nabízených lodí.</p>
+
+        <div class="section-heading section-heading-subsection">
+          <h3 id="player-ship-specifications">Pod kapotou</h3>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Následující parametry platí pro hráčské lodě v <em>Elite: Unbound</em>. Lodě jsou seřazené podle pořizovací ceny. Sidewinder, Krait a Mamba jsou dostupné pouze v systémech Anarchy podle ekonomických omezení uvedených výše.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Parametry hráčských lodí" tabindex="0">
+          <table class="technical-table ship-spec-table">
+            <thead><tr><th scope="col">Loď</th><th scope="col">Cena (Cr)</th><th scope="col">Rychlost</th><th scope="col">Dolet (ly)</th><th scope="col">Náklad (t)</th><th scope="col">Rakety</th><th scope="col">Laserové pozice</th><th scope="col">Štíty</th><th scope="col">Dobíjení</th><th scope="col">Obratnost</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sidewinder</th><td>20 500</td><td>56 (0,47 LM)</td><td>5</td><td>4 / 5</td><td>1</td><td>1</td><td>2 (28,6 %)</td><td>1/2/3</td><td>245 (102,5 %)</td></tr>
+              <tr><th scope="row">Adder</th><td>27 000</td><td>36 (0,30 LM)</td><td>6</td><td>8 / 12</td><td>1</td><td>2</td><td>4 (57,1 %)</td><td>1/2/3</td><td>223 (93,3 %)</td></tr>
+              <tr><th scope="row">Krait</th><td>30 500</td><td>45 (0,38 LM)</td><td>6</td><td>10 / 12</td><td>0</td><td>1</td><td>3 (42,9 %)</td><td>1/2/3</td><td>223 (93,3 %)</td></tr>
+              <tr><th scope="row">Gecko</th><td>32 500</td><td>45 (0,38 LM)</td><td>7</td><td>9 / 11</td><td>2</td><td>4</td><td>5 (71,4 %)</td><td>1/2/3</td><td>239 (100 %)</td></tr>
+              <tr><th scope="row">Moray</th><td>36 000</td><td>38 (0,32 LM)</td><td>8</td><td>11 / 15</td><td>2</td><td>4</td><td>6 (85,7 %)</td><td>1/2/3</td><td>239 (100 %)</td></tr>
+              <tr><th scope="row">Mamba</th><td>37 500</td><td>48 (0,40 LM)</td><td>6</td><td>10 / 12</td><td>2</td><td>1</td><td>4 (57,1 %)</td><td>1/2/3</td><td>241 (100,8 %)</td></tr>
+              <tr><th scope="row">Cobra Mk I</th><td>39 500</td><td>39 (0,33 LM)</td><td>6</td><td>14 / 20</td><td>3</td><td>4</td><td>5 (71,4 %)</td><td>1/2/3</td><td>207 (86,6 %)</td></tr>
+              <tr><th scope="row">Cobra Mk III</th><td>100 000</td><td>42 (0,35 LM)</td><td>7</td><td>25 / 35</td><td>4</td><td>4</td><td>7 (100 %)</td><td>1/2/3</td><td>239 (100 %)</td></tr>
+              <tr><th scope="row">Fer-de-Lance</th><td>143 500</td><td>45 (0,38 LM)</td><td>8,5</td><td>9 / 11</td><td>3</td><td>4</td><td>8 (114,3 %)</td><td>2/3/4</td><td>223 (93,3 %)</td></tr>
+              <tr><th scope="row">Python</th><td>205 000</td><td>30 (0,25 LM)</td><td>8</td><td>106 / 125</td><td>4</td><td>4</td><td>11 (157,1 %)</td><td>1/2/3</td><td>175 (73,2 %)</td></tr>
+              <tr><th scope="row">Boa</th><td>240 000</td><td>36 (0,30 LM)</td><td>9</td><td>132 / 155</td><td>6</td><td>2</td><td>10 (142,9 %)</td><td>1/2/3</td><td>191 (79,9 %)</td></tr>
+              <tr><th scope="row">Anaconda</th><td>400 000</td><td>21 (0,18 LM)</td><td>10</td><td>215 / 253</td><td>16</td><td>4</td><td>13 (185,7 %)</td><td>1/2/3</td><td>175 (73,2 %)</td></tr>
+              <tr><th scope="row">Asp Mk II</th><td>895 000</td><td>60 (0,50 LM)</td><td>12,5</td><td>6 / 9</td><td>1</td><td>1</td><td>10 (142,9 %)</td><td>1/2/3</td><td>223 (93,3 %)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ul class="technical-note">
+          <li><strong>Rychlost:</strong> přímá hodnota maximální rychlosti ze hry, za ní přepočet na LM. Přepočet vychází z hodnoty Cobry Mk III: 42 = 0,35 LM a je zaokrouhlený na dvě desetinná místa.</li>
+          <li><strong>Štíty:</strong> přímá hodnota síly štítů ze hry, za ní procentní porovnání s Cobrou Mk III: 7 = 100 %. Procenta jsou zaokrouhlená na jedno desetinné místo; například Sidewinder má 2 (28,6 %). Hodnoty vyjadřují relativní odolnost vůči poškození, nikoli délku ukazatelů štítů.</li>
+          <li><strong>Náklad:</strong> základní prostor / celková kapacita s Large Cargo Bay. Část kapacity zabírá instalované vybavení; rakety mají samostatné pozice v trupu.</li>
+          <li><strong>Laserové pozice:</strong> 1 = pouze vpředu; 2 = vpředu a vzadu; 4 = vpředu, vzadu, vlevo a vpravo. Jde o počet podporovaných pozic, nikoli osazených laserů.</li>
+          <li><strong>Dobíjení:</strong> počet bodů energie obnovených při jednom kroku dobíjení, v pořadí: bez energetické jednotky / s Extra Energy Unit / s Naval Energy Unit. Například 1/2/3 znamená 1 bod bez vylepšení, 2 s Extra Energy Unit a 3 s Naval Energy Unit. Fer-de-Lance má vyšší základní rychlost dobíjení, proto má hodnoty 2/3/4.</li>
+          <li><strong>Obratnost:</strong> přímá hodnota limitu ovládání z herních dat lodě, za ní procentní porovnání s Cobrou Mk III: 239 = 100 %. Procenta jsou zaokrouhlená na jedno desetinné místo a porovnávají parametr ovládání, nikoli výslednou rychlost otáčení. Vyšší herní hodnota znamená větší obratnost.</li>
+          <li><strong>Cena:</strong> plná pořizovací cena trupu před odečtením 60% výkupní hodnoty současné lodě.</li>
+        </ul>
+        <p class="technical-note">Pokud loď nese více než čtyři řízené rakety, kokpit zobrazuje pouze poslední čtyři.</p>
+      </section>
+
+      <section id="player-ship-equipment">
+        <div class="section-heading">
+          <h2>Vytuň si loď</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Ceny vybavení závisejí na typu lodě. Lodě jsou rozdělené do pěti kategorií a každá kategorie má své ceny vybavení.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Kategorie lodí pro ceny vybavení" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Kategorie</th><th scope="col">Lodě</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">0</th><td>Cobra Mk III</td></tr>
+              <tr><th scope="row">1</th><td>Adder, Gecko, Cobra Mk I</td></tr>
+              <tr><th scope="row">2</th><td>Fer-de-Lance, Asp Mk II</td></tr>
+              <tr><th scope="row">3</th><td>Python, Boa, Anaconda</td></tr>
+              <tr><th scope="row">4</th><td>Moray, Sidewinder, Krait, Mamba</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="technical-table-scroll" role="region" aria-label="Ceny vybavení (Cr)" tabindex="0">
+          <table class="technical-table memory-table">
+            <caption class="technical-note">Ceny vybavení (Cr)</caption>
+            <thead><tr><th scope="col">Vybavení</th><th scope="col">Kategorie 0</th><th scope="col">Kategorie 1</th><th scope="col">Kategorie 2</th><th scope="col">Kategorie 3</th><th scope="col">Kategorie 4</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Fuel - za 1 ly</th><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td></tr>
+              <tr><th scope="row">Missile</th><td>25</td><td>25</td><td>25</td><td>25</td><td>25</td></tr>
+              <tr><th scope="row">Large Cargo Bay</th><td>600</td><td>500</td><td>2 000</td><td>6 000</td><td>400</td></tr>
+              <tr><th scope="row">E.C.M. System</th><td>600</td><td>400</td><td>500</td><td>800</td><td>300</td></tr>
+              <tr><th scope="row">Pulse Laser</th><td>400</td><td>400</td><td>400</td><td>400</td><td>400</td></tr>
+              <tr><th scope="row">Beam Laser</th><td>1 000</td><td>1 000</td><td>1 000</td><td>1 000</td><td>1 000</td></tr>
+              <tr><th scope="row">Fuel Scoops</th><td>525</td><td>375</td><td>700</td><td>650</td><td>450</td></tr>
+              <tr><th scope="row">Escape Pod</th><td>300</td><td>200</td><td>600</td><td>450</td><td>250</td></tr>
+              <tr><th scope="row">I.F.F. Unit</th><td>2 500</td><td>1 250</td><td>2 500</td><td>1 875</td><td>938</td></tr>
+              <tr><th scope="row">Extra Energy Unit</th><td>1 500</td><td>900</td><td>2 500</td><td>1 900</td><td>700</td></tr>
+              <tr><th scope="row">Docking Computer</th><td>1 500</td><td>800</td><td>1 000</td><td>2 000</td><td>700</td></tr>
+              <tr><th scope="row">Galactic Hyperdrive</th><td>5 000</td><td>3 000</td><td>4 000</td><td>6 000</td><td>3 000</td></tr>
+              <tr><th scope="row">Military Laser</th><td>6 000</td><td>6 000</td><td>6 000</td><td>6 000</td><td>6 000</td></tr>
+              <tr><th scope="row">Mining Laser</th><td>800</td><td>800</td><td>800</td><td>800</td><td>800</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">Cena laseru platí pro jednu pozici. Krait nemůže nést rakety, přestože jeho cenová kategorie obsahuje jejich cenu.</p>
+      </section>
+
+      <section id="crash-tests">
+        <div class="section-heading">
+          <h2>Na velikosti záleží</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Nyní už nelze maličkou lodí jako Sidewinder nárazem zničit obrovskou Anacondu bez následků. Malá loď bude při takové srážce nejspíš zničena. Tabulky ukazují výsledek srážky všech hráčských lodí proti všem AI lodím.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Velikostní třídy pro kolize" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Velikostní třída</th><th scope="col">Hráčské lodě</th><th scope="col">AI lodě a objekty</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Trosky</th><td>Žádné</td><td>Raketa, Kovový plát, Nákladový kontejner, Úlomek</td></tr>
+              <tr><th scope="row">Velmi malé</th><td>Sidewinder</td><td>Únikový modul, Sidewinder, Thargon</td></tr>
+              <tr><th scope="row">Malé</th><td>Adder, Krait, Gecko, Mamba</td><td>Balvan, Shuttle, Mamba, Krait, Adder, Gecko, Worm</td></tr>
+              <tr><th scope="row">Střední</th><td>Moray, Cobra Mk I, Cobra Mk III, Fer-de-Lance, Asp Mk II</td><td>Transporter, Cobra Mk III, Viper, Cobra Mk I, Cobra Mk III (pirátská), Asp Mk II, Fer-de-Lance, Moray, Constrictor, Cougar</td></tr>
+              <tr><th scope="row">Velké</th><td>Python, Boa, Anaconda</td><td>Stanice Coriolis, Asteroid, Python, Boa, Anaconda, Rock Hermit (asteroid), Python (pirátská), Thargoid, Stanice Dodecahedron</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>První sloupec obsahuje hráčské lodě, další sloupce lodě řízené AI. Každý výsledek platí pro jednu čelní srážku, plný přední štít (255 bodů), plnou energii hráče (255 bodů) a nepoškozenou AI loď s maximální energií podle jejího modelu. Nabírání pomocí Fuel Scoops je vypnuté. Matice zahrnuje i únikové moduly a samostatné pirátské varianty Cobry Mk III a Pythonu.</p>
+        <p id="collision-matrix-legend"><strong>Číslo znamená, že hráč přežije,</strong> a udává počet ztracených bodů štítu. Odečtením od 255 zjistíte zbývající štít; energie hráče zůstává na 255. <strong>X znamená okamžité zničení hráče.</strong></p>
+        <p class="technical-note">Pro zobrazení všech AI lodí posouvejte matici vodorovně. Sloupec hráčských lodí a záhlaví zůstávají při posouvání viditelné.</p>
+
+        <div class="technical-table-scroll collision-matrix-scroll" role="region" aria-label="Matice srážek hráče s AI" tabindex="0">
+          <table class="technical-table collision-matrix" aria-describedby="collision-matrix-legend">
+            <thead><tr><th scope="col">Hráčská loď / AI loď</th><th scope="col">Únikový modul</th><th scope="col">Shuttle</th><th scope="col">Transporter</th><th scope="col">Cobra Mk III</th><th scope="col">Python</th><th scope="col">Boa</th><th scope="col">Anaconda</th><th scope="col">Viper</th><th scope="col">Sidewinder</th><th scope="col">Mamba</th><th scope="col">Krait</th><th scope="col">Adder</th><th scope="col">Gecko</th><th scope="col">Cobra Mk I</th><th scope="col">Worm</th><th scope="col">Cobra Mk III (pirátská)</th><th scope="col">Asp Mk II</th><th scope="col">Python (pirátská)</th><th scope="col">Fer-de-Lance</th><th scope="col">Moray</th><th scope="col">Thargoid</th><th scope="col">Thargon</th><th scope="col">Constrictor</th><th scope="col">Cougar</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sidewinder</th><td title="Sidewinder / Únikový modul: hráč přežije, ztráta 136 bodů štítu, zbývá 119" aria-label="Sidewinder / Únikový modul: hráč přežije, ztráta 136 bodů štítu, zbývá 119">136</td><td title="Sidewinder / Shuttle: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Sidewinder / Shuttle: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td class="collision-fatal" title="Sidewinder / Transporter: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Transporter: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Cobra Mk III: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Cobra Mk III: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Python: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Python: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Boa: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Boa: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Anaconda: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Anaconda: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Viper: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Viper: hráč zničen bez ohledu na štíty a energii">X</td><td title="Sidewinder / Sidewinder: hráč přežije, ztráta 163 bodů štítu, zbývá 92" aria-label="Sidewinder / Sidewinder: hráč přežije, ztráta 163 bodů štítu, zbývá 92">163</td><td title="Sidewinder / Mamba: hráč přežije, ztráta 237 bodů štítu, zbývá 18" aria-label="Sidewinder / Mamba: hráč přežije, ztráta 237 bodů štítu, zbývá 18">237</td><td title="Sidewinder / Krait: hráč přežije, ztráta 232 bodů štítu, zbývá 23" aria-label="Sidewinder / Krait: hráč přežije, ztráta 232 bodů štítu, zbývá 23">232</td><td title="Sidewinder / Adder: hráč přežije, ztráta 234 bodů štítu, zbývá 21" aria-label="Sidewinder / Adder: hráč přežije, ztráta 234 bodů štítu, zbývá 21">234</td><td title="Sidewinder / Gecko: hráč přežije, ztráta 227 bodů štítu, zbývá 28" aria-label="Sidewinder / Gecko: hráč přežije, ztráta 227 bodů štítu, zbývá 28">227</td><td class="collision-fatal" title="Sidewinder / Cobra Mk I: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Cobra Mk I: hráč zničen bez ohledu na štíty a energii">X</td><td title="Sidewinder / Worm: hráč přežije, ztráta 207 bodů štítu, zbývá 48" aria-label="Sidewinder / Worm: hráč přežije, ztráta 207 bodů štítu, zbývá 48">207</td><td class="collision-fatal" title="Sidewinder / Cobra Mk III (pirátská): hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Cobra Mk III (pirátská): hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Asp Mk II: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Asp Mk II: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Python (pirátská): hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Python (pirátská): hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Fer-de-Lance: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Fer-de-Lance: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Moray: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Moray: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Thargoid: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Thargoid: hráč zničen bez ohledu na štíty a energii">X</td><td title="Sidewinder / Thargon: hráč přežije, ztráta 138 bodů štítu, zbývá 117" aria-label="Sidewinder / Thargon: hráč přežije, ztráta 138 bodů štítu, zbývá 117">138</td><td class="collision-fatal" title="Sidewinder / Constrictor: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Constrictor: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Sidewinder / Cougar: hráč zničen bez ohledu na štíty a energii" aria-label="Sidewinder / Cougar: hráč zničen bez ohledu na štíty a energii">X</td></tr>
+              <tr><th scope="row">Adder</th><td title="Adder / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187" aria-label="Adder / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187">68</td><td title="Adder / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Adder / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Adder / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Adder / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Adder / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Adder / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Adder / Python: hráč zničen bez ohledu na štíty a energii" aria-label="Adder / Python: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Adder / Boa: hráč zničen bez ohledu na štíty a energii" aria-label="Adder / Boa: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Adder / Anaconda: hráč zničen bez ohledu na štíty a energii" aria-label="Adder / Anaconda: hráč zničen bez ohledu na štíty a energii">X</td><td title="Adder / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Adder / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Adder / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Adder / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Adder / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Adder / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Adder / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87" aria-label="Adder / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87">168</td><td title="Adder / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85" aria-label="Adder / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85">170</td><td title="Adder / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92" aria-label="Adder / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92">163</td><td title="Adder / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18" aria-label="Adder / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18">237</td><td title="Adder / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112" aria-label="Adder / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112">143</td><td title="Adder / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Adder / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Adder / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Adder / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Adder / Python (pirátská): hráč zničen bez ohledu na štíty a energii" aria-label="Adder / Python (pirátská): hráč zničen bez ohledu na štíty a energii">X</td><td title="Adder / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Adder / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Adder / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13" aria-label="Adder / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13">242</td><td class="collision-fatal" title="Adder / Thargoid: hráč zničen bez ohledu na štíty a energii" aria-label="Adder / Thargoid: hráč zničen bez ohledu na štíty a energii">X</td><td title="Adder / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186" aria-label="Adder / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186">69</td><td title="Adder / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Adder / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Adder / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Adder / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td></tr>
+              <tr><th scope="row">Krait</th><td title="Krait / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187" aria-label="Krait / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187">68</td><td title="Krait / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Krait / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Krait / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Krait / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Krait / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Krait / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Krait / Python: hráč zničen bez ohledu na štíty a energii" aria-label="Krait / Python: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Krait / Boa: hráč zničen bez ohledu na štíty a energii" aria-label="Krait / Boa: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Krait / Anaconda: hráč zničen bez ohledu na štíty a energii" aria-label="Krait / Anaconda: hráč zničen bez ohledu na štíty a energii">X</td><td title="Krait / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Krait / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Krait / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Krait / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Krait / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Krait / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Krait / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87" aria-label="Krait / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87">168</td><td title="Krait / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85" aria-label="Krait / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85">170</td><td title="Krait / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92" aria-label="Krait / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92">163</td><td title="Krait / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18" aria-label="Krait / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18">237</td><td title="Krait / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112" aria-label="Krait / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112">143</td><td title="Krait / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Krait / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Krait / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Krait / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Krait / Python (pirátská): hráč zničen bez ohledu na štíty a energii" aria-label="Krait / Python (pirátská): hráč zničen bez ohledu na štíty a energii">X</td><td title="Krait / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Krait / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Krait / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13" aria-label="Krait / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13">242</td><td class="collision-fatal" title="Krait / Thargoid: hráč zničen bez ohledu na štíty a energii" aria-label="Krait / Thargoid: hráč zničen bez ohledu na štíty a energii">X</td><td title="Krait / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186" aria-label="Krait / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186">69</td><td title="Krait / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Krait / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Krait / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Krait / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td></tr>
+              <tr><th scope="row">Gecko</th><td title="Gecko / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187" aria-label="Gecko / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187">68</td><td title="Gecko / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Gecko / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Gecko / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Gecko / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Gecko / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Gecko / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Gecko / Python: hráč zničen bez ohledu na štíty a energii" aria-label="Gecko / Python: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Gecko / Boa: hráč zničen bez ohledu na štíty a energii" aria-label="Gecko / Boa: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Gecko / Anaconda: hráč zničen bez ohledu na štíty a energii" aria-label="Gecko / Anaconda: hráč zničen bez ohledu na štíty a energii">X</td><td title="Gecko / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Gecko / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Gecko / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Gecko / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Gecko / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Gecko / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Gecko / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87" aria-label="Gecko / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87">168</td><td title="Gecko / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85" aria-label="Gecko / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85">170</td><td title="Gecko / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92" aria-label="Gecko / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92">163</td><td title="Gecko / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18" aria-label="Gecko / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18">237</td><td title="Gecko / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112" aria-label="Gecko / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112">143</td><td title="Gecko / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Gecko / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Gecko / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Gecko / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Gecko / Python (pirátská): hráč zničen bez ohledu na štíty a energii" aria-label="Gecko / Python (pirátská): hráč zničen bez ohledu na štíty a energii">X</td><td title="Gecko / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Gecko / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Gecko / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13" aria-label="Gecko / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13">242</td><td class="collision-fatal" title="Gecko / Thargoid: hráč zničen bez ohledu na štíty a energii" aria-label="Gecko / Thargoid: hráč zničen bez ohledu na štíty a energii">X</td><td title="Gecko / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186" aria-label="Gecko / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186">69</td><td title="Gecko / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Gecko / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Gecko / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Gecko / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td></tr>
+              <tr><th scope="row">Moray</th><td title="Moray / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Moray / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Moray / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Moray / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Moray / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Moray / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Moray / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Moray / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Moray / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Moray / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Moray / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Moray / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Moray / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Moray / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Moray / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57" aria-label="Moray / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57">198</td><td title="Moray / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Moray / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Moray / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Moray / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Moray / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171" aria-label="Moray / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171">84</td><td title="Moray / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170" aria-label="Moray / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170">85</td><td title="Moray / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Moray / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Moray / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Moray / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Moray / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184" aria-label="Moray / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184">71</td><td title="Moray / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Moray / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Moray / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Moray / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Moray / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Moray / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Moray / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Moray / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Moray / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77" aria-label="Moray / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77">178</td><td title="Moray / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Moray / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Moray / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Moray / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Moray / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Moray / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Moray / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Moray / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td></tr>
+              <tr><th scope="row">Mamba</th><td title="Mamba / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187" aria-label="Mamba / Únikový modul: hráč přežije, ztráta 68 bodů štítu, zbývá 187">68</td><td title="Mamba / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Mamba / Shuttle: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Mamba / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Mamba / Transporter: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Mamba / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Mamba / Cobra Mk III: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Mamba / Python: hráč zničen bez ohledu na štíty a energii" aria-label="Mamba / Python: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Mamba / Boa: hráč zničen bez ohledu na štíty a energii" aria-label="Mamba / Boa: hráč zničen bez ohledu na štíty a energii">X</td><td class="collision-fatal" title="Mamba / Anaconda: hráč zničen bez ohledu na štíty a energii" aria-label="Mamba / Anaconda: hráč zničen bez ohledu na štíty a energii">X</td><td title="Mamba / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Mamba / Viper: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Mamba / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Mamba / Sidewinder: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Mamba / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Mamba / Mamba: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Mamba / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87" aria-label="Mamba / Krait: hráč přežije, ztráta 168 bodů štítu, zbývá 87">168</td><td title="Mamba / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85" aria-label="Mamba / Adder: hráč přežije, ztráta 170 bodů štítu, zbývá 85">170</td><td title="Mamba / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92" aria-label="Mamba / Gecko: hráč přežije, ztráta 163 bodů štítu, zbývá 92">163</td><td title="Mamba / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18" aria-label="Mamba / Cobra Mk I: hráč přežije, ztráta 237 bodů štítu, zbývá 18">237</td><td title="Mamba / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112" aria-label="Mamba / Worm: hráč přežije, ztráta 143 bodů štítu, zbývá 112">143</td><td title="Mamba / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Mamba / Cobra Mk III (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Mamba / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Mamba / Asp Mk II: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td class="collision-fatal" title="Mamba / Python (pirátská): hráč zničen bez ohledu na štíty a energii" aria-label="Mamba / Python (pirátská): hráč zničen bez ohledu na štíty a energii">X</td><td title="Mamba / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Mamba / Fer-de-Lance: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Mamba / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13" aria-label="Mamba / Moray: hráč přežije, ztráta 242 bodů štítu, zbývá 13">242</td><td class="collision-fatal" title="Mamba / Thargoid: hráč zničen bez ohledu na štíty a energii" aria-label="Mamba / Thargoid: hráč zničen bez ohledu na štíty a energii">X</td><td title="Mamba / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186" aria-label="Mamba / Thargon: hráč přežije, ztráta 69 bodů štítu, zbývá 186">69</td><td title="Mamba / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Mamba / Constrictor: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Mamba / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Mamba / Cougar: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td></tr>
+              <tr><th scope="row">Cobra Mk I</th><td title="Cobra Mk I / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Cobra Mk I / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Cobra Mk I / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Cobra Mk I / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Cobra Mk I / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Cobra Mk I / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Cobra Mk I / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Cobra Mk I / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Cobra Mk I / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk I / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk I / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk I / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk I / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk I / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk I / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57" aria-label="Cobra Mk I / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57">198</td><td title="Cobra Mk I / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Cobra Mk I / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Cobra Mk I / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Cobra Mk I / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Cobra Mk I / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171" aria-label="Cobra Mk I / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171">84</td><td title="Cobra Mk I / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170" aria-label="Cobra Mk I / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170">85</td><td title="Cobra Mk I / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Cobra Mk I / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Cobra Mk I / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Cobra Mk I / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Cobra Mk I / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184" aria-label="Cobra Mk I / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184">71</td><td title="Cobra Mk I / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Cobra Mk I / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Cobra Mk I / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Cobra Mk I / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Cobra Mk I / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk I / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk I / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Cobra Mk I / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Cobra Mk I / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77" aria-label="Cobra Mk I / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77">178</td><td title="Cobra Mk I / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk I / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk I / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Cobra Mk I / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Cobra Mk I / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Cobra Mk I / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Cobra Mk I / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Cobra Mk I / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td></tr>
+              <tr><th scope="row">Cobra Mk III</th><td title="Cobra Mk III / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Cobra Mk III / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Cobra Mk III / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Cobra Mk III / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Cobra Mk III / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Cobra Mk III / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Cobra Mk III / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Cobra Mk III / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Cobra Mk III / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk III / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk III / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk III / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk III / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk III / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk III / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57" aria-label="Cobra Mk III / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57">198</td><td title="Cobra Mk III / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Cobra Mk III / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Cobra Mk III / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Cobra Mk III / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Cobra Mk III / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171" aria-label="Cobra Mk III / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171">84</td><td title="Cobra Mk III / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170" aria-label="Cobra Mk III / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170">85</td><td title="Cobra Mk III / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Cobra Mk III / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Cobra Mk III / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Cobra Mk III / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Cobra Mk III / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184" aria-label="Cobra Mk III / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184">71</td><td title="Cobra Mk III / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Cobra Mk III / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Cobra Mk III / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Cobra Mk III / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Cobra Mk III / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk III / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk III / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Cobra Mk III / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Cobra Mk III / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77" aria-label="Cobra Mk III / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77">178</td><td title="Cobra Mk III / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Cobra Mk III / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Cobra Mk III / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Cobra Mk III / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Cobra Mk III / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Cobra Mk III / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Cobra Mk III / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Cobra Mk III / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td></tr>
+              <tr><th scope="row">Fer-de-Lance</th><td title="Fer-de-Lance / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Fer-de-Lance / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Fer-de-Lance / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Fer-de-Lance / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Fer-de-Lance / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Fer-de-Lance / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Fer-de-Lance / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Fer-de-Lance / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Fer-de-Lance / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Fer-de-Lance / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Fer-de-Lance / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Fer-de-Lance / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Fer-de-Lance / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Fer-de-Lance / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Fer-de-Lance / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57" aria-label="Fer-de-Lance / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57">198</td><td title="Fer-de-Lance / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Fer-de-Lance / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Fer-de-Lance / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Fer-de-Lance / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Fer-de-Lance / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171" aria-label="Fer-de-Lance / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171">84</td><td title="Fer-de-Lance / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170" aria-label="Fer-de-Lance / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170">85</td><td title="Fer-de-Lance / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Fer-de-Lance / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Fer-de-Lance / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Fer-de-Lance / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Fer-de-Lance / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184" aria-label="Fer-de-Lance / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184">71</td><td title="Fer-de-Lance / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Fer-de-Lance / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Fer-de-Lance / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Fer-de-Lance / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Fer-de-Lance / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Fer-de-Lance / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Fer-de-Lance / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Fer-de-Lance / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Fer-de-Lance / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77" aria-label="Fer-de-Lance / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77">178</td><td title="Fer-de-Lance / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Fer-de-Lance / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Fer-de-Lance / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Fer-de-Lance / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Fer-de-Lance / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Fer-de-Lance / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Fer-de-Lance / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Fer-de-Lance / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td></tr>
+              <tr><th scope="row">Python</th><td title="Python / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Python / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Python / Shuttle: hráč přežije, ztráta 36 bodů štítu, zbývá 219" aria-label="Python / Shuttle: hráč přežije, ztráta 36 bodů štítu, zbývá 219">36</td><td title="Python / Transporter: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Python / Transporter: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Python / Cobra Mk III: hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Python / Cobra Mk III: hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Python / Python: hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Python / Python: hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Python / Boa: hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Python / Boa: hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Python / Anaconda: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Python / Anaconda: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Python / Viper: hráč přežije, ztráta 99 bodů štítu, zbývá 156" aria-label="Python / Viper: hráč přežije, ztráta 99 bodů štítu, zbývá 156">99</td><td title="Python / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Python / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Python / Mamba: hráč přežije, ztráta 43 bodů štítu, zbývá 212" aria-label="Python / Mamba: hráč přežije, ztráta 43 bodů štítu, zbývá 212">43</td><td title="Python / Krait: hráč přežije, ztráta 42 bodů štítu, zbývá 213" aria-label="Python / Krait: hráč přežije, ztráta 42 bodů štítu, zbývá 213">42</td><td title="Python / Adder: hráč přežije, ztráta 42 bodů štítu, zbývá 213" aria-label="Python / Adder: hráč přežije, ztráta 42 bodů štítu, zbývá 213">42</td><td title="Python / Gecko: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Python / Gecko: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Python / Cobra Mk I: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Python / Cobra Mk I: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Python / Worm: hráč přežije, ztráta 35 bodů štítu, zbývá 220" aria-label="Python / Worm: hráč přežije, ztráta 35 bodů štítu, zbývá 220">35</td><td title="Python / Cobra Mk III (pirátská): hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Python / Cobra Mk III (pirátská): hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Python / Asp Mk II: hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Python / Asp Mk II: hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Python / Python (pirátská): hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Python / Python (pirátská): hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Python / Fer-de-Lance: hráč přežije, ztráta 104 bodů štítu, zbývá 151" aria-label="Python / Fer-de-Lance: hráč přežije, ztráta 104 bodů štítu, zbývá 151">104</td><td title="Python / Moray: hráč přežije, ztráta 89 bodů štítu, zbývá 166" aria-label="Python / Moray: hráč přežije, ztráta 89 bodů štítu, zbývá 166">89</td><td title="Python / Thargoid: hráč přežije, ztráta 248 bodů štítu, zbývá 7" aria-label="Python / Thargoid: hráč přežije, ztráta 248 bodů štítu, zbývá 7">248</td><td title="Python / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Python / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Python / Constrictor: hráč přežije, ztráta 127 bodů štítu, zbývá 128" aria-label="Python / Constrictor: hráč přežije, ztráta 127 bodů štítu, zbývá 128">127</td><td title="Python / Cougar: hráč přežije, ztráta 127 bodů štítu, zbývá 128" aria-label="Python / Cougar: hráč přežije, ztráta 127 bodů štítu, zbývá 128">127</td></tr>
+              <tr><th scope="row">Boa</th><td title="Boa / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Boa / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Boa / Shuttle: hráč přežije, ztráta 36 bodů štítu, zbývá 219" aria-label="Boa / Shuttle: hráč přežije, ztráta 36 bodů štítu, zbývá 219">36</td><td title="Boa / Transporter: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Boa / Transporter: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Boa / Cobra Mk III: hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Boa / Cobra Mk III: hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Boa / Python: hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Boa / Python: hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Boa / Boa: hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Boa / Boa: hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Boa / Anaconda: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Boa / Anaconda: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Boa / Viper: hráč přežije, ztráta 99 bodů štítu, zbývá 156" aria-label="Boa / Viper: hráč přežije, ztráta 99 bodů štítu, zbývá 156">99</td><td title="Boa / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Boa / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Boa / Mamba: hráč přežije, ztráta 43 bodů štítu, zbývá 212" aria-label="Boa / Mamba: hráč přežije, ztráta 43 bodů štítu, zbývá 212">43</td><td title="Boa / Krait: hráč přežije, ztráta 42 bodů štítu, zbývá 213" aria-label="Boa / Krait: hráč přežije, ztráta 42 bodů štítu, zbývá 213">42</td><td title="Boa / Adder: hráč přežije, ztráta 42 bodů štítu, zbývá 213" aria-label="Boa / Adder: hráč přežije, ztráta 42 bodů štítu, zbývá 213">42</td><td title="Boa / Gecko: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Boa / Gecko: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Boa / Cobra Mk I: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Boa / Cobra Mk I: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Boa / Worm: hráč přežije, ztráta 35 bodů štítu, zbývá 220" aria-label="Boa / Worm: hráč přežije, ztráta 35 bodů štítu, zbývá 220">35</td><td title="Boa / Cobra Mk III (pirátská): hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Boa / Cobra Mk III (pirátská): hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Boa / Asp Mk II: hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Boa / Asp Mk II: hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Boa / Python (pirátská): hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Boa / Python (pirátská): hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Boa / Fer-de-Lance: hráč přežije, ztráta 104 bodů štítu, zbývá 151" aria-label="Boa / Fer-de-Lance: hráč přežije, ztráta 104 bodů štítu, zbývá 151">104</td><td title="Boa / Moray: hráč přežije, ztráta 89 bodů štítu, zbývá 166" aria-label="Boa / Moray: hráč přežije, ztráta 89 bodů štítu, zbývá 166">89</td><td title="Boa / Thargoid: hráč přežije, ztráta 248 bodů štítu, zbývá 7" aria-label="Boa / Thargoid: hráč přežije, ztráta 248 bodů štítu, zbývá 7">248</td><td title="Boa / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Boa / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Boa / Constrictor: hráč přežije, ztráta 127 bodů štítu, zbývá 128" aria-label="Boa / Constrictor: hráč přežije, ztráta 127 bodů štítu, zbývá 128">127</td><td title="Boa / Cougar: hráč přežije, ztráta 127 bodů štítu, zbývá 128" aria-label="Boa / Cougar: hráč přežije, ztráta 127 bodů štítu, zbývá 128">127</td></tr>
+              <tr><th scope="row">Anaconda</th><td title="Anaconda / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Anaconda / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Anaconda / Shuttle: hráč přežije, ztráta 36 bodů štítu, zbývá 219" aria-label="Anaconda / Shuttle: hráč přežije, ztráta 36 bodů štítu, zbývá 219">36</td><td title="Anaconda / Transporter: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Anaconda / Transporter: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Anaconda / Cobra Mk III: hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Anaconda / Cobra Mk III: hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Anaconda / Python: hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Anaconda / Python: hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Anaconda / Boa: hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Anaconda / Boa: hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Anaconda / Anaconda: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Anaconda / Anaconda: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Anaconda / Viper: hráč přežije, ztráta 99 bodů štítu, zbývá 156" aria-label="Anaconda / Viper: hráč přežije, ztráta 99 bodů štítu, zbývá 156">99</td><td title="Anaconda / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Anaconda / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Anaconda / Mamba: hráč přežije, ztráta 43 bodů štítu, zbývá 212" aria-label="Anaconda / Mamba: hráč přežije, ztráta 43 bodů štítu, zbývá 212">43</td><td title="Anaconda / Krait: hráč přežije, ztráta 42 bodů štítu, zbývá 213" aria-label="Anaconda / Krait: hráč přežije, ztráta 42 bodů štítu, zbývá 213">42</td><td title="Anaconda / Adder: hráč přežije, ztráta 42 bodů štítu, zbývá 213" aria-label="Anaconda / Adder: hráč přežije, ztráta 42 bodů štítu, zbývá 213">42</td><td title="Anaconda / Gecko: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Anaconda / Gecko: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Anaconda / Cobra Mk I: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Anaconda / Cobra Mk I: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Anaconda / Worm: hráč přežije, ztráta 35 bodů štítu, zbývá 220" aria-label="Anaconda / Worm: hráč přežije, ztráta 35 bodů štítu, zbývá 220">35</td><td title="Anaconda / Cobra Mk III (pirátská): hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Anaconda / Cobra Mk III (pirátská): hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Anaconda / Asp Mk II: hráč přežije, ztráta 101 bodů štítu, zbývá 154" aria-label="Anaconda / Asp Mk II: hráč přežije, ztráta 101 bodů štítu, zbývá 154">101</td><td title="Anaconda / Python (pirátská): hráč přežije, ztráta 253 bodů štítu, zbývá 2" aria-label="Anaconda / Python (pirátská): hráč přežije, ztráta 253 bodů štítu, zbývá 2">253</td><td title="Anaconda / Fer-de-Lance: hráč přežije, ztráta 104 bodů štítu, zbývá 151" aria-label="Anaconda / Fer-de-Lance: hráč přežije, ztráta 104 bodů štítu, zbývá 151">104</td><td title="Anaconda / Moray: hráč přežije, ztráta 89 bodů štítu, zbývá 166" aria-label="Anaconda / Moray: hráč přežije, ztráta 89 bodů štítu, zbývá 166">89</td><td title="Anaconda / Thargoid: hráč přežije, ztráta 248 bodů štítu, zbývá 7" aria-label="Anaconda / Thargoid: hráč přežije, ztráta 248 bodů štítu, zbývá 7">248</td><td title="Anaconda / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Anaconda / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Anaconda / Constrictor: hráč přežije, ztráta 127 bodů štítu, zbývá 128" aria-label="Anaconda / Constrictor: hráč přežije, ztráta 127 bodů štítu, zbývá 128">127</td><td title="Anaconda / Cougar: hráč přežije, ztráta 127 bodů štítu, zbývá 128" aria-label="Anaconda / Cougar: hráč přežije, ztráta 127 bodů štítu, zbývá 128">127</td></tr>
+              <tr><th scope="row">Asp Mk II</th><td title="Asp Mk II / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Asp Mk II / Únikový modul: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Asp Mk II / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183" aria-label="Asp Mk II / Shuttle: hráč přežije, ztráta 72 bodů štítu, zbývá 183">72</td><td title="Asp Mk II / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111" aria-label="Asp Mk II / Transporter: hráč přežije, ztráta 144 bodů štítu, zbývá 111">144</td><td title="Asp Mk II / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Asp Mk II / Cobra Mk III: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Asp Mk II / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Asp Mk II / Python: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Asp Mk II / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Asp Mk II / Boa: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Asp Mk II / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Asp Mk II / Anaconda: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Asp Mk II / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57" aria-label="Asp Mk II / Viper: hráč přežije, ztráta 198 bodů štítu, zbývá 57">198</td><td title="Asp Mk II / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215" aria-label="Asp Mk II / Sidewinder: hráč přežije, ztráta 40 bodů štítu, zbývá 215">40</td><td title="Asp Mk II / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169" aria-label="Asp Mk II / Mamba: hráč přežije, ztráta 86 bodů štítu, zbývá 169">86</td><td title="Asp Mk II / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171" aria-label="Asp Mk II / Krait: hráč přežije, ztráta 84 bodů štítu, zbývá 171">84</td><td title="Asp Mk II / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170" aria-label="Asp Mk II / Adder: hráč přežije, ztráta 85 bodů štítu, zbývá 170">85</td><td title="Asp Mk II / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174" aria-label="Asp Mk II / Gecko: hráč přežije, ztráta 81 bodů štítu, zbývá 174">81</td><td title="Asp Mk II / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82" aria-label="Asp Mk II / Cobra Mk I: hráč přežije, ztráta 173 bodů štítu, zbývá 82">173</td><td title="Asp Mk II / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184" aria-label="Asp Mk II / Worm: hráč přežije, ztráta 71 bodů štítu, zbývá 184">71</td><td title="Asp Mk II / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Asp Mk II / Cobra Mk III (pirátská): hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Asp Mk II / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52" aria-label="Asp Mk II / Asp Mk II: hráč přežije, ztráta 203 bodů štítu, zbývá 52">203</td><td title="Asp Mk II / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Asp Mk II / Python (pirátská): hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Asp Mk II / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47" aria-label="Asp Mk II / Fer-de-Lance: hráč přežije, ztráta 208 bodů štítu, zbývá 47">208</td><td title="Asp Mk II / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77" aria-label="Asp Mk II / Moray: hráč přežije, ztráta 178 bodů štítu, zbývá 77">178</td><td title="Asp Mk II / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0" aria-label="Asp Mk II / Thargoid: hráč přežije, ztráta 255 bodů štítu, zbývá 0">255</td><td title="Asp Mk II / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221" aria-label="Asp Mk II / Thargon: hráč přežije, ztráta 34 bodů štítu, zbývá 221">34</td><td title="Asp Mk II / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Asp Mk II / Constrictor: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td><td title="Asp Mk II / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1" aria-label="Asp Mk II / Cougar: hráč přežije, ztráta 254 bodů štítu, zbývá 1">254</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Například Cobra Mk III s plnými štíty přežije srážku s nepoškozenou Anacondou, ale ztratí všech 255 bodů předního štítu. Anaconda při nárazu do Sidewinderu ztratí jen 40 bodů štítu.</p>
+        <p>Při stejné velikostní třídě je poškození 128 plus polovina aktuální energie AI lodě, zaokrouhlená dolů. Loď o jednu třídu menší způsobí polovinu tohoto poškození, o dvě či více tříd menší čtvrtinu, opět zaokrouhlenou dolů. Loď o jednu třídu větší přidá 64 bodů, nejvýše však do celkových 255. Loď o dvě či více tříd větší hráče okamžitě zničí.</p>
+        <p class="technical-note">Výsledky popisují srážku hráče s AI, nikoli souměrnou simulaci dvou hráčských lodí. Kolidující AI objekt je označen k odstranění. Běžné kolizní poškození se odečítá přímo ze zasaženého štítu bez přepočtu podle síly štítů daného trupu. S oslabenými štíty nebo energií může být smrtelná i srážka, kterou zde hráč přežije. Stanice a rakety mají vlastní kolizní rutiny; trosky a asteroidy jsou výše zařazené podle velikosti, ale netvoří lodní sloupce této matice.</p>
+      </section>
+      <section id="licence-plates">
+        <div class="section-heading">
+          <h2>Registrační značky</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Hráčova loď i AI lodě mají ve světě <em>Elite: Unbound</em> vlastní registrační ID. Registrace hráčovy lodě se zobrazuje na obrazovce Status, zatímco registraci zaměřené AI lodě lze přečíst pomocí I.F.F. Unit. Stejná ID označují odesílatele a příjemce v rádiových zprávách.</p>
+
+        <h3>Scramble Ship ID</h3>
+
+        <p>V systémech se zřízením Anarchy nabízejí piráti speciální službu <strong>Scramble Ship ID</strong> na obrazovce Equip Ship za <span class="nowrap">5 000 Cr</span>. Po zakoupení služba z nabídky vybavení zmizí a znovu se nenabízí, dokud máte registraci skrytou. Samotné zakoupení služby právní status hráče nemění.</p>
+
+        <p>Nečitelná registrace se může hodit při pirátské kariéře. Pokud máte scrambled ID a zároveň právní status Fugitive, má každý nově vytvořený lidský pirát 50% šanci, že k vám bude neutrální. Podmínka se vyhodnocuje zvlášť i pro jednotlivé členy pirátského roje. Neutrální pirát se může při napadení bránit; pravidlo se nevztahuje na Thargoidy ani na lodě spojené s misemi.</p>
+
+        <p>Scrambling skryje stávající registraci jako <span class="nowrap">??-???</span> na obrazovce Status i v rádiových zprávách. Své registrace skrývají také pirátské AI lodě.</p>
+
+        <h3>Přiblížení ke stanici</h3>
+
+        <p>V systémech se zřízením Multi-Government, Communist, Confederacy, Democracy a Corporate State zvýší vstup do bezpečné zóny stanice se skrytým ID interní hodnotu trestního záznamu nejméně na 100, což znamená status Fugitive. Pokud je hodnota už vyšší, zůstane zachována.</p>
+
+        <p>Velitel se statusem Clean nebo Offender se tak okamžitě stane <strong>Fugitive</strong>, i když nespáchá žádný další přestupek. Pokud už je Fugitive, status zůstane stejný, ale hodnota záznamu nižší než 100 se zvýší na 100. Pro představu: Clean odpovídá hodnotě 0, Offender hodnotám 1 až 49 a Fugitive hodnotě 50 nebo více.</p>
+
+        <p>Když tato kontrola zvýší trestní záznam, stanice odešle rádiové varování adresované registraci <span class="nowrap">??-???</span>: <span class="nowrap">SCRAM PIRATE!</span>, <span class="nowrap">RUN PIRATE!</span> nebo <span class="nowrap">DIE PIRATE!</span> Pokud už má záznam hodnotu 100 nebo více, tato kontrola další varování neodešle.</p>
+
+        <p>Systémy se zřízením <strong>Anarchy, Feudal a Dictatorship</strong> skryté registrace ignorují. Vstup do bezpečné zóny jejich stanice proto nezpůsobí tento postih ani varování. Výjimka se vztahuje pouze na nečitelnou registraci a nemaže už existující trestní záznam.</p>
+
+        <h3>Registrace hráčovy lodě</h3>
+
+        <p>Registrace lodě se skládá ze dvou písmen A až Z a čísla 001 až 255. Příkladem je <span class="nowrap">JS-042</span>, výchozí registrace velitele Jamesona. Nové registrace vznikají pomocí běžného herního generátoru náhodných čísel.</p>
+
+        <p>Obě písmena i číslo jsou součástí uloženého commandera, takže platná registrace zůstává stejná i po uložení a načtení hry. Pokud načtená registrace obsahuje neplatné písmeno nebo číslo 000, hra ji nahradí nově vygenerovanou.</p>
+
+        <h3>Obnovení čitelné registrace</h3>
+
+        <ul>
+          <li><strong>Nákup jiné lodě:</strong> při každém úspěšném nákupu dostane nová loď nově vygenerovanou, čitelnou registraci. Stávající trestní záznam zůstává zachovaný.</li>
+          <li><strong>Použití Escape Pod:</strong> náhradní loď dostane nově vygenerovanou, čitelnou registraci. Escape Pod zároveň vymaže trestní záznam a obnoví status Clean.</li>
+          <li><strong>Pokračování po smrti:</strong> hra obnoví posledního uloženého commandera včetně registrace a jejího skrytí. Pokud byla registrace v uložené pozici čitelná, bude znovu čitelná; pokud byla uložená jako scrambled, zůstane skrytá. Samotná smrt tedy obnovení čitelného ID nezaručuje.</li>
+          <li><strong>Default JAMESON:</strong> nový začátek s výchozím commanderem obnoví čitelnou registraci <span class="nowrap">JS-042</span>.</li>
+        </ul>
+
+        <h3>Registrace AI lodí v místní bublině</h3>
+
+        <p>Místní bublina je oblast vesmíru, kterou hra právě simuluje kolem hráčovy lodě. Registrace AI používají samostatný osmibitový generátor označovaný jako LFSR. Jeho počáteční stav kombinuje souřadnice aktuálního systému, číslo galaxie a náhodnou hodnotu trhu pro danou návštěvu. Běžný generátor náhodných čísel přitom neposouvá, takže přidělování registrací neovlivňuje ostatní herní události.</p>
+
+        <p>Každá nově vytvořená loď nebo objekt dostane další nenulovou hodnotu z posloupnosti. Generátor projde všech 255 hodnot, než se začne opakovat, takže v rámci těchto prvních 255 přidělení je číselná část pokaždé jiná. Dvě písmena se odvozují z tohoto čísla, souřadnic systému, galaxie a náhodné hodnoty trhu.</p>
+
+        <p>Přidělené číslo zůstává AI lodi po celou dobu jejího pobytu v bublině, i když hra přeskládá interní sloty lodí. Při vyprázdnění bubliny se smaže tabulka AI registrací a generátor začne znovu.</p>
+
+        <p class="technical-note">Jde o místní identifikační systém, nikoli o galaktický registr trvale jedinečných ID. Po 255 přiděleních se posloupnost opakuje a hra nekontroluje, zda je předchozí držitel stále přítomen. Při úplné shodě s hráčovou registrací se ID AI lodě zobrazí jako <span class="nowrap">??-???</span>; samotná shoda číselné části registraci neskryje.</p>
+      </section>
+
+      <section id="space-is-not-a-dump">
+        <div class="section-heading">
+          <h2>Vesmír není skládka!</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Nepotřebný nebo nechtěný náklad lze nyní vyhodit z lodě do vesmíru. Odhazování v blízkosti stanice vás ale může stát čistý trestní rejstřík.</p>
+
+        <p>Obrazovku Jettison otevřete za letu stisknutím <code class="nowrap">Ctrl + 2</code>. Každá potvrzená volba odhodí jeden nákladní kontejner o hmotnosti 1t. Ovládání je popsané v části <a href="./instruction-manual.html#in-flight-cargo-jettison">Odhazování nákladu za letu</a>.</p>
+
+        <p>Každý skutečně odhozený kontejner v bezpečné zóně stanice přidá <strong>15 bodů</strong> k interní hodnotě trestního záznamu. Postih mění právní status hráče, kredity se neodečítají. Opakované přestupky se sčítají až do maximální hodnoty 255.</p>
+
+        <p>Pokud začínáte se statusem Clean, první postih zvýší záznam z 0 na 15 a změní status na <strong>Offender</strong>. Čtyři taková odhození znamenají hodnotu 60 a status <strong>Fugitive</strong>, pokud se mezitím záznam nezmění jiným způsobem.</p>
+
+        <p>Následky se mohou projevit ještě před dosažením statusu Fugitive: lovci odměn se stávají nepřátelskými už při hodnotě trestního záznamu 40 nebo více. Tři taková odhození z čistého záznamu ho zvýší na 45.</p>
+
+        <p>Systémy se zřízením <strong>Anarchy</strong> odhazování tolerují i v bezpečné zóně stanice. Všechna ostatní zřízení postih uplatňují, včetně Feudal a Dictatorship. Mimo bezpečnou zónu stanice odhazování nákladu nepřidává body do trestního záznamu v žádném systému. Otevřený vesmír je obrovský.</p>
+      </section>
+
+      <section id="pattern-is-full">
+        <div class="section-heading">
+          <h2>Okruh je plný</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Stanice dostaly příletový koridor a jednoduché řízení letového provozu (ATC) včetně rádiových zpráv. Pokud koridor obsadí hráč nebo AI loď, stanice pozastaví běžné starty, aby zachovala volný prostor pro přiblížení k dokovacímu otvoru.</p>
+
+        <h3>Příletový koridor</h3>
+
+        <p>Kontrolovanou oblast tvoří válec vedený od dokovací stěny směrem k planetě podél dokovací osy stanice. Má poloměr 200 herních jednotek a délku 2 240 jednotek, tedy sedm průměrů stanice Coriolis. Začíná 160 jednotek od středu stanice a končí ve vzdálenosti 2 400 jednotek. Kruhový průřez zajišťuje, že otáčení stanice nemění výsledek kontroly.</p>
+
+        <p>Hra kontroluje polohu středu každé lodě. Loď koridor blokuje, pokud její střed leží uvnitř válce, bez ohledu na velikost, směr letu nebo to, zda právě dokuje. Nejdříve se kontroluje hráč, potom AI lodě v místní bublině. Rakety, nákladní kontejnery, únikové moduly, trosky, kameny a asteroidy včetně úkrytů rock hermitů starty neblokují.</p>
+
+        <h3>Pozastavení startů</h3>
+
+        <p>Před vypuštěním lodě Shuttle nebo Transporter stanice ověří, zda je koridor volný. Pokud v něm najde překážející loď, daný pokus o start zruší. Stanice neudržuje frontu čekajících startů: po uvolnění koridoru může uspět některý další běžný náhodný pokus o vypuštění lodě.</p>
+
+        <p><strong>Policejní Vipery mají přednost a mohou startovat i při obsazeném koridoru.</strong> Lodí vypouštěných z Anacond nebo od rock hermitů se toto řízení provozu stanice netýká.</p>
+
+        <h3>Rádiová komunikace</h3>
+
+        <p>Při zablokovaném pokusu o start odešle stanice první nalezené překážející lodi zprávu <strong>DOCK OR LEAVE</strong>. Například ve zprávě <code>C1-007:AB-123, DOCK OR LEAVE</code> označuje <span class="nowrap">C1-007</span> stanici a <span class="nowrap">AB-123</span> loď, která obsadila koridor.</p>
+
+        <p>Registrace stanice vyjadřuje její typ a polohu. První písmeno je <strong>C</strong> pro stanici Coriolis nebo <strong>D</strong> pro stanici Dodecahedron. Následující číslice označuje galaxii od 1 do 8. Trojčíslí za pomlčkou udává interní index systému od 000 do 255. Registrace <span class="nowrap">C1-007</span> tedy označuje stanici Coriolis v galaxii 1, v systému s indexem 7.</p>
+
+        <p>Hra tento index zjistí postupným generováním systémů aktuální galaxie od začátku, dokud nenajde současný systém. Pořadí přitom počítá od nuly. Stejná stanice si proto zachovává stejné ID i při dalších návštěvách. Registrace stanic jsou vždy čitelné.</p>
+
+        <p>Příjemcem může být hráč i AI loď. Skryté registrace se zobrazují jako <span class="nowrap">??-???</span> podle stejných pravidel jako v ostatních rádiových zprávách. Pokyn je jednoduchý: dokončete dokování nebo opusťte koridor, aby mohly pokračovat běžné starty.</p>
+      </section>
+
+      <section id="someone-is-listening">
+        <div class="section-heading">
+          <h2>Někdo poslouchá</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Rádiová komunikace dává okolním lodím a stanicím hlas. V <em>Elite: Unbound</em> jde o krátké, předem napsané hlášky, které spouštějí konkrétní herní události. Hra vyhodnotí situaci a roli zúčastněné lodě a podle toho vybere zprávu z příslušné skupiny.</p>
+
+        <h3>Kdo vysílá a kdy</h3>
+
+        <p>Obchodníci, nepřátelští piráti, nepřátelští lovci odměn a nepřátelská policie mají nyní <strong>50% šanci</strong> vysílat po vytvoření lodě, která splňuje příslušné podmínky. Každá skupina má ve zdrojovém kódu vlastní nastavení pravděpodobnosti. Pokud pokus uspěje, hra se stejnou šancí vybere jednu ze tří hlášek dané skupiny. Staniční zprávy spouští přímo odpovídající událost a tento 50% test se na ně nevztahuje.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Podmínky a texty rádiových zpráv" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Odesílatel</th><th scope="col">Spouštěcí událost</th><th scope="col">Možné zprávy</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Pirát</th><td>Úspěšně vznikne nepřátelský pirát, samostatně nebo jako člen roje.</td><td><span class="nowrap">YOU ARE DEAD!</span><br><span class="nowrap">PREPARE DIE!</span><br><span class="nowrap">SCUMBAG!</span></td></tr>
+              <tr><th scope="row">Obchodník</th><td>Rutina pro vytváření obchodníků úspěšně přidá loď Cobra Mk III, Python, Boa nebo Anaconda.</td><td><span class="nowrap">HAVE NICE TRIP</span><br><span class="nowrap">HELLO</span><br><span class="nowrap">JUST PASSING</span></td></tr>
+              <tr><th scope="row">Lovec odměn</th><td>Samostatně vytvořená loď má současně příznak lovce odměn a nepřátelský příznak.</td><td><span class="nowrap">WRONG PLACE!</span><br><span class="nowrap">HERE WE GO!</span><br><span class="nowrap">MY BOUNTY!</span></td></tr>
+              <tr><th scope="row">Policie</th><td>Z nepřátelské stanice odstartuje Viper, nebo vznikne náhodná policejní Viper při hráčově trestním záznamu 40 či více.</td><td><span class="nowrap">STOP NOW!</span><br><span class="nowrap">WE FOUND YOU!</span><br><span class="nowrap">SURRENDER!</span></td></tr>
+              <tr><th scope="row">Řízení provozu stanice</th><td>Loď v příletovém koridoru zablokuje běžný start ze stanice.</td><td><span class="nowrap">DOCK OR LEAVE</span></td></tr>
+              <tr><th scope="row">Kontrola registrace u stanice</th><td>Kontrola skrytého ID v bezpečné zóně stanice zvýší hráčův trestní záznam na 100.</td><td><span class="nowrap">SCRAM PIRATE!</span><br><span class="nowrap">RUN PIRATE!</span><br><span class="nowrap">DIE PIRATE!</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Pirátský roj má jeden pokus o vysílání až po zpracování všech svých členů. Odesílatelem se stane první úspěšně vytvořený pirát, který zůstal nepřátelský. Celý roj tak pošle nejvýše jednu zprávu; pokud nemá žádného nepřátelského člena, nepošle nic. Samostatně vytvořený pirát má vlastní jediný pokus.</p>
+
+        <h3>Adresování a příjem</h3>
+
+        <p>Zprávy mají formát <code>ODESÍLATEL:PŘÍJEMCE, ZPRÁVA</code>. Vysílání AI lodí je adresované hráči, zatímco řízení provozu stanice může oslovit hráče nebo AI loď blokující koridor. Registrace se řídí pravidly z části <a href="#licence-plates">Registrační značky</a>, včetně zobrazení <span class="nowrap">??-???</span> u skrytých identit. Příjem rádiových zpráv je automatický.</p>
+
+        <p>Každou přijatou zprávu oznámí jedno krátké pípnutí. Ve 3D pohledu do vesmíru se text zobrazí okamžitě. Na mapě, obrazovce Status nebo jiné informační obrazovce za letu počká na návrat do pohledu z kokpitu a pak se zobrazí bez druhého pípnutí.</p>
+
+        <p>V paměti je místo pro <strong>jedinou čekající rádiovou zprávu</strong>. Novější zpráva nahradí starší čekající zprávu bez ohledu na odesílatele. Historie komunikace se neukládá. Čekající zpráva se zahodí při resetu letového stavu, například při zadokování, startu, hyperskoku, použití Escape Pod nebo smrti.</p>
+
+        <h3>Jak se rádio vešlo do paměti</h3>
+
+        <p>Implementace využívá původní rutinu Elite pro centrované letové hlášky a vlastní rádiový token s číslem 2. Jeho čítač zobrazení začíná na hodnotě 100 místo běžných 20, aby na delší zprávy zůstalo více času. Jde o interní hodnoty čítače, nikoli o sekundy.</p>
+
+        <p>Vybraná hláška i obě registrační ID se pro zobrazení uchovávají beze změny. U čekající zprávy se ID zkopírují už při příjmu, takže odesílatel může mezitím opustit místní bublinu, aniž by se změnil výsledný text. To je důležité také při mazání zobrazené zprávy: Elite vykreslí stejný text znovu operací XOR, která ho odstraní bez poškození pozadí.</p>
+
+        <p>Texty hlášek jsou uložené pouze jednou a vybírají se pomocí úsporných tabulek relativních posunů. Společná interpunkce se doplní až při výpisu. Aby se šetřil prostor HICODE, část obslužného kódu a texty využívají místo v původním bufferu palubního panelu, které uvolnila RLE komprese.</p>
+      </section>
+
+      <section id="delivery-boy">
+        <div class="section-heading">
+          <h2>Poslíček</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Special Cargo přináší do <em>Elite: Unbound</em> kurýrní zakázky z Elite-A. Malé zásilky mohou obsahovat urgentní dokumenty, zdravotnický materiál nebo méně počestné balíčky. Současně můžete vézt pouze jednu aktivní zakázku. Nezabírá běžný nákladový prostor a nelze ji prodat ani odhodit přes obrazovky komodit.</p>
+
+        <h3>Přijetí zakázky</h3>
+
+        <p>Po zadokování stiskněte <code class="nowrap">Ctrl + 1</code>. Zobrazí se dostupné cíle a jejich <strong>vstupní poplatky</strong>. Zakázku přijmete zadáním čísla a stisknutím <code>Return</code>. Poplatek se odečte okamžitě; bez dostatku kreditů se zakázka nepřijme. Prázdnou nabídku označuje hláška <strong>NO CONTRACTS</strong>.</p>
+
+        <p>Po přijetí ukazuje údaj <strong>VALUE</strong> zbývající odměnu za doručení. Opětovné otevření obrazovky zobrazí aktivní zakázku bez další platby. Cíl a hodnotu ukazuje také Inventory. Klávesou <code>W</code> na kterékoli mapě vyberete cíl a zobrazíte jeho název a vzdálenost; ovládání popisuje část <a href="./instruction-manual.html#special-cargo">Speciální přepravní zakázky</a>.</p>
+
+        <h3>Doručení bez ztráty hodnoty</h3>
+
+        <p>Zakázka nemá časový odpočet. Její hodnota se mění při zadokování, takže záleží především na počtu mezizastávek u stanic, nikoli na počtu hyperskoků.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Události při přepravě Special Cargo" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Událost</th><th scope="col">Vliv na zakázku</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Zadokování v cíli</th><td>Zbývající hodnota se automaticky jednou vyplatí a zakázka skončí.</td></tr>
+              <tr><th scope="row">Zadokování u jiné stanice</th><td>Zbývající hodnota se rozpůlí se zaokrouhlením dolů na desetinu kreditu. Počítá se i návrat na výchozí stanici.</td></tr>
+              <tr><th scope="row">Běžný hyperskok</th><td>Hodnota zůstane stejná až do zadokování.</td></tr>
+              <tr><th scope="row">Galaktický hyperskok</th><td>Zakázka se zruší bez vyplacení odměny.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Pokud půlení sníží hodnotu na nulu, zakázka zanikne. Vstupní poplatek se nevrací, takže čistý výdělek tvoří konečná odměna po odečtení poplatku a nákladů na cestu. Cíl může vyžadovat několik skoků: generátor nabídek nekontroluje dolet vaší lodě ani dostupnost celé trasy.</p>
+
+        <h3>Jak vznikají nabídky</h3>
+
+        <p>Seznam se vypočítává z aktuálního herního stavu: náhodného bajtu trhu, souřadnic současného systému, trestního záznamu, spodního bajtu počítadla bojových sestřelů, čísla galaxie, typu hráčovy lodě a souřadnic předchozí zásilky. Kód tyto hodnoty kombinuje pomocí XOR a osmibitového sčítání a odčítání.</p>
+
+        <p>Výsledek určuje požadovaný počet od 0 do 15 nabídek a rozestupy, s nimiž hra vybírá kandidáty při průchodu posloupností systémů galaxie. Současná poloha je z výběru vyloučena. Hledání skončí po nalezení požadovaného počtu nabídek nebo po jednom průchodu galaxií, takže skutečný seznam může být kratší.</p>
+
+        <p>Generování nabídek nečerpá nová čísla z letového generátoru náhody. Pokud se vstupy nezmění, opětovné otevření menu zobrazí stejný seznam. Po dokončení, zániku nebo zrušení zakázky zůstávají staré cílové souřadnice v paměti a vstupují do výpočtu dalších nabídek.</p>
+
+        <h3>Poplatky, odměny a legalita</h3>
+
+        <p>Výpočet ceny vezme větší ze dvou hodnot: vzdálenost cíle v interních mapových jednotkách a číslo od 0 do 31 odvozené z dat cílového systému a stavu nabídky. Bitovým OR s přírůstkem trestního záznamu za zakázku vznikne cenový bajt <code>V</code>. Z něj se původními celočíselnými posuny Elite-A sestaví vstupní poplatek a počáteční odměna.</p>
+
+        <p class="technical-note">Přesný výpočet je <code>F = floor(257 × V / 8)</code>, kde floor znamená zaokrouhlení dolů. Vstupní poplatek je <code>F / 10</code> Cr a počáteční odměna <code>(256 × V + (F mod 256)) / 10</code> Cr; mod označuje zbytek po dělení. Například <code>V = 40</code> znamená poplatek <span class="nowrap">128,5 Cr</span> a počáteční odměnu <span class="nowrap">1 024,5 Cr</span>.</p>
+
+        <p>U velitele se statusem Clean je přírůstek trestního záznamu vždy nulový. Pokud už velitel záznam má, generátor z dat cílového systému a stavu nabídky odvodí možný přírůstek. Použije ho pouze tehdy, když je menší než současný záznam; jinak je přírůstek nulový. Přijetí zakázky výslednou hodnotu přičte k trestnímu záznamu.</p>
+
+        <p class="technical-note">Sčítání zachovává původní osmibitové přetečení Elite-A: hodnoty nad 255 se přetočí přes nulu. Výsledek se nezastropuje na 255, takže přijetí zakázky může dostatečně vysoký záznam přetečením také snížit.</p>
+
+        <h3>Uložení zásilky</h3>
+
+        <p>Trvale stačí uložit čtyři bajty: dva pro zbývající odměnu v desetinách kreditu a po jednom pro obě cílové souřadnice. Nulová odměna znamená, že není aktivní žádná zakázka. Uložení a načtení hry tyto hodnoty zachovává; starší uložené pozice bez nich začínají bez zásilky. Nový commander a Default JAMESON vynulují všechny čtyři bajty.</p>
+
+        <p>Seznam nabídek se podle potřeby znovu sestaví. Jeho šest dočasných tabulek využívá 96 bajtů pracovního prostoru pro ukládání a načítání, dokud je otevřené dokované menu. Stav zásilky je oddělený od příznaků původních příběhových misí, takže odměnu lze vyplatit i při zadokování, které zároveň spustí zadání mise.</p>
+      </section>
+
+      <section id="catch-me-if-you-can">
+        <div class="section-heading">
+          <h2>Chyť mě, když to dokážeš</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Lovec odměn ve Fer-de-Lance by měl mít důvod vás lovit. Původní způsob vytváření lodí ho mohl nastavit jako nepřátelského i vůči veliteli se statusem Clean. Oprava umožňuje, aby nově vytvořený lovec ve Fer-de-Lance začínal neutrálně, pokud je váš trestní záznam nižší než 40.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Počáteční chování lovce odměn ve Fer-de-Lance" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Trestní záznam</th><th scope="col">Status hráče</th><th scope="col">Běžně vytvořený lovec odměn</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">0</th><td>Clean</td><td>Neutrální</td></tr>
+              <tr><th scope="row">1-39</th><td>Offender</td><td>Neutrální</td></tr>
+              <tr><th scope="row">40-49</th><td>Offender</td><td>Nepřátelský</td></tr>
+              <tr><th scope="row">50-255</th><td>Fugitive</td><td>Nepřátelský</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Rutina pro vytvoření lodě nejdřív spojí příznaky jejího modelu s příznaky konkrétního setkání. Oprava pak ověří typ Fer-de-Lance i roli lovce odměn. Při záznamu pod 40 vymaže pouze nepřátelský příznak, přičemž zachová roli lodě, agresivitu AI i registraci. Při hodnotě 40 nebo více zůstane běžný nepřátelský lovec nepřátelský.</p>
+
+        <p>Původní taktická rutina dál sleduje váš trestní záznam. Pokud dosáhne 40 v době, kdy už je neutrální lovec přítomen, lovec se stane nepřátelským. Útok na něj také vyvolá odvetu, i když máte status Clean. Jakmile je loď nepřátelská, snížení záznamu ji samo nevrátí do neutrálního stavu.</p>
+
+        <p>Neutrální lovec při příchodu neposílá výhrůžné hlášky lovců odměn. Rádiová kontrola vyžaduje současně příznak lovce a nepřátelský příznak. Pozdější přechod do nepřátelského stavu neopakuje komunikační pokus prováděný při vytvoření lodě.</p>
+
+        <p class="technical-note">Opravu zapíná volba <code>bountyhunterfix=yes</code>. Uplatňuje se při vytváření nových lovců ve Fer-de-Lance; zpětně nemění lodě, které už jsou přítomné v uloženém snímku emulátoru.</p>
+      </section>
+
+      <section id="one-is-not-enough">
+        <div class="section-heading">
+          <h2>Jedna nestačí!</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Jediná řízená raketa dříve zničila AI loď okamžitě, bez ohledu na její zbývající energii. V <em>Elite: Unbound</em> místo toho zásah rakety odečte <strong>81 bodů energie</strong>. Na malý Sidewinder stále stačí jediný zásah, ale větší nepoškozená loď jich vydrží několik.</p>
+
+        <p>Poškození se odečítá od aktuální energie cíle. Pokud má před zásahem méně než 81 bodů, hra jej označí ke zničení. Při 81 a více bodech odečte 81 a loď přežije. Odečítání má jednu zvláštnost: loď s přesně 81 body přežije s nulovou energií. Samotná raketa se po zásahu v obou případech zničí.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Příklady poškození AI lodí raketami" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">AI loď</th><th scope="col">Plná energie</th><th scope="col">Po jednom zásahu</th><th scope="col">Zásahů ke zničení</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sidewinder</th><td>70</td><td>Zničena</td><td>1</td></tr>
+              <tr><th scope="row">Mamba</th><td>90</td><td>9</td><td>2</td></tr>
+              <tr><th scope="row">Cobra Mk III</th><td>150</td><td>69</td><td>2</td></tr>
+              <tr><th scope="row">Thargoid</th><td>240</td><td>159</td><td>3</td></tr>
+              <tr><th scope="row">Python, Boa</th><td>250</td><td>169</td><td>4</td></tr>
+              <tr><th scope="row">Anaconda</th><td>252</td><td>171</td><td>4</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">Příklady používají hodnoty energie AI lodí a počítají s plnou počáteční energií, úspěšnými zásahy raket, bez regenerace a dalšího poškození mezi zásahy. Nepopisují štíty ani energetické banky hráčovy lodě.</p>
+
+        <p>Anacondě tak po prvním zásahu zbývá 171, po druhém 90 a po třetím 9 bodů energie; čtvrtý ji zničí. V boji může předchozí poškození laserem potřebný počet raket snížit, zatímco regenerace energie AI mezi zásahy jej může zvýšit. Rakety tak slouží k těžkému poškození nebo doražení oslabeného cíle, aniž by zaručovaly okamžité zničení každé lodě.</p>
+
+        <p class="technical-note">Úpravu zapíná volba <code>realmissiledamage=yes</code>, nezávisle na <code>unbound</code>. Stanice zůstávají vůči raketám imunní. Tato volba mění poškození AI cílů raketami; dosavadní účinek výbuchu rakety poblíž hráče zůstává beze změny.</p>
+      </section>
+
+      <section id="they-are-all-around">
+        <div class="section-heading">
+          <h2>Jsou všude kolem!</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Lodě se v původní hře mohou objevovat na nápadně se opakujících místech. Inicializace nepřátelské lodě používá pevné vyšší bajty vzdálenosti ve všech třech osách a některé souřadnice přebírají náhodnou hodnotu z rozhodnutí, které setkání vyvolalo. Obchodníci a volně plující objekty mají vlastní omezený vzor rozmístění.</p>
+
+        <p>Rutina <code>rand_posn</code> z Elite-A dává setkáním větší prostorový rozptyl. Vynuluje pracovní data lodě, zvolí náhodná znaménka a odchylky ve vodorovné i svislé ose a z nich vypočítá vzdálenost před hráčem. Používá ji společná inicializace nepřátelských lodí i rutina pro umístění obchodníků a volně plujících objektů.</p>
+
+        <p>V zápisu souřadnic mají <code>x_hi</code> a <code>y_hi</code> hodnoty od 0 do 31, doplněné náhodnými nižšími bajty a znaménky. Vzdálenost před hráčem se odvozuje z těchto odchylek a zůstává kladná. Tato setkání jsou tedy rozptýlena v prostoru před hráčem, nikoli po celé kouli v rozsahu 360 stupňů.</p>
+
+        <p>Původní pravidla setkání dál určují, kdy se hra pokusí loď vytvořit a které typy připadají v úvahu. Odlety ze stanice používají vlastní startovní pozice. V <em>Elite: Unbound</em> navíc každý člen pirátského roje dostane vlastní nižší bajty souřadnic v rámci společné pozice skupiny. Roj tak zůstává pohromadě, aniž by všechny lodě zabíraly přesně stejný bod.</p>
+
+        <p class="technical-note">Rozmístění podle Elite-A zapíná volba <code>randomspawns=yes</code>. Dodatečný rozptyl členů pirátského roje je součástí <code>unbound=yes</code>.</p>
+      </section>
+
+      <section id="its-working">
+        <div class="section-heading">
+          <h2>Funguje to! Funguje to!</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Řízení nebo střelba joystickem by neměly vyřadit klávesnici. V původní obsluze vstupu aktivita joysticku pošle program do jeho obslužného kódu a odtud rovnou ven, bez skenování klávesnice. Při drženém směru nebo tlačítku střelby tak může klávesový příkaz zdánlivě nereagovat.</p>
+
+        <p>Oprava vychází z Elite 128: po načtení směrů joysticku, střelby a nastaveného obrácení os pokračuje <code>RDKEY</code> do <code>scanmatrix</code>. Záznamy ovládání joystickem zůstanou v tabulce vstupů a ve stejném průchodu se doplní stisknuté klávesy.</p>
+
+        <p>Můžete tedy dál řídit joystickem a současně klávesnicí měnit rychlost, ovládat rakety či E.C.M., otevírat mapy a zadávat další příkazy. Platí přitom dosavadní přiřazení kláves i nastavení os joysticku.</p>
+
+        <p>Režim joysticku se vybírá obvyklým způsobem: stiskem tlačítka střelby na titulní obrazovce s rotující lodí. Oprava pak umožní oběma zdrojům vstupu pracovat společně při každém čtení.</p>
+
+        <p class="technical-note">Zapíná se volbou <code>inputfix=yes</code>, nezávisle na <code>unbound</code>. Změna přidává po zpracování joysticku skok do existujícího skenování klávesnice.</p>
+      </section>
+
+      <section id="who-cares">
+        <div class="section-heading">
+          <h2>Koho to zajímá?</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Některá vylepšení jsou tak drobná, že při běžném hraní snadno zaniknou. Volně plující trosky by měly po skoku zůstat za vámi a popis planety by měl zůstat na obrazovce dost dlouho na přečtení.</p>
+
+        <h3>Odpad zůstává za námi</h3>
+
+        <p>Skok uvnitř soustavy na klávese <kbd>J</kbd> funguje posunutím planety a slunce vůči hráči. Původní kód nechává ostatní objekty v místní bublině na jejich pozicích, takže kontejnery s nákladem, asteroidy i záchranné kapsle zdánlivě cestují s vámi.</p>
+
+        <p>S volbou <code>warpjunk=yes</code> povolený skok nejdříve odstraní objekty započítávané mezi odpad. Patří sem záchranné kapsle, kovové pláty, kontejnery s nákladem, balvany, asteroidy, úlomky, Shuttle, Transporter i skalní poustevníci. Před odstraněním jejich slotů se smažou značky ze skeneru, včetně správných značek I.F.F., takže po nich nezůstanou nehybné stopy.</p>
+
+        <p>Úklid proběhne až po splnění všech podmínek skoku. Zamítnutý pokus, například při letu směrem k příliš blízké planetě nebo slunci, ponechá objekty na místě. Obvyklá omezení kvůli ostatním lodím, stanici nebo pobytu ve witchspace dál platí.</p>
+
+        <h3>Chvilka na čtení</h3>
+
+        <p>Dlouhý popis na obrazovce Data on System může přesáhnout spodní okraj. Původní textová rutina okamžitě smaže obrazovku a vypíše zbytek, takže první stránka zmizí dřív, než ji stihnete přečíst.</p>
+
+        <p>S volbou <code>planetdatafix=yes</code> zůstane první stránka viditelná a přetékající text se uloží do dočasné paměti. Uvolněte klávesu, kterou jste stránku otevřeli, a potom stiskněte a uvolněte herní klávesu pro zobrazení pokračování. Stisk i uvolnění zpracuje obsluha stránkování, takže držená otevírací klávesa nemůže první stránku přeskočit.</p>
+
+        <p>Stránkování obsluhuje běžná herní smyčka. Během čtení pokračuje let i odpočet hyperskoku a dočasné letové zprávy nemohou čekající stránku přepsat. Poslední stránka se chová jako obyčejná obrazovka Data on System a zůstane otevřená, dokud nezvolíte jiný pohled. Krátké popisy žádný další stisk nepotřebují.</p>
+
+        <p class="technical-note">Pokračování využívá existující 256bajtovou pracovní oblast pro ukládání a načítání v době, kdy je nečinná. Její velikost kontroluje assembler a kontrola mezí za běhu brání textu zasáhnout do modelů lodí, které v paměti následují.</p>
+      </section>
+
+      <section id="it-is-circular">
+        <div class="section-heading">
+          <h2>Je to... kulaté!</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Vykreslit kružnici znamená spočítat řadu bodů a spojit je úsečkami. Původní rutina opakovaně násobí poloměr hodnotami sinu, aby získala vodorovnou a svislou odchylku každého bodu od středu. Na procesoru rodiny 6502 tato násobení zabírají čas, který by mohl využít zbytek hry.</p>
+
+        <p>Optimalizace využívá symetrii kružnice. Před kreslením rutina <code>BuildCircleSinCache</code> spočítá potřebné součiny pro první čtvrtinu kružnice a zrcadlí je do 32bajtové cache. Kreslicí smyčka pak čte uložené hodnoty pro obě souřadnice a doplní původní znaménka i posun vůči středu.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Počty výpočtů kružnice před optimalizací a po ní" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">Úhlový krok (STP)</th><th scope="col">Původní počet výpočtů</th><th scope="col">S cache</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">8</th><td>18</td><td>3</td></tr>
+              <tr><th scope="row">4</th><td>34</td><td>5</td></tr>
+              <tr><th scope="row">2</th><td>66</td><td>9</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">Čísla udávají počet volání rutiny pro součin se sinem <code>FMLTU2</code> na jednu kružnici, včetně uzavíracího bodu. Hra dělí celý kruh na 64 úhlových kroků, takže menší STP vytváří více úseček. Jde o počty výpočtů, nikoli naměřené zvýšení FPS.</p>
+
+        <p>Pořadí bodů, ořezávání úseček i uložené souřadnice čar zůstávají stejné. Čtení z cache obnovuje také příznak přenosu procesoru stejně jako původní výpočet, aby přesně zachovalo změny znamének. Kružnice si tak zachovává původní tvar i podrobnost.</p>
+
+        <p>Společná rutina <code>CIRCLE2</code> kreslí obrys planety, kružnice na mapách i prstence tunelu při startu a hyperskoku, takže z úpravy těží všechny tyto efekty. Cache se znovu naplní pro poloměr a krok každé kružnice.</p>
+
+        <p class="technical-note">Zapíná se volbou <code>renderspeedups=yes</code>, nezávisle na <code>unbound</code>.</p>
+      </section>
+
+      <section id="too-fast">
+        <div class="section-heading">
+          <h2>Příliš rychle!</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>V jednoduché scéně nebo na zrychleném procesoru může původní hra procházet letovou smyčkou mnohem rychleji. Tím se zrychlí i pohyb a další herní logika navázaná na její průchody. Omezovač snímkové frekvence převzatý z Elite 128 vyhrazuje každému průchodu nejméně čtyři videosnímky.</p>
+
+        <p>Rastrové přerušení jednou za celý videosnímek zvýší počítadlo. Rutina <code>FrameLimit</code> počká, dokud nedosáhne čtyř, a potom jej vynuluje. Pokud předchozí průchod už zabral alespoň čtyři snímky, hra pokračuje okamžitě.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Časování omezovače snímkové frekvence" tabindex="0">
+          <table class="technical-table memory-table">
+            <thead><tr><th scope="col">Obrazová norma</th><th scope="col">Nominální frekvence obrazu</th><th scope="col">Maximum herní smyčky</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">PAL</th><td>50 Hz</td><td>12,5 FPS</td></tr>
+              <tr><th scope="row">NTSC</th><td>60 Hz</td><td>15 FPS</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="technical-note">Jde o přibližné horní meze počtu aktualizací herní smyčky. Obraz se dál obnovuje běžnou frekvencí. Náročná scéna může běžet pomaleji; omezovač čeká pouze tehdy, když zbývá čas.</p>
+
+        <p>Stejný omezovač řídí také otáčení lodě na titulní obrazovce. Zvuk dál aktualizuje rastrové přerušení jednou za snímek. Výsledkem je vyrovnanější tempo v rychlých scénách i na zrychleném hardwaru, včetně níže popsaného turba C128 v okrajích obrazu.</p>
+
+        <p class="technical-note">Zapíná se při sestavení volbou <code>fpslimiter=yes</code>. Je nezávislý na <code>unbound</code> a nemá přepínač přímo ve hře.</p>
+      </section>
+
+      <section id="turbo">
+        <div class="section-heading">
+          <h2>Turbo</h2>
+          <a class="section-top-link" href="#top">Zpět nahoru △</a>
+        </div>
+
+        <p>Na Commodore 128 spuštěném v režimu C64 využívá <em>Elite: Unbound</em> režim procesoru 2 MHz během vykreslování okrajů obrazu. Při zobrazování bitmapy a palubního panelu se vrací na 1 MHz, aby VIC-IIe mohl správně načítat grafická data.</p>
+
+        <h3>Přepínání rychlosti podle rastru</h3>
+
+        <p>Rastr označuje aktuální řádek obrazu vykreslovaný grafickým čipem. Obsluha rastrového přerušení má v každém snímku tři fáze. Zápisem 0 nebo 1 do řídicího registru C128 <code>$D030</code> vybírá takt 1 nebo 2 MHz.</p>
+
+        <div class="technical-table-scroll" role="region" aria-label="Posloupnost rastrového turba na C128" tabindex="0">
+          <table class="technical-table ship-market-table">
+            <thead><tr><th scope="col">Řádek rastru</th><th scope="col">Akce</th><th scope="col">Následný takt procesoru</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">40</th><td>Nastaví horní část obrazu a obnoví běžný takt před načítáním viditelné bitmapy a spritů.</td><td><span class="nowrap">1 MHz</span></td></tr>
+              <tr><th scope="row">194</th><td>Přepne zobrazení na palubní panel a aktualizuje zvuk i počítadlo snímků.</td><td><span class="nowrap">1 MHz</span></td></tr>
+              <tr><th scope="row">250</th><td>Zapne turbo ve spodním okraji a naplánuje další přerušení na řádek 40 následujícího snímku.</td><td><span class="nowrap">2 MHz</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Interval 2 MHz pokračuje přes spodní okraj a začátek dalšího snímku. Interní stav rastru se střídá v pořadí <code>0 → 1 → $FF → 0</code>. Přidané přerušení v okraji pouze přepne rychlost a naplánuje další fázi; zvuk i počítadlo snímků se dál aktualizují jednou za snímek při přerušení palubního panelu.</p>
+
+        <h3>Kolik času navíc je k dispozici?</h3>
+
+        <p>U PAL pokrývá nominální interval turba 102 z celkových 312 řádků, přibližně 32,7 % snímku. NTSC používá stejné přepínací řádky, ale má kratší interval v okrajích. Přínos závisí na právě prováděné práci a zapnutý omezovač snímkové frekvence dál omezuje hlavní herní smyčku. Podíl okrajů není naměřené zvýšení FPS.</p>
+
+        <h3>Stabilní obraz a načítání</h3>
+
+        <p>Přerušení horní části obrazu a panelu nejdříve provedou časově citlivé zápisy do grafických registrů a teprve potom zavolají pomocnou rutinu pro návrat na 1 MHz. Samostatnou cestou turba prochází pouze přerušení v okraji. Přechod mezi bitmapou a panelem tak zůstává sladěný s načítáním dat grafickým čipem.</p>
+
+        <p>Před načítáním či ukládáním přes KERNAL, kdy se rastrová přerušení vypínají, hra výslovně nastaví 1 MHz. Totéž udělá při restartu před čekáním na rastr. Návrat k běžné rychlosti proto v těchto situacích nezávisí na vypnutém přerušení.</p>
+
+        <p>Funkce je automaticky součástí <code>unbound=yes</code>. Stejná binárka zapisuje do řídicího registru na obou počítačích: standardní C64 tyto zápisy rychlosti ignoruje a zachová běžný takt. Na C128 není potřeba žádné další nastavení hráčem. Pomocný kód využívá volné místo kolem RLE dat panelu a jeho umístění i paměťové meze kontroluje assembler.</p>
+      </section>
+
+      <aside class="infobox">
+        <strong>Podvádím a je mi to jedno</strong>
+        <p>Save Game Editor vám umožní upravit uloženého velitele a vyzkoušet různé výchozí podmínky pro váš příští let. Podporuje kazetové pozice ve formátu TAP z původní C64 Elite i z <em>Elite: Unbound</em>.</p>
+        <p><a href="../assets/EliteSaveEditor.zip" download>Stáhnout Save Game Editor (ZIP)</a></p>
+      </aside>
     </main>
 
     <footer class="site-footer">

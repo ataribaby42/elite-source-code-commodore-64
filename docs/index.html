@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Elite: Unbound expands Commodore 64 Elite with buyable and flyable ships, ship-specific handling and optional gameplay improvements.">
   <meta name="theme-color" content="#000000">
-  <title>Elite: Unbound — Commodore 64</title>
+  <title>Elite: Unbound - Commodore 64</title>
   <link rel="icon" href="./assets/favicon-asp.ico" type="image/x-icon">
   <link rel="icon" href="./assets/favicon-asp.svg" type="image/svg+xml" sizes="any">
   <link rel="stylesheet" href="./css/style.css">
@@ -73,9 +73,12 @@
         </header>
 
         <section id="the-beginning">
-          <h2>The Beginning</h2>
+          <div class="section-heading">
+            <h2>The Beginning</h2>
+            <a class="section-top-link" href="#top">Return to top △</a>
+          </div>
 
-          <p>It all began around 1991, when, as a teenager, I discovered a program with the mysterious name <a class="nowrap" href="https://spectrumcomputing.co.uk/entry/1601/ZX-Spectrum/Elite" target="_blank" rel="noopener noreferrer">E L I T E</a> on my eight-bit <a href="https://cs.wikipedia.org/wiki/Didaktik_M" target="_blank" rel="noopener noreferrer">Didaktik M</a>, a locally produced clone of the <a href="https://en.wikipedia.org/wiki/ZX_Spectrum" target="_blank" rel="noopener noreferrer">Sinclair ZX Spectrum 48K</a>. The program came on a cassette borrowed from someone. Being a fan of every kind of 3D simulator—most of which used see-through wireframe graphics at the time—Elite immediately captivated me with its 3D models, whose hidden edges were removed from view.</p>
+          <p>It all began around 1991, when, as a teenager, I discovered a program with the mysterious name <a class="nowrap" href="https://spectrumcomputing.co.uk/entry/1601/ZX-Spectrum/Elite" target="_blank" rel="noopener noreferrer">E L I T E</a> on my eight-bit <a href="https://cs.wikipedia.org/wiki/Didaktik_M" target="_blank" rel="noopener noreferrer">Didaktik M</a>, a locally produced clone of the <a href="https://en.wikipedia.org/wiki/ZX_Spectrum" target="_blank" rel="noopener noreferrer">Sinclair ZX Spectrum 48K</a>. The program came on a cassette borrowed from someone. Being a fan of every kind of 3D simulator - most of which used see-through wireframe graphics at the time - Elite immediately captivated me with its 3D models, whose hidden edges were removed from view.</p>
 
           <p>Over time, curiosity began to reveal the game’s true depth. This was not merely a simple 3D shooter in the style of Starion or Starfox. There was something more: a complete simulation of life as a space trader, smuggler, bounty hunter, pirate, miner or interstellar playboy. Whatever you wanted to be, you could become.</p>
 
@@ -85,7 +88,7 @@
 
           <p>Unfortunately, he never reached a station to save his progress. Pirates destroyed his ship on the way, before he could discover how to use the device. At the time, not a word of the story seemed believable. Today, of course, I know he was telling the truth. The ZX Spectrum version contains a special Asp Mk II fitted with exactly such a device. Once the ship has been destroyed and its canister scooped, pressing <code>Y</code> activates the Cloaking Device.</p>
 
-          <p>Time passed. Secondary school began, the ZX Spectrum clone gave way to an Amiga 1200, and Elite cast its spell once more—this time as <a href="https://en.wikipedia.org/wiki/Frontier:_Elite_II" target="_blank" rel="noopener noreferrer">Frontier: Elite II</a>. But that is another story…</p>
+          <p>Time passed. Secondary school began, the ZX Spectrum clone gave way to an Amiga 1200, and Elite cast its spell once more - this time as <a href="https://en.wikipedia.org/wiki/Frontier:_Elite_II" target="_blank" rel="noopener noreferrer">Frontier: Elite II</a>. But that is another story…</p>
 
           <p>That period also brought a <a href="https://en.wikipedia.org/wiki/Commodore_64" target="_blank" rel="noopener noreferrer">C64</a> and a first encounter with its version of Elite, which is very close to the original BBC Micro release. The ZX Spectrum version differs in several respects and works somewhat differently. This is because its developers received only the procedural universe-generation code from the original creators. Everything else was recreated by playing the original game on the BBC Micro.</p>
 
@@ -93,7 +96,7 @@
 
           <p>For me, the original Elite defined the open-world sandbox built around procedural generation. The game has no ending and no fixed objective beyond attaining ELITE status. Everything else belongs to the player, including the story they choose to create. This is the kind of game I still love and seek out today.</p>
 
-          <p>And now it is 2026, and technology has advanced beyond belief. What once existed only in my imagination—as a simple circle representing a planet grew larger and a space station drifted above its horizon—has become a reality that modern <a href="https://www.elitedangerous.com/" target="_blank" rel="noopener noreferrer">Elite: Dangerous</a> renders almost perfectly.</p>
+          <p>And now it is 2026, and technology has advanced beyond belief. What once existed only in my imagination - as a simple circle representing a planet grew larger and a space station drifted above its horizon - has become a reality that modern <a href="https://www.elitedangerous.com/" target="_blank" rel="noopener noreferrer">Elite: Dangerous</a> renders almost perfectly.</p>
 
           <p>Another dream has come true as well: creating the version of Elite I always wanted and being able to offer it here. Hopefully, you will enjoy it too.</p>
 
@@ -103,7 +106,10 @@
         </section>
 
         <section id="what-is-elite-unbound">
-          <h2>What is Elite: Unbound?</h2>
+          <div class="section-heading">
+            <h2>What is Elite: Unbound?</h2>
+            <a class="section-top-link" href="#top">Return to top △</a>
+          </div>
 
           <p><em>Elite: Unbound</em> is a source-code modification of the original Commodore 64 version of <em>Elite</em>. It is built on the complete and extensively documented BBC Micro and Commodore 64 source code made available by <a href="https://elite.bbcelite.com/playing_elite/" target="_blank" rel="noopener noreferrer">Mark Moxon</a>. Without his work, this project would not have been possible.</p>
 
@@ -133,9 +139,9 @@
             <figcaption>Selling installed equipment</figcaption>
           </figure>
 
-          <p>The player now occupies a more balanced position within the game world. The Energy Bomb—an advantage unavailable to AI ships—has been removed and replaced by an I.F.F. transponder and interrogator for identifying other vessels. Guided missiles have also been reworked, and a hit no longer automatically destroys its target.</p>
+          <p>The player now occupies a more balanced position within the game world. The Energy Bomb - an advantage unavailable to AI ships - has been removed and replaced by an I.F.F. transponder and interrogator for identifying other vessels. Guided missiles have also been reworked, and a hit no longer automatically destroys its target.</p>
 
-          <p>A new career can begin in the modest Adder, which is also the default starting ship, or continue in the capable all-round Cobra Mk III. Another option is the Sidewinder: small and fragile, but fast and agile, which explains its popularity among pirates. Its speed may be the only way out of a fight. The choice of ship—and the kind of story it supports—now belongs to the player.</p>
+          <p>A new career can begin in the modest Adder, which is also the default starting ship, or continue in the capable all-round Cobra Mk III. Another option is the Sidewinder: small and fragile, but fast and agile, which explains its popularity among pirates. Its speed may be the only way out of a fight. The choice of ship - and the kind of story it supports - now belongs to the player.</p>
 
           <figure class="content-image">
             <img src="./assets/sidewinder-pirate.png" width="488" height="401" alt="Elite: Unbound pirate Sidewinder status screen">
@@ -151,7 +157,7 @@
             <figcaption>A Coriolis station warns the player about loitering in the approach corridor</figcaption>
           </figure>
 
-          <p>AI ship spawning has been reworked so that it is no longer immediately obvious whether a new contact is a trader or a pirate. Space debris—including cargo canisters, wreckage and asteroids—no longer follows the player during a local jump; it disappears instead.</p>
+          <p>AI ship spawning has been reworked so that it is no longer immediately obvious whether a new contact is a trader or a pirate. Space debris - including cargo canisters, wreckage and asteroids - no longer follows the player during a local jump; it disappears instead.</p>
 
           <p>Cargo can now be jettisoned in flight, allowing pirates to decide which spoils are worth keeping. Dumping cargo into open space is, of course, prohibited near most stations.</p>
 
@@ -171,7 +177,7 @@
 
           <p>Bounty information now reports the actual bounty value rather than a combined total.</p>
 
-          <p>Visual changes include a new white-themed cockpit, the font from the ZX Spectrum version, and single-beam laser fire. Ships are represented as having single-barrel lasers—as suggested by the weapon mounted on the nose of the Cobra Mk III—rather than twin barrels, and the player’s laser now matches the fire used by AI ships. Every laser type has a crosshair, while the revised docking-tunnel effect more closely matches the shape of a station’s docking aperture.</p>
+          <p>Visual changes include a new white-themed cockpit, the font from the ZX Spectrum version, and single-beam laser fire. Ships are represented as having single-barrel lasers - as suggested by the weapon mounted on the nose of the Cobra Mk III - rather than twin barrels, and the player’s laser now matches the fire used by AI ships. Every laser type has a crosshair, while the revised docking-tunnel effect more closely matches the shape of a station’s docking aperture.</p>
 
           <p>Technical improvements include a frame-rate limiter set to 12.5 FPS on PAL systems, a revised keyboard and joystick handler that allows both input methods to work simultaneously, and faster circle drawing, particularly when rendering planets.</p>
 
@@ -190,7 +196,10 @@
         </section>
 
         <section id="features">
-          <h2>Features</h2>
+          <div class="section-heading">
+            <h2>Features</h2>
+            <a class="section-top-link" href="#top">Return to top △</a>
+          </div>
 
           <p>Highlights of the main <em>Elite: Unbound</em> features.</p>
 

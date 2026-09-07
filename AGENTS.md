@@ -211,6 +211,10 @@ jazykovou verzi zdrojového webu.
 Popisky obrázků umístěte přímo pod příslušný obrázek a vodorovně je
 vystřeďte podle obrázku, nikoli podle stránky.
 
+Webové navigační odkazy `Return to top △` a `Zpět nahoru △` do PDF manuálů
+nepřenášejte, a to ani odkazy u nadpisů, ani v patičce. Ve zdrojovém webu
+je zachovejte.
+
 Vytvořte obsah s čísly stran, klikacími interními odkazy a PDF záložkami.
 Externí odkazy musí zůstat aktivní. Po každém vytvoření nebo úpravě
 vykreslete obě PDF a vizuálně zkontrolujte všechny stránky, zejména titulní
