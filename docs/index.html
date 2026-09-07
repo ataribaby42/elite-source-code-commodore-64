@@ -57,6 +57,7 @@
     <nav class="page-toc" aria-label="On this page">
       <a href="#the-beginning">The Beginning</a>
       <a href="#what-is-elite-unbound">What is Elite: Unbound?</a>
+      <a href="#how-to-play">How To Play</a>
       <a href="#features">Features</a>
     </nav>
 
@@ -150,7 +151,7 @@
 
           <p>Stations will not launch other vessels while either the player’s ship or an AI ship is blocking the entrance corridor, reducing the risk of collisions. Police ships are naturally exempt from this restriction.</p>
 
-          <p>Basic radio communications have been introduced. A station will warn ships that remain in its approach corridor longer than necessary.</p>
+          <p>Basic radio communications have been introduced. A station will warn ships that remain in its approach corridor longer than necessary. AI ships will also hail the player.</p>
 
           <figure class="content-image">
             <img src="./assets/docking.png" width="487" height="401" alt="Elite: Unbound docking corridor communication">
@@ -195,6 +196,56 @@
 
         </section>
 
+        <section id="how-to-play">
+          <div class="section-heading">
+            <h2>How To Play</h2>
+            <a class="section-top-link" href="#top">Return to top △</a>
+          </div>
+
+          <p>First, <a href="./download.html">download the game</a>. You can play <em>Elite: Unbound</em> on a real Commodore 64 or a Commodore 128 in C64 mode by transferring a TAP or D64 image to a real cassette or disk, or by using a compatible modern tape or disk-drive emulation device.</p>
+
+          <h3>Starting VICE on Windows</h3>
+
+          <p>The easiest way to get started is with an emulator such as <a href="https://vice-emu.sourceforge.io/index.html#download" target="_blank" rel="noopener noreferrer">VICE</a>. Choose the GTK3 version for Windows and unpack the whole archive. Open its <code>bin</code> folder and run <code>x64sc.exe</code> for a C64, or <code>x128.exe</code> for a C128.</p>
+
+          <h3>C64: attach and autostart</h3>
+
+          <ul>
+            <li><strong>TAP:</strong> open <strong>File → Attach tape image…</strong> and select the game’s TAP image.</li>
+            <li><strong>D64:</strong> open <strong>File → Attach disk image → Drive #8</strong> and select the game’s D64 image.</li>
+          </ul>
+
+          <p>In either file dialog, click <strong>Autostart</strong> to reset the C64, load the first program and run it automatically. You can also attach the image and type the loading commands yourself.</p>
+
+          <h3>Loading manually</h3>
+
+          <p>Use the same dialogs, but choose <strong>Attach / Load</strong>. At the C64 BASIC prompt, type the appropriate command and press <kbd>Return</kbd>:</p>
+
+          <div class="technical-table-scroll" role="region" aria-label="Manual loading commands" tabindex="0">
+            <table class="technical-table ship-market-table">
+              <thead><tr><th scope="col">Image</th><th scope="col">Load command</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">TAP</th><td><code>LOAD</code> or <code>LOAD"",1</code><br>Or press <kbd>Shift</kbd> + <kbd>RUN/STOP</kbd> to load and run automatically.</td></tr>
+                <tr><th scope="row">D64 in drive 8</th><td><code>LOAD"*",8,1</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>For TAP, when <code>PRESS PLAY ON TAPE</code> appears, select <strong>File → Datasette controls → Start</strong>. If loading pauses at <code>FOUND ELITE</code>, press <kbd>Space</kbd> to continue. If you have already used that tape image, rewind it before loading.</p>
+
+          <p>If you enter a <code>LOAD</code> command, wait for loading to finish and <code>READY.</code> to return, then type <code>RUN</code> and press <kbd>Return</kbd>. Leave the image attached while the game’s loader loads the remaining data.</p>
+
+          <p class="technical-note">For the D64 version, keep True Drive Emulation enabled for drive 8 so the game’s disk loader can access the emulated drive correctly.</p>
+
+          <h3>C128: switch to C64 mode first</h3>
+
+          <p>In <code>x128.exe</code>, type <code>GO64</code> at the C128 BASIC prompt and press <kbd>Return</kbd>. Confirm with <code>Y</code> and <kbd>Return</kbd>, then wait for the C64 BASIC screen.</p>
+
+          <p>Now attach the TAP or D64 with <strong>Attach / Load</strong> and use the manual <code>LOAD</code> and <code>RUN</code> commands above. With the default C128 reset settings, <strong>Autostart resets the emulator back into C128 mode</strong>. After switching with <code>GO64</code>, use manual loading to stay in C64 mode.</p>
+
+          <p class="technical-note">See the VICE manual for more about <a href="https://vice-emu.sourceforge.io/vice_4.html" target="_blank" rel="noopener noreferrer">attaching and autostarting images</a> and <a href="https://vice-emu.sourceforge.io/vice_7.html" target="_blank" rel="noopener noreferrer">C128 reset settings</a>.</p>
+        </section>
+
         <section id="features">
           <div class="section-heading">
             <h2>Features</h2>
@@ -205,7 +256,7 @@
 
           <ul>
             <li>New games begin in a puny Adder</li>
-            <li>Alternative starting positions supplied as save games in C64 TAP format</li>
+            <li>Alternative starting positions supplied as save games in C64 TAP and D64 format</li>
             <li>Ability to buy and fly multiple ship types</li>
             <li>Ability to sell installed ship equipment</li>
             <li>An I.F.F. Unit replacing the Energy Bomb</li>
@@ -229,7 +280,7 @@
             <li>Improved keyboard and joystick input handling</li>
             <li>A frame-rate limiter</li>
             <li>Automatic C128 2 MHz acceleration during screen border periods</li>
-            <li>Disk and tape versions</li>
+            <li>Disk, tape and EasyFlash cartridge versions</li>
             <li>Still runs on a stock Commodore 64 without additional hardware</li>
             <li>Compatibility with original Commodore 64 Elite save games</li>
           </ul>

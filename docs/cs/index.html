@@ -55,8 +55,9 @@
     </header>
 
     <nav class="page-toc" aria-label="Obsah stránky">
-      <a href="#the-beginning">Začátky</a>
+      <a href="#the-beginning">Počátek</a>
       <a href="#what-is-elite-unbound">Co je Elite: Unbound?</a>
+      <a href="#how-to-play">Jak hrát</a>
       <a href="#features">Funkce</a>
     </nav>
 
@@ -74,7 +75,7 @@
 
         <section id="the-beginning">
           <div class="section-heading">
-            <h2>Začátky</h2>
+            <h2>Počátek</h2>
             <a class="section-top-link" href="#top">Zpět nahoru △</a>
           </div>
 
@@ -150,7 +151,7 @@
 
           <p>Pokud vstupní koridor blokuje hráčova loď nebo loď řízená počítačem, stanice nedovolí start dalších plavidel, čímž se snižuje riziko kolizí. Policejní lodě jsou z tohoto omezení přirozeně vyňaty.</p>
 
-          <p>Doplněna byla základní rádiová komunikace. Stanice varuje lodě, které zůstávají v přibližovacím koridoru déle, než je nutné.</p>
+          <p>Doplněna byla základní rádiová komunikace. Stanice varuje lodě, které zůstávají v přibližovacím koridoru déle, než je nutné. AI lodě také navazují rádiový kontakt s hráčem.</p>
 
           <figure class="content-image">
             <img src="../assets/docking.png" width="487" height="401" alt="Komunikace v dokovacím koridoru Elite: Unbound">
@@ -195,6 +196,56 @@
 
         </section>
 
+        <section id="how-to-play">
+          <div class="section-heading">
+            <h2>Jak hrát</h2>
+            <a class="section-top-link" href="#top">Zpět nahoru △</a>
+          </div>
+
+          <p>Nejdříve si <a href="./download.html">stáhněte hru</a>. <em>Elite: Unbound</em> můžete hrát na skutečném Commodoru 64 nebo Commodoru 128 v režimu C64. Obraz TAP či D64 přeneste na skutečnou kazetu nebo disketu, případně použijte kompatibilní moderní zařízení emulující magnetofon či disketovou mechaniku.</p>
+
+          <h3>Spuštění VICE ve Windows</h3>
+
+          <p>Nejsnazší je začít v emulátoru, například ve <a href="https://vice-emu.sourceforge.io/index.html#download" target="_blank" rel="noopener noreferrer">VICE</a>. Vyberte verzi GTK3 pro Windows a rozbalte celý archiv. Otevřete jeho adresář <code>bin</code> a spusťte <code>x64sc.exe</code> pro C64 nebo <code>x128.exe</code> pro C128.</p>
+
+          <h3>C64: připojení obrazu a Autostart</h3>
+
+          <ul>
+            <li><strong>TAP:</strong> otevřete <strong>File → Attach tape image…</strong> a vyberte TAP obraz hry.</li>
+            <li><strong>D64:</strong> otevřete <strong>File → Attach disk image → Drive #8</strong> a vyberte D64 obraz hry.</li>
+          </ul>
+
+          <p>V obou dialozích můžete stisknout <strong>Autostart</strong>, který resetuje C64, načte první program a automaticky jej spustí. Obraz lze také pouze připojit a příkazy pro načtení zadat ručně.</p>
+
+          <h3>Ruční načítání</h3>
+
+          <p>Ve stejných dialozích zvolte <strong>Attach / Load</strong>. Na příkazovém řádku C64 BASIC napište příslušný příkaz a stiskněte <kbd>Return</kbd>:</p>
+
+          <div class="technical-table-scroll" role="region" aria-label="Příkazy pro ruční načítání" tabindex="0">
+            <table class="technical-table ship-market-table">
+              <thead><tr><th scope="col">Obraz</th><th scope="col">Příkaz pro načtení</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">TAP</th><td><code>LOAD</code> nebo <code>LOAD"",1</code><br>Nebo stiskněte <kbd>Shift</kbd> + <kbd>RUN/STOP</kbd> pro automatické načtení a spuštění.</td></tr>
+                <tr><th scope="row">D64 v mechanice 8</th><td><code>LOAD"*",8,1</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>U TAP po zobrazení <code>PRESS PLAY ON TAPE</code> zvolte <strong>File → Datasette controls → Start</strong>. Pokud se načítání zastaví u <code>FOUND ELITE</code>, pokračujte stiskem <kbd>mezerníku</kbd>. Pokud jste už obraz pásky používali, před načtením jej přetočte na začátek.</p>
+
+          <p>Při načítání příkazem <code>LOAD</code> počkejte, až načítání skončí a znovu se objeví <code>READY.</code>, pak napište <code>RUN</code> a stiskněte <kbd>Return</kbd>. Obraz nechte připojený, zatímco herní loader načítá zbývající data.</p>
+
+          <p class="technical-note">Pro verzi D64 ponechte u mechaniky 8 zapnutou volbu True Drive Emulation, aby herní loader mohl správně přistupovat k emulované mechanice.</p>
+
+          <h3>C128: nejdříve přepnout do režimu C64</h3>
+
+          <p>V <code>x128.exe</code> napište na příkazovém řádku C128 BASIC <code>GO64</code> a stiskněte <kbd>Return</kbd>. Potvrďte přechod pomocí <code>Y</code> a <kbd>Return</kbd> a počkejte na obrazovku C64 BASIC.</p>
+
+          <p>Nyní připojte TAP nebo D64 pomocí <strong>Attach / Load</strong> a použijte výše uvedené ruční příkazy <code>LOAD</code> a <code>RUN</code>. Při výchozím nastavení resetu C128 <strong>Autostart restartuje emulátor zpět do režimu C128</strong>. Po přepnutí příkazem <code>GO64</code> proto načítejte ručně, abyste zůstali v režimu C64.</p>
+
+          <p class="technical-note">Další podrobnosti najdete v manuálu VICE v částech o <a href="https://vice-emu.sourceforge.io/vice_4.html" target="_blank" rel="noopener noreferrer">připojování a automatickém spouštění obrazů</a> a <a href="https://vice-emu.sourceforge.io/vice_7.html" target="_blank" rel="noopener noreferrer">nastavení resetu C128</a>.</p>
+        </section>
+
         <section id="features">
           <div class="section-heading">
             <h2>Funkce</h2>
@@ -205,7 +256,7 @@
 
           <ul>
             <li>Nové hry začínají v maličkém Adderu</li>
-            <li>Alternativní počáteční pozice dodávané jako uložené hry ve formátu C64 TAP</li>
+            <li>Alternativní počáteční pozice dodávané jako uložené hry ve formátech C64 TAP a D64</li>
             <li>Možnost kupovat a řídit různé typy lodí</li>
             <li>Možnost prodávat nainstalované vybavení lodi</li>
             <li>Jednotka I.F.F. nahrazující Energy Bomb</li>
@@ -229,7 +280,7 @@
             <li>Vylepšená obsluha vstupu z klávesnice a joysticku</li>
             <li>Omezovač snímkové frekvence</li>
             <li>Automatické zrychlení C128 na 2 MHz během vykreslování okrajů obrazovky</li>
-            <li>Disketová i kazetová verze</li>
+            <li>Verze pro diskety, kazety a cartridge EasyFlash</li>
             <li>Provoz na standardním Commodoru 64 bez dalšího hardwaru</li>
             <li>Kompatibilita s uloženými pozicemi z původní Elite pro Commodore 64</li>
           </ul>
