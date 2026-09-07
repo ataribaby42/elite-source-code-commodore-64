@@ -473,6 +473,19 @@ h2 {
   white-space: nowrap;
 }
 
+.technical-table.sticky-first-column {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.sticky-first-column tr > :first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--page);
+  border-right: 1px solid var(--border);
+}
+
 .ship-market-table th:last-child,
 .ship-market-table td:last-child {
   text-align: left;

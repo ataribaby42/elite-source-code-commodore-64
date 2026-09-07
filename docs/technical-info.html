@@ -153,7 +153,7 @@
         <p>Almost every byte has now been put to use. This is the remaining space in the PAL tape build with the full set of <em>Elite: Unbound</em> options:</p>
 
         <div class="technical-table-scroll" role="region" aria-label="Remaining memory" tabindex="0">
-          <table class="technical-table memory-table">
+          <table class="technical-table memory-table sticky-first-column">
             <thead><tr><th scope="col">Branch</th><th scope="col">LOCODE end</th><th scope="col">Free</th><th scope="col">HICODE end</th><th scope="col">Free</th><th scope="col">RLE free</th></tr></thead>
             <tbody>
               <tr><th scope="row">main</th><td>$3FA2</td><td>93 B</td><td>$CD88</td><td>119 B</td><td>4 B</td></tr>
@@ -275,7 +275,7 @@
         </div>
 
         <div class="technical-table-scroll" role="region" aria-label="Equipment prices (Cr)" tabindex="0">
-          <table class="technical-table memory-table">
+          <table class="technical-table memory-table sticky-first-column">
             <caption class="technical-note">Equipment prices (Cr)</caption>
             <thead><tr><th scope="col">Equipment</th><th scope="col">Category 0</th><th scope="col">Category 1</th><th scope="col">Category 2</th><th scope="col">Category 3</th><th scope="col">Category 4</th></tr></thead>
             <tbody>
@@ -594,7 +594,7 @@
         <p>The damage is applied to the target’s current energy. If it has fewer than 81 points before the hit, it is marked for destruction. With 81 or more, the game subtracts 81 and lets it survive. There is one detail in the subtraction: a ship with exactly 81 points survives with zero energy. The missile itself is destroyed after the hit in either case.</p>
 
         <div class="technical-table-scroll" role="region" aria-label="Examples of missile damage against AI ships" tabindex="0">
-          <table class="technical-table memory-table">
+          <table class="technical-table memory-table sticky-first-column">
             <thead><tr><th scope="col">AI ship</th><th scope="col">Full energy</th><th scope="col">After one hit</th><th scope="col">Hits to destroy</th></tr></thead>
             <tbody>
               <tr><th scope="row">Sidewinder</th><td>70</td><td>Destroyed</td><td>1</td></tr>
@@ -716,7 +716,7 @@
         <p>The raster interrupt increments a counter once per complete video frame. The <code>FrameLimit</code> routine waits until the counter reaches four, then resets it. If the previous iteration has already taken at least four frames, execution continues immediately.</p>
 
         <div class="technical-table-scroll" role="region" aria-label="Frame limiter timing" tabindex="0">
-          <table class="technical-table memory-table">
+          <table class="technical-table memory-table sticky-first-column">
             <thead><tr><th scope="col">Video standard</th><th scope="col">Nominal video rate</th><th scope="col">Maximum game-loop rate</th></tr></thead>
             <tbody>
               <tr><th scope="row">PAL</th><td>50 Hz</td><td>12.5 FPS</td></tr>
