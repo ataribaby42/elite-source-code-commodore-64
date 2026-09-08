@@ -1,12 +1,12 @@
 # Elite C64 / Elite: Unbound – projektové poznámky
 
-Stav poznámek: 7. září 2026.
+Stav poznámek: 8. září 2026.
 
 Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách,
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
 a nový build.
 
-## EliteTapD64Transfer (2026-09-07)
+## EliteTapD64Transfer (2026-09-08)
 
 Ve větvi `flicker-free` je samostatný projekt `EliteTapD64Transfer/`. Z aktuálního
 35stopého D64 vytváří jediný PAL TAP se zapisovačem pro C64 + 1541, device 8.
@@ -19,12 +19,26 @@ Ověřeno hostitelskými testy a kompletním TAP přenosem ve VICE 3.9 s true dr
 emulation; výstupní D64 má stejný SHA-256 jako zdroj:
 `2d46cc6dd35a90cfc2f13179b820cbcdc7464e3a2efa53ead19a308386ec3b90`.
 Negativní test zachytil poškozený blok před sektorovým zápisem.
-Rezidentní konec zapisovače je `$0EB9`, do bufferu `$4000` zbývá 12 615 B.
+Rezidentní konec zapisovače je `$0EB3`, do bufferu `$4000` zbývá 12 621 B.
 Herní ASM, LOCODE/HICODE a herní buildy nejsou změněny. Na skutečném hardwaru
 zatím netestováno. Podrobnosti a příkazy jsou v `EliteTapD64Transfer/README.md`.
 Ve větvi `main` je pouze tato společná poznámka, nástroj tam není kopírován.
 Projekt byl přejmenován na `EliteTapD64Transfer`, přibyl Windows `build.bat` a
 úvodní obrazovka `ELITE: UNBOUND`. Dočasné soubory byly po ověření odstraněny.
+
+Od 8. září přijímá `build.bat` parametry `d64=`, `tapename=` (16 znaků) a
+`label=` (25 znaků). Hodnoty s mezerami se uzavírají do uvozovek. Relativní
+D64 cesta patří k adresáři volajícího; názvy se převedou na velká písmena
+bez diakritiky a oříznou. Výchozí parametry zachovávají původní Elite TAP.
+Titulek vzniká v `output/title.asm` jako EQUB data s ASSERT; při maximální
+délce končí zapisovač na `$0EBE`, do bufferu zbývá 12 610 B. Prošlo 12
+hostitelských testů i sestavení přes BAT s relativní cestou s mezerami.
+Kompletní TAP s vlastními názvy ve VICE vytvořil identický D64 (SHA-256).
+Druhý řádek obrazovky byl zkrácen na `TAP D64 TRANSFER - DRIVE 8`.
+Parametr `tapfile=` nově určuje vlastní jméno TAPu v `output/`; přípona
+`.tap` se při vynechání doplní. Bez parametru platí původní odvození názvu
+od D64. Prošlo 14 testů a sestavení přes BAT s vlastním názvem s mezerami;
+obsah TAPu zůstal bajtově shodný (ověřeno SHA-256).
 
 ## Special Cargo z Elite-A (2026-09-06)
 

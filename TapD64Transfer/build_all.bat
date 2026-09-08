@@ -1,0 +1,2 @@
+call build.bat d64="..\5-compiled-game-disks\elite-commodore-64-flicker-free-gma86-pal.d64" tapename="ELITE PAL" label="ELITE UNBOUND PAL" tapfile="elite_pal_transfer.tap"
+call build.bat d64="..\5-compiled-game-disks\elite-commodore-64-flicker-free-gma85-ntsc.d64" tapename="ELITE NTSC" label="ELITE UNBOUND PAL" tapfile="elite_ntsc_transfer.tap"

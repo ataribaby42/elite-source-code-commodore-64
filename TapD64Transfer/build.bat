@@ -1,5 +1,8 @@
 @echo off
-setlocal
+setlocal DisableDelayedExpansion
+rem Usage: build.bat d64="path to image.d64" tapename="TAPE NAME" label="SCREEN TITLE" tapfile="output name.tap"
+rem Values are parsed and limited by build.py (16 / 25 C64 characters).
+set "ELITE_TAPD64_CALLER_DIR=%CD%"
 rem Build from this directory even when called from elsewhere.
 pushd "%~dp0"
 if errorlevel 1 exit /b 1

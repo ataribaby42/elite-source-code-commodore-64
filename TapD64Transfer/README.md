@@ -8,7 +8,7 @@ a zpětným čtením porovná všech **683 sektorů × 256 bajtů**.
 
 `output/elite-commodore-64-flicker-free-gma86-pal-transfer.tap`
 
-Sestavený TAP má 1 146 266 bajtů. Obsahuje standardní zaváděcí program
+Sestavený TAP má 1 146 026 bajtů. Obsahuje standardní zaváděcí program
 `TAPD64` a 35 turbo bloků. Není nutné přepínat více TAPů ani mít celý D64
 současně v paměti C64. Úvodní obrazovka zapisovače nese název `ELITE: UNBOUND`.
 
@@ -74,8 +74,29 @@ adresáře. Vyhledá Python 3.10+ a předá všechny argumenty generátoru:
 
 ```bat
 build.bat
-build.bat "C:\obrazy\hra.d64" --beebasm "C:\nastroje\beebasm.exe"
+build.bat d64="C:\obrazy\moje hra.d64" tapename="MOJE HRA" label="MOJE HRA - DISK INSTALLER" tapfile="Moje hra instalace.tap"
 ```
+
+| Parametr | Význam | Výchozí hodnota |
+|---|---|---|
+| `d64=` | Cesta a název vstupního D64; relativní cesta se vztahuje k adresáři, odkud voláte BAT | Sestavený Elite flicker-free GMA86 PAL D64 v sousedním adresáři |
+| `tapename=` | Název úvodního programu uvnitř kazety, nejvýše **16 znaků** | `TAPD64` |
+| `label=` | První řádek obrazovky zapisovače, nejvýše **25 znaků** | `ELITE: UNBOUND` |
+| `tapfile=` | Jméno výsledného TAP souboru uvnitř `output/`, bez cesty | Název vstupního D64 + `-transfer.tap` |
+
+Parametry mohou být v libovolném pořadí. Hodnoty s mezerami uzavřete do
+uvozovek. Oba názvy se převedou na velká písmena bez diakritiky a přebytečné
+znaky se automaticky oříznou. Nepodporované znaky se nahradí otazníkem,
+bílé znaky mezerou; prázdný název je chyba. Výsledné hodnoty se vypíší
+a uloží do `manifest.json`. Titulek se generuje do `output/title.asm` jako
+číselná data, takže ani uvozovky v názvu nemění assemblerový kód.
+
+`tapename` mění jméno programu při `FOUND`. Jméno TAP souboru na PC nastavuje
+`tapfile`; zachová velikost písmen a mezery a není omezeno na 16 znaků.
+Chybějící přípona `.tap` se automaticky doplní. Například `tapfile="Instalace"`
+vytvoří `output/Instalace.tap`. Bez `tapfile` se jméno odvozuje ze vstupního
+D64: `moje hra.d64` → `moje hra-transfer.tap`. Skutečný název je v položce
+`tap` souboru `manifest.json`.
 
 Případně spusťte Python přímo v tomto adresáři:
 
@@ -88,11 +109,14 @@ BeebAsm hledá v PATH a potom v sousedním `../../beebasm/beebasm.exe`.
 Lze zadat jiný obraz a cestu assembleru:
 
 ```powershell
-python build.py "C:\obrazy\hra.d64" --beebasm "C:\nastroje\beebasm.exe"
+python build.py d64="C:\obrazy\hra.d64" tapename="HRA" label="DISK TRANSFER" --beebasm "C:\nastroje\beebasm.exe"
 ```
 
+Zachována je i původní poziční cesta k D64 a přepínače `--d64`, `--tapename`,
+`--label` a `--tapfile`. Při vynechání parametrů vznikne dosavadní verze pro Elite.
+
 Výstupní adresář `output/` obsahuje TAP, zaváděcí `transfer.prg`, aktuálně
-generované `layout.asm`, assemblerový výpis `compile.txt` a `manifest.json`
+generované `layout.asm` a `title.asm`, assemblerový výpis `compile.txt` a `manifest.json`
 s hashi. Tyto generované soubory jsou ignorované Gitem. Každé sestavení
 ověřuje ROM i turbo pulsy a úplnou rekonstrukci zdrojového obrazu.
 
@@ -119,7 +143,14 @@ chybu CRC ještě před prvním sektorovým zápisem.
 
 Ověření 7. září 2026: všech šest hostitelských testů prošlo; úplný přenos
 ve VICE 3.9 skončil shodou SHA-256; poškození bloku bylo zachyceno před zápisem.
-Testovací obrazy a protokoly vznikají v ignorovaném `output/`. Po kontrole byly odstraněny spolu s `__pycache__`, `layout.asm` a `compile.txt`; ponechány jsou pouze hotový TAP, PRG a `manifest.json`. Příští sestavení potřebné pomocné soubory znovu vytvoří.
+Ověření parametrů 8. září 2026: 12 hostitelských testů, sestavení přes BAT
+z jiného adresáře, relativní cesta s mezerami, přesné oříznutí názvů na 16/25
+znaků a bezpečné vložení titulku s interpunkcí. Kompletní TAP s vlastními
+názvy prošel ve VICE porovnáním všech 683 sektorů a SHA-256. Druhý řádek
+zapisovače nyní zní `TAP D64 TRANSFER - DRIVE 8`.
+Po doplnění `tapfile` prošlo všech 14 testů a build přes BAT s vlastním názvem
+s mezerami a automatickou příponou. SHA-256 potvrdil nezměněný obsah TAPu.
+Testovací obrazy a protokoly vznikají v ignorovaném `output/`. Po kontrole byly odstraněny spolu s `__pycache__`, `layout.asm`, `title.asm` a `compile.txt`; ponechány jsou pouze hotový TAP, PRG a `manifest.json`. Příští sestavení potřebné pomocné soubory znovu vytvoří.
 
 ## Soubory a paměť
 
@@ -131,8 +162,9 @@ Testovací obrazy a protokoly vznikají v ignorovaném `output/`. Po kontrole by
   `2-build-files/elite-tape.py`, bez jeho herního vstupního programu.
 - `test_transfer.py`, `test_vice.py`: hostitelské a integrační testy.
 
-Rezidentní program zabírá `$0801–$0EB8`; do bufferu od `$4000` zbývá
-12 615 bajtů. Komprimovaná stopa používá `$4000–$5FFF` (nejvýše 5 397 bajtů)
+S výchozím titulkem program zabírá `$0801–$0EB2`; do bufferu od `$4000`
+zbývá 12 621 bajtů. S nejdelším 25znakovým titulkem končí na `$0EBD`
+a zbývá 12 610 bajtů. Komprimovaná stopa používá `$4000–$5FFF` (nejvýše 5 397 bajtů)
 a sektorový buffer `$6000–$60FF`. Použité pracovní ukazatele jsou `$F9–$FE`.
 Počáteční BASIC SYS míří na rezervovaný vstup `$0810`; meze a tabulky hlídá
 assembler. Délky a CRC stop vznikají vždy z aktuálního vstupního D64.

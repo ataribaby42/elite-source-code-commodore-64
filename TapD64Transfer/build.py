@@ -1,16 +1,85 @@
 """Build a PAL C64 cassette that writes every sector of a 35-track D64."""
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import argparse
 import binascii
 import hashlib
 import json
+import ntpath
+import os
 import shutil
 import subprocess
+import sys
+import unicodedata
 import tape_codec as tape
 
 ROOT = Path(__file__).resolve().parent
 BUFFER = 0x4000
 TRACKS = tuple(range(1, 18)) + tuple(range(19, 36)) + (18,)
+TAPE_NAME_LIMIT = 16
+LABEL_LIMIT = 25
+
+def tap_filename(value):
+    """A filename within output/, preserving case and adding .tap if omitted."""
+    # Python 3.13+ moved this check; keep Python 3.10-3.12 support as well.
+    is_reserved = getattr(ntpath, "isreserved", lambda name: PureWindowsPath(name).is_reserved())
+    if (not value or value in (".", "..") or value[-1] in " ."
+            or any(ord(c) < 32 or c in '<>:"/\\|?*' for c in value)
+            or is_reserved(value)):
+        raise ValueError("tapfile must be a valid Windows filename without a directory")
+    return value if value.lower().endswith(".tap") else value + ".tap"
+
+def c64_text(value, limit):
+    """Printable uppercase C64 text, stripped of accents and clipped in bytes."""
+    value = unicodedata.normalize("NFKD", value)
+    value = "".join(c for c in value if not unicodedata.combining(c)).upper()
+    value = "".join(" " if c.isspace() else c if 32 <= ord(c) <= 95 else "?" for c in value)
+    return value.strip()[:limit]
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__, epilog='Also accepts: d64="path to image.d64" tapename="TAPE NAME" label="SCREEN TITLE" tapfile="output name.tap"')
+    parser.add_argument("image", nargs="?", type=Path, help="D64 image (legacy positional form)")
+    parser.add_argument("--d64", type=Path, help="Source 35-track D64 image")
+    parser.add_argument("--tapename", default="TAPD64", help="Cassette program name, clipped to 16 characters")
+    parser.add_argument("--label", default="ELITE: UNBOUND", help="C64 title, clipped to 25 characters")
+    parser.add_argument("--tapfile", help="TAP filename inside output/; .tap is added if omitted")
+    parser.add_argument("--beebasm", default=shutil.which("beebasm") or str(ROOT.parents[1] / "beebasm/beebasm.exe"))
+    normalized = []
+    for argument in sys.argv[1:] if argv is None else argv:
+        key, separator, value = argument.partition("=")
+        if separator and key.lower() in ("d64", "tapename", "label", "tapfile"):
+            argument = "--" + key.lower() + "=" + value
+        normalized.append(argument)
+    args = parser.parse_args(normalized)
+    if args.tapfile is not None:
+        try:
+            args.tapfile = tap_filename(args.tapfile)
+        except ValueError as error:
+            parser.error(str(error))
+    if args.d64 is not None and args.image is not None:
+        parser.error("Specify either d64= or a positional image, not both")
+    if args.d64 == Path(".") or args.image == Path("."):
+        parser.error("D64 path must name an image file")
+    source = args.d64 if args.d64 is not None else args.image
+    if source is None:
+        source = ROOT.parent / "5-compiled-game-disks/elite-commodore-64-flicker-free-gma86-pal.d64"
+    if not source.is_absolute():
+        # build.bat runs in the tool directory; relative input paths still
+        # belong to the directory from which the user invoked the batch file.
+        source = Path(os.environ.get("ELITE_TAPD64_CALLER_DIR", os.getcwd())) / source
+    args.d64 = source.resolve()
+    for field, limit in (("tapename", TAPE_NAME_LIMIT), ("label", LABEL_LIMIT)):
+        value = c64_text(getattr(args, field), limit)
+        if not value:
+            parser.error(field + " must contain at least one printable character")
+        setattr(args, field, value)
+    return args
+
+def title_assembly(label):
+    # Encode data numerically: quotes or punctuation in a title must never
+    # become assembler syntax. The surrounding Welcome string adds CR.
+    values = ",".join(str(b) for b in label.encode("ascii"))
+    return (".TransferTitle\n EQUB " + values + "\n.TransferTitleEnd\n"
+            "ASSERT TransferTitleEnd - TransferTitle <= " + str(LABEL_LIMIT) + "\n")
 
 def sectors(track):
     if not 1 <= track <= 35:
@@ -51,11 +120,8 @@ def decode_track(payload, track):
     return bytes(result)
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("d64", nargs="?", type=Path, default=ROOT.parent / "5-compiled-game-disks/elite-commodore-64-flicker-free-gma86-pal.d64")
-    parser.add_argument("--beebasm", default=shutil.which("beebasm") or str(ROOT.parents[1] / "beebasm/beebasm.exe"))
-    args = parser.parse_args()
-    source = args.d64.resolve()
+    args = parse_args()
+    source = args.d64
     data = source.read_bytes()
     if len(data) != 174848:
         raise ValueError("Only plain 35-track, 174848-byte D64 supported (no error table)")
@@ -64,6 +130,7 @@ def main():
         raise ValueError("Disk ID must be two printable ASCII bytes, excluding comma/colon, for the DOS format command")
     out = ROOT / "output"
     out.mkdir(exist_ok=True)
+    (out / "title.asm").write_text(title_assembly(args.label), encoding="ascii")
     blocks = [(t, encode_track(data[offset(t):offset(t) + sectors(t)*256])) for t in TRACKS]
     restored = bytearray(len(data))
     for t, payload in blocks:
@@ -88,8 +155,8 @@ def main():
         raise RuntimeError(build.stdout + build.stderr)
     boot = (out / "transfer.prg").read_bytes()
     pulses = bytearray()
-    tape.append_standard_prg(pulses, boot, "TAPD64", tape.PAL_CLOCK)
-    tape.verify_standard_section(pulses, boot, "TAPD64")
+    tape.append_standard_prg(pulses, boot, args.tapename, tape.PAL_CLOCK)
+    tape.verify_standard_section(pulses, boot, args.tapename)
     tape.emit_long_delay(pulses, 2*tape.PAL_CLOCK)
     for t, payload in blocks:
         start = len(pulses)
@@ -98,9 +165,10 @@ def main():
         if end != len(pulses):
             raise ValueError("Unexpected tape data")
     header = tape.TAP_MAGIC + bytes((1, 0, 0, 0)) + len(pulses).to_bytes(4, "little")
-    target = out / (source.stem + "-transfer.tap")
+    target = out / (args.tapfile if args.tapfile is not None else source.stem + "-transfer.tap")
     target.write_bytes(header + pulses)
     manifest = {"source": source.name, "source_sha256": hashlib.sha256(data).hexdigest(),
+                "tapename": args.tapename, "label": args.label,
                 "source_bytes": len(data), "sectors": 683, "track_order": TRACKS,
                 "payload_bytes": sum(len(b) for _, b in blocks), "prg_bytes": len(boot),
                 "tap": target.name, "tap_sha256": hashlib.sha256(header+pulses).hexdigest(),
