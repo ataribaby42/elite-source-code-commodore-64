@@ -1,4 +1,4 @@
-# EliteTapD64Transfer
+# TapD64Transfer
 
 Samostatný projekt pro **PAL C64 + Datasette + Commodore 1541 na adrese 8**.
 Z existujícího D64 vytvoří jeden zaváděcí TAP, který přepíše cílovou disketu

@@ -6,9 +6,9 @@ Tyto poznámky popisují obě dlouhodobě udržované větve. Údaje o adresách
 velikostech a commitech jsou kontrolní body, ne náhrada za aktuální git log
 a nový build.
 
-## EliteTapD64Transfer (2026-09-08)
+## TapD64Transfer (2026-09-08)
 
-Ve větvi `flicker-free` je samostatný projekt `EliteTapD64Transfer/`. Z aktuálního
+Ve větvi `flicker-free` je samostatný projekt `TapD64Transfer/`. Z aktuálního
 35stopého D64 vytváří jediný PAL TAP se zapisovačem pro C64 + 1541, device 8.
 Po potvrzení formátuje cílovou disketu, zapíše všech 683 sektorů (včetně
 generovaných nulových sektorů) a každý sektor porovná zpětným čtením.
@@ -21,9 +21,9 @@ emulation; výstupní D64 má stejný SHA-256 jako zdroj:
 Negativní test zachytil poškozený blok před sektorovým zápisem.
 Rezidentní konec zapisovače je `$0EB3`, do bufferu `$4000` zbývá 12 621 B.
 Herní ASM, LOCODE/HICODE a herní buildy nejsou změněny. Na skutečném hardwaru
-zatím netestováno. Podrobnosti a příkazy jsou v `EliteTapD64Transfer/README.md`.
+zatím netestováno. Podrobnosti a příkazy jsou v `TapD64Transfer/README.md`.
 Ve větvi `main` je pouze tato společná poznámka, nástroj tam není kopírován.
-Projekt byl přejmenován na `EliteTapD64Transfer`, přibyl Windows `build.bat` a
+Projekt byl přejmenován na `TapD64Transfer`, přibyl Windows `build.bat` a
 úvodní obrazovka `ELITE: UNBOUND`. Dočasné soubory byly po ověření odstraněny.
 
 Od 8. září přijímá `build.bat` parametry `d64=`, `tapename=` (16 znaků) a
