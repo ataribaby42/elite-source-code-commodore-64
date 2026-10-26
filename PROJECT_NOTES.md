@@ -606,20 +606,26 @@ zobrazí `??-???`. Nová loď nebo Escape Pod vygenerují novou registraci a
 současně příznak vrátí na 0.
 
 Pokud hráč se skrytou registrací vstoupí do bezpečné zóny stanice v systému,
-jehož vláda není Anarchy, Feudal ani Dictatorship, zvýší se `FIST` nejméně na
-100. Kontrola probíhá po každém letovém snímku bezprostředně po aktualizaci
-`SSPR`, takže se stav změní hned při vstupu do zóny. Vyšší hodnota se nesnižuje
-a uvedené tři vlády příznak ignorují.
+jehož vláda není Anarchy, Feudal ani Dictatorship, stanice nepovolí dokování.
+`ScrambleRegistrationDockingDenied` vrací zákaz přímo do `ISDK` pro ruční
+i automatické dokování; zamítnutý pokus jde do původní kolizní větve `MA62`.
+Kontrola registrace nečte ani nemění `FIST` a nenastavuje hostile bit stanice.
+Stávající podmínky policejních spawnů a reakcí na právní status zůstávají
+samostatné. Uvedené tři vlády skryté ID ignorují, nikoli nepřátelství stanice.
 
-V okamžiku, kdy tato kontrola nastaví `FIST=100`, zobrazí se dynamická zpráva
-s registrací aktuální stanice a registrací hráčovy lodě. Protože je scramble
+Při začátku tohoto zákazu se zobrazí dynamická zpráva s registrací aktuální
+stanice a registrací hráčovy lodě. `ScrambleRegistrationSafeZone` běží po
+každém letovém snímku a samostatný příznak `ScrambleRegistrationBlocked`
+brání opakování zprávy. Odlet ze zóny, obnovení čitelného ID nebo nový let
+(`RES2`) příznak vynuluje. Není součástí commander save. Protože je scramble
 aktivní, hráčova běžná registrační rutina vypíše `??-???`. Koncovka se pro
 každou zprávu rovnoměrně náhodně vybere z `, SCRAM PIRATE!`, `, RUN PIRATE!`
 a `, DIE PIRATE!`. Výběr nyní používá společnou rutinu
 `CommMessageRandomThree` v prostoru za RLE dashboardem. Zpráva používá stejný privátní token jako
 `DOCK OR LEAVE`, včetně `DLY=100`, a zvolený text zůstává stabilní pro EOR
 překreslení. Texty jsou uloženy v rezidentním prostoru za RLE dashboardem;
-HICODE obsahuje tiskovou rutinu a tabulku offsetů. LOCODE se nemění.
+HICODE obsahuje tiskovou rutinu, tabulku offsetů a kontrolu registrace.
+V LOCODE přibyl pětibajtový test zákazu v `ISDK`.
 
 Při aktivním scramble a `FIST >= 50` mohou lidské pirátské lodě vzniknout bez
 hostile bitu. Testovací hodnota `NEUTRAL_PIRATE_CHANCE = 128` znamená šanci
@@ -2340,3 +2346,80 @@ R%=$3FA2, F%=$CD88; skutečně přidatelné LOCODE 93 B, HICODE 119 B.
 Změněny elite-source.asm a PROJECT_NOTES.md v obou větvích. Dřívější
 úpravy zachovány, včetně raketové opravy a elite-hangar.asm; .vs/ nedotčeno.
 Generovaný README zachován v předchozím znění. Commit ani push neproveden.
+
+## Scrambled ID: zákaz dokování bez změny právního statusu (2026-10-26)
+
+V obou větvích je odstraněný test `FIST < 100` i zápis `FIST = 100`.
+`ScrambleRegistrationDockingDenied` využívá původní místo v HICODE a vrací
+zákaz jen při `SSPR != 0`, `regplate_scrambled = $FF` a vládě mimo 0, 1, 3.
+`ISDK` nejprve zachovává původní test nepřátelské stanice a poté kontroluje
+registraci. Zamítnutí vede do původní větve `MA62` (poškození při rychlosti
+pod 5, jinak zničení), a to při ručním dokování i s dokovacím počítačem.
+Skryté ID samo nemění právní status ani hostile bit a nevypouští Vipery.
+
+Varování zůstává náhodnou volbou SCRAM/RUN/DIE PIRATE, ale odešle se pouze
+při přechodu do zákazu dokování. Jednobajtový příznak není součástí save;
+resetuje se mimo zónu, po obnovení ID a v `RES2`. Zprávy na jiných obrazovkách
+nadále používají společnou komunikační frontu. V této C64 implementaci není
+mise se zničením stanice obsazené Thargoidy; pro ni tedy neexistuje výjimka.
+Podmínky Constrictor/Thargoid Plans/Trumbles se nemění.
+
+Přírůstek vůči výchozímu sestavení: LOCODE +5 bajtů, HICODE +12 bajtů.
+RLE/hangárový blok ani loader se nemění. Prakticky přidatelné bajty respektují
+striktní ASSERT, tedy hranice minus konec minus 1:
+
+| Větev | R% | LOCODE přidatelné | F% | HICODE přidatelné |
+|---|---|---:|---|---:|
+| main | $3FA7 | 88 | $CD94 | 107 |
+| flicker-free | $3FF7 | 8 | $CDF8 | 7 |
+
+Následující čtyři buildy prošly samostatně v každé větvi; GMA varianty jsou
+šifrované (bez `encrypt=no`). Hodnoty paměti výše platí pro všechny čtyři:
+
+```text
+make variant=tape-pal encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes
+make variant=tape-ntsc encrypt=no match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes
+make variant=gma86-pal match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes
+make variant=gma85-ntsc match=no verify=no laserbeam=line font=zx dials=new sights=cross warpjunk=yes iffunit=yes randomspawns=yes whitecockpit=yes unbound=yes realmissiledamage=yes fpslimiter=yes inputfix=yes renderspeedups=yes planetdatafix=yes bountyhunterfix=yes
+```
+
+Použité nástroje: `2-build-files/make.exe`,
+`BEEBASM=E:/Development/github/Elite-C64/beebasm/beebasm.exe`,
+`C1541=E:/Development/github/Elite-C64/vice/bin/c1541.exe`, Python 3.13.
+TAP round-trip i ověření sektorové tabulky GMA86 v binárce a finálním D64
+prošly. Poslední build ponechaný v obou kopiích je nešifrovaný PAL tape.
+
+Regresní test lze po `unbound=yes` buildu opakovat příkazem:
+
+```text
+python 2-build-files/test-scrambled-docking.py
+```
+
+Vyžaduje `py65`; adresy čte z aktuálního `compile.txt` a spouští aktuální
+sestavené binárky bez změny jejich instrukcí. Prošlo 39 304 scénářů na každý
+build: všech 256 hodnot FIST, všech osm vlád, viditelné/skryté ID,
+ruční/automatické dokování, nezávislé nepřátelství stanice, varování a jeho
+reset, tři texty, fronta zpráv, limit a pravděpodobnost startu Viperů,
+právní práh 40 a náhodné policejní spawny podle nákladu a záznamu.
+
+34 816 policejních scénářů bylo spuštěno také nad oběma binárními sestaveními
+před změnou; výsledky mají ve všech případech stejný SHA-256 otisk:
+`8981e681ab1673863ba74618284cd17b14e5f7c077324133c8921f8f80f50fdc`.
+Testy zachovávají původní skutečné pravidlo: start Viperů ze stanice vyžaduje
+hostile bit stanice, náhodu >= 240 a méně než čtyři Vipery; skryté ID
+nenastavuje žádnou z těchto podmínek. Policejní reakce na FIST >= 40 a
+spawny mimo bezpečnou zónu zůstávají nezměněné.
+
+Jde o cílenou emulaci 6502 rutin, nikoli úplné hraní ve VICE. Test nahrazuje
+zvuk, geometrii správně vyrovnaného doku, náhodné vstupy a konečnou alokaci
+lodě; samotné rozhodování o dokování, varování a policejních reakcích
+vykonává skutečný sestavený kód.
+
+Kontrolní PAL tape build se stejnými parametry a `unbound=no` byl porovnán
+před a po změně: všech 17 herních binárek ELTA–ELTK, COMLOD, LOCODE, HICODE
+(včetně unprot variant) je v každé větvi bitově shodných. Toto porovnání je
+vůči původnímu stavu příslušné větve před touto změnou.
+
+Soubory: v obou větvích `elite-source.asm`, `test-scrambled-docking.py` a
+`PROJECT_NOTES.md`; ve flicker-free navíc anglický a český
+`docs/technical-info.html`. Commit ani push nebyl proveden.

@@ -4388,13 +4388,14 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
 .ISDK
 
- LDA K%+NI%+36          ; 1. Fetch the NEWB flags (byte #36) of the second ship
- AND #%00000100         ; in the ship data workspace at K%, which is reserved
- BNE MA62               ; for the sun or the space station (in this case it's
-                        ; the latter), and if bit 2 is set, meaning the station
-                        ; is hostile, jump down to MA62 to fail docking (so
-                        ; trying to dock at a station that we have annoyed does
-                        ; not end well)
+ LDA K%+NI%+36          ; Preserve the existing hostile-station docking check
+ AND #%00000100
+ BNE MA62               ; Hostile stations refuse docking
+
+IF _UNBOUND            ; ELITE: Unbound build option (begin)
+ JSR ScrambleRegistrationDockingDenied
+ BNE MA62               ; An unreadable ID can independently prevent docking
+ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA INWK+14            ; 2. If nosev_z_hi < 214, jump down to MA62 to fail
  CMP #214               ; docking, as the angle of approach is greater than 26
@@ -24175,39 +24176,60 @@ IF _UNBOUND            ; ELITE: Unbound build option (begin)
  RTS
 
 ; ------------------------------------------------------------------------------
-; ScrambleRegistrationSafeZone
+; ScrambleRegistrationDockingDenied
 ;
-; TT100 calls this after every flight-loop iteration, so entering a station
-; safe zone with a scrambled plate immediately raises legal status to at least
-; 100 in lawful and mixed-government systems. Anarchy, Feudal and Dictatorship
-; systems deliberately ignore the scrambled registration.
+; Return A = $FF (Z clear) when the registration prevents player docking, or
+; A = 0 (Z set) otherwise. ISDK uses this for manual and automatic docking.
+; Station hostility is checked separately: this routine neither reads nor
+; changes FIST or the station flags, and preserves X/Y.
+; Anarchy, Feudal and Dictatorship continue to accept scrambled registrations.
 ; ------------------------------------------------------------------------------
+
+.ScrambleRegistrationDockingDenied
+
+ LDA SSPR              ; Registration checks apply only inside a station zone
+ BEQ scrambleRegistrationDockingAllowed
+ LDA regplate_scrambled
+ CMP #$FF
+ BNE scrambleRegistrationDockingAllowed
+
+ LDA gov
+ CMP #2                ; Anarchy (0) and Feudal (1) ignore a scrambled ID
+ BCC scrambleRegistrationDockingAllowed
+ CMP #3                ; Dictatorship (3) also ignores it
+ BEQ scrambleRegistrationDockingAllowed
+
+ LDA #$FF              ; Refuse docking without changing the legal record
+
+.scrambleRegistrationDockingReturn
+
+ RTS
+
+.scrambleRegistrationDockingAllowed
+
+ LDA #0
+ RTS
+
+; TT100 calls this after every flight iteration. Warn once when registration
+; refusal begins; leaving the zone or restoring a visible ID rearms the warning.
+; RES2 also resets the latch for a new flight. It is not part of commander data.
 
 .ScrambleRegistrationSafeZone
 
- LDA SSPR
+ JSR ScrambleRegistrationDockingDenied
+ CMP ScrambleRegistrationBlocked
  BEQ scrambleRegistrationSafeZoneDone
-
- LDA regplate_scrambled
- CMP #$FF
- BNE scrambleRegistrationSafeZoneDone
-
- LDA gov
- CMP #2                 ; Governments 0 (Anarchy) and 1 (Feudal) ignore it
+ STA ScrambleRegistrationBlocked
+ ASL A                 ; A was 0 (allowed) or $FF (denied); test without RAM writes
  BCC scrambleRegistrationSafeZoneDone
- CMP #3                 ; Government 3 (Dictatorship) also ignores it
- BEQ scrambleRegistrationSafeZoneDone
-
- LDA FIST
- CMP #100
- BCS scrambleRegistrationSafeZoneDone
- LDA #100
- STA FIST
- JMP ScrambleRegistrationPirateMessage ; Show the station and player warning
+ JMP ScrambleRegistrationPirateMessage
 
 .scrambleRegistrationSafeZoneDone
 
  RTS
+
+.ScrambleRegistrationBlocked
+ EQUB 0
 
 .ScrambleRegistrationEquipmentNumber
  EQUB 0
@@ -33711,6 +33733,7 @@ ENDIF
 
 IF _UNBOUND            ; ELITE: Unbound build option (begin)
  STA CommMessagePending ; Discard communication when the flight state is reset
+ STA ScrambleRegistrationBlocked ; A new flight may warn about docking again
 ENDIF                  ; ELITE: Unbound build option (end)
 
  LDA #2*Y-1             ; Set Yx2M1 to the number of pixel lines in the space
@@ -34257,7 +34280,7 @@ ENDIF                  ; ELITE: Unbound build option (end)
 
  JSR M%                 ; Call M% to iterate through the main flight loop
 
-IF _UNBOUND            ; Apply the scrambled-plate legal response immediately
+IF _UNBOUND            ; Warn about scrambled-ID docking refusal immediately
  JSR ScrambleRegistrationSafeZone ; after the flight loop updates SSPR
 ENDIF
 
@@ -57507,8 +57530,8 @@ ENDIF
 ; ------------------------------------------------------------------------------
 ; ScrambleRegistrationPirateMessage
 ;
-; Queue the long station warning shown when a scrambled registration raises the
-; player's legal status to Fugitive. The station-message fields are prepared
+; Queue the station warning when a scrambled registration prevents docking.
+; The legal record and station hostility are unchanged. Message fields are set
 ; only after MESS has erased any previous EOR message.
 ; ------------------------------------------------------------------------------
 
