@@ -368,13 +368,13 @@
 
         <h3>Approaching a station</h3>
 
-        <p>In Multi-Government, Communist, Confederacy, Democracy and Corporate State systems, entering a station’s safe zone with a scrambled ID immediately raises your internal legal record to at least 100, making you a Fugitive. A higher existing value is preserved.</p>
+        <p>In Multi-Government, Communist, Confederacy, Democracy and Corporate State systems, a scrambled ID prevents docking at the station. This applies to both manual docking and the docking computer. Forcing an approach into the closed docking slot is treated as failed docking, with the usual risk of damage or destruction.</p>
 
-        <p>A commander with Clean or Offender status therefore becomes <strong>Fugitive</strong> immediately, even without committing another offence. An existing Fugitive keeps that status, but a record below 100 is raised to 100. For reference, Clean means a legal-record value of 0, Offender means 1 to 49, and Fugitive means 50 or more.</p>
+        <p>The registration check does not change your legal record, make the station hostile or cause it to launch police. Existing police behaviour and legal-status rules continue to apply independently.</p>
 
-        <p>When this check raises your legal record, the station sends a radio warning addressed to <span class="nowrap">??-???</span>: <span class="nowrap">SCRAM PIRATE!</span>, <span class="nowrap">RUN PIRATE!</span> or <span class="nowrap">DIE PIRATE!</span> If your record is already 100 or more, this check does not send another warning.</p>
+        <p>On entering the station’s safe zone with a scrambled ID, the station sends one radio warning addressed to <span class="nowrap">??-???</span>: <span class="nowrap">SCRAM PIRATE!</span>, <span class="nowrap">RUN PIRATE!</span> or <span class="nowrap">DIE PIRATE!</span>. It does not repeat on every frame. Leaving and re-entering the zone, starting a new flight, or restoring and then scrambling the ID allows a new warning.</p>
 
-        <p><strong>Anarchy, Feudal and Dictatorship</strong> systems ignore scrambled registrations. Entering their station safe zones does not cause this penalty or warning. This exemption applies only to the concealed ID and does not clear an existing criminal record.</p>
+        <p><strong>Anarchy, Feudal and Dictatorship</strong> systems ignore scrambled registrations: the concealed ID does not prevent docking or trigger this warning. This exemption does not clear an existing criminal record or override a station’s hostility.</p>
 
         <h3>Player registration</h3>
 
@@ -473,7 +473,7 @@
               <tr><th scope="row">Bounty hunter</th><td>A separately spawned ship has both the bounty-hunter and hostile flags.</td><td><span class="nowrap">WRONG PLACE!</span><br><span class="nowrap">HERE WE GO!</span><br><span class="nowrap">MY BOUNTY!</span></td></tr>
               <tr><th scope="row">Police</th><td>A Viper launches from a hostile station, or a random police Viper is spawned while the player’s legal record is 40 or more.</td><td><span class="nowrap">STOP NOW!</span><br><span class="nowrap">WE FOUND YOU!</span><br><span class="nowrap">SURRENDER!</span></td></tr>
               <tr><th scope="row">Station traffic control</th><td>A ship in the approach corridor blocks a routine departure.</td><td><span class="nowrap">DOCK OR LEAVE</span></td></tr>
-              <tr><th scope="row">Station registration check</th><td>A scrambled ID causes the station safe-zone check to raise the player’s legal record to 100.</td><td><span class="nowrap">SCRAM PIRATE!</span><br><span class="nowrap">RUN PIRATE!</span><br><span class="nowrap">DIE PIRATE!</span></td></tr>
+              <tr><th scope="row">Station registration check</th><td>A scrambled ID prevents docking; the station warns once when this restriction begins in its safe zone. The legal record is unchanged.</td><td><span class="nowrap">SCRAM PIRATE!</span><br><span class="nowrap">RUN PIRATE!</span><br><span class="nowrap">DIE PIRATE!</span></td></tr>
             </tbody>
           </table>
         </div>

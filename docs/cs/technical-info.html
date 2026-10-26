@@ -368,13 +368,13 @@
 
         <h3>Přiblížení ke stanici</h3>
 
-        <p>V systémech se zřízením Multi-Government, Communist, Confederacy, Democracy a Corporate State zvýší vstup do bezpečné zóny stanice se skrytým ID interní hodnotu trestního záznamu nejméně na 100, což znamená status Fugitive. Pokud je hodnota už vyšší, zůstane zachována.</p>
+        <p>V systémech se zřízením Multi-Government, Communist, Confederacy, Democracy a Corporate State skryté ID znemožňuje dokování u stanice. Platí to pro ruční dokování i dokovací počítač. Pokus proniknout do uzavřeného doku se vyhodnotí jako neúspěšné dokování s obvyklým rizikem poškození nebo zničení lodě.</p>
 
-        <p>Velitel se statusem Clean nebo Offender se tak okamžitě stane <strong>Fugitive</strong>, i když nespáchá žádný další přestupek. Pokud už je Fugitive, status zůstane stejný, ale hodnota záznamu nižší než 100 se zvýší na 100. Pro představu: Clean odpovídá hodnotě 0, Offender hodnotám 1 až 49 a Fugitive hodnotě 50 nebo více.</p>
+        <p>Kontrola registrace nemění trestní záznam, nenastavuje stanici jako nepřátelskou ani nezpůsobí vypuštění policie. Stávající chování policie a pravidla právního statusu fungují nezávisle na této kontrole.</p>
 
-        <p>Když tato kontrola zvýší trestní záznam, stanice odešle rádiové varování adresované registraci <span class="nowrap">??-???</span>: <span class="nowrap">SCRAM PIRATE!</span>, <span class="nowrap">RUN PIRATE!</span> nebo <span class="nowrap">DIE PIRATE!</span> Pokud už má záznam hodnotu 100 nebo více, tato kontrola další varování neodešle.</p>
+        <p>Při vstupu do bezpečné zóny se skrytým ID stanice odešle jedno rádiové varování adresované registraci <span class="nowrap">??-???</span>: <span class="nowrap">SCRAM PIRATE!</span>, <span class="nowrap">RUN PIRATE!</span> nebo <span class="nowrap">DIE PIRATE!</span>. Varování se neopakuje každý snímek. Odlet ze zóny a návrat, nový let nebo obnovení čitelného ID a jeho opětovné skrytí umožní nové varování.</p>
 
-        <p>Systémy se zřízením <strong>Anarchy, Feudal a Dictatorship</strong> skryté registrace ignorují. Vstup do bezpečné zóny jejich stanice proto nezpůsobí tento postih ani varování. Výjimka se vztahuje pouze na nečitelnou registraci a nemaže už existující trestní záznam.</p>
+        <p>Systémy se zřízením <strong>Anarchy, Feudal a Dictatorship</strong> skryté registrace ignorují: nečitelné ID nebrání dokování ani nevyvolá toto varování. Výjimka nemaže existující trestní záznam a neruší případné nepřátelství stanice.</p>
 
         <h3>Registrace hráčovy lodě</h3>
 
@@ -473,7 +473,7 @@
               <tr><th scope="row">Lovec odměn</th><td>Samostatně vytvořená loď má současně příznak lovce odměn a nepřátelský příznak.</td><td><span class="nowrap">WRONG PLACE!</span><br><span class="nowrap">HERE WE GO!</span><br><span class="nowrap">MY BOUNTY!</span></td></tr>
               <tr><th scope="row">Policie</th><td>Z nepřátelské stanice odstartuje Viper, nebo vznikne náhodná policejní Viper při hráčově trestním záznamu 40 či více.</td><td><span class="nowrap">STOP NOW!</span><br><span class="nowrap">WE FOUND YOU!</span><br><span class="nowrap">SURRENDER!</span></td></tr>
               <tr><th scope="row">Řízení provozu stanice</th><td>Loď v příletovém koridoru zablokuje běžný start ze stanice.</td><td><span class="nowrap">DOCK OR LEAVE</span></td></tr>
-              <tr><th scope="row">Kontrola registrace u stanice</th><td>Kontrola skrytého ID v bezpečné zóně stanice zvýší hráčův trestní záznam na 100.</td><td><span class="nowrap">SCRAM PIRATE!</span><br><span class="nowrap">RUN PIRATE!</span><br><span class="nowrap">DIE PIRATE!</span></td></tr>
+              <tr><th scope="row">Kontrola registrace u stanice</th><td>Skryté ID brání dokování; stanice jednou varuje při začátku tohoto omezení ve své bezpečné zóně. Trestní záznam se nemění.</td><td><span class="nowrap">SCRAM PIRATE!</span><br><span class="nowrap">RUN PIRATE!</span><br><span class="nowrap">DIE PIRATE!</span></td></tr>
             </tbody>
           </table>
         </div>
